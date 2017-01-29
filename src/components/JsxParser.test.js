@@ -109,6 +109,46 @@ describe('JsxParser Component', () => {
     expect(customHTML.nodeName).toEqual('DIV')
     expect(customHTML.textContent).toEqual('Test Text')
   })
+
+  it('renders custom components with nesting', () => {
+    const { component, rendered } = render(
+      <JsxParser components={[Custom]}jsx={`\
+        <Custom className="outer" text="outerText">\
+          <Custom className="inner" text="innerText">\
+            <div>Non-Custom</div>\
+          </Custom>\
+        </Custom>\
+      `} />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(rendered.childNodes).toHaveLength(1)
+
+    const outer = rendered.childNodes[0]
+    expect(outer.nodeName).toEqual('DIV')
+
+    const outerChildren = Array.from(outer.childNodes)
+    expect(outerChildren.map(n => n.nodeType))
+      .toEqual([8, 3, 8, 1])
+    expect(outerChildren[1].textContent).toEqual('outerText')
+
+    const inner = outer.childNodes[3]
+    expect(inner.nodeName).toEqual('DIV')
+
+    const innerChildren = Array.from(inner.childNodes)
+    expect(innerChildren.map(n => n.nodeType))
+      .toEqual([8, 3, 8, 1])
+    expect(innerChildren[1].textContent).toEqual('innerText')
+
+    const div = inner.childNodes[3]
+    expect(div.nodeName).toEqual('DIV')
+
+    const divChildren = Array.from(div.childNodes)
+    expect(divChildren).toHaveLength(3)
+    expect(divChildren.map(n => n.nodeType))
+      .toEqual([8, 3, 8])
+    expect(divChildren[1].textContent).toEqual('Non-Custom')
+  })
 })
 
 class Custom extends React.Component {
@@ -116,6 +156,7 @@ class Custom extends React.Component {
     return (
       <div className={this.props.className}>
         {this.props.text}
+        {this.props.children || []}
       </div>
     )
   }
