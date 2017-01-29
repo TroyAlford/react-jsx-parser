@@ -2,9 +2,9 @@
   "name": "react-jsx-parser",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC",
+  "main": "dist/index.js",
+  "author": "Troy Alford",
+  "license": "MIT",
   "dependencies": {
     "react": "^15.4.2",
     "react-dom": "^15.4.2"

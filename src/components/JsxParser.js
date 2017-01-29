@@ -2,6 +2,9 @@ import React, { Component, createElement } from 'react'
 import camelCase from '../helpers/camelCase'
 
 const NODE_TYPE = {
+  ELEMENT: 1,
+  TEXT: 3,
+
   1:  'Element',
   3:  'Text',
   7:  'Processing Instruction',
@@ -18,10 +21,6 @@ const NODE_TYPE = {
   12: 'XML Notation (Deprecated)',
 }
 
-const Node = {
-  Element: 1,
-  Text: 3,
-}
 const parser = new DOMParser()
 
 export default class JsxParser extends Component {
@@ -39,32 +38,39 @@ export default class JsxParser extends Component {
   parseJSX(jsx) {
     if (!jsx) return []
 
-    const wrapped = `<!DOCTYPE html><html><body>${jsx}</body></html>`
-    const doc = parser.parseFromString(wrapped, 'text/html')
+    const wrapped = `
+      <?xml version="1.0" encoding="UTF-8"?>\
+      <xml>${jsx}</xml>\
+    `
+    const doc = parser.parseFromString(wrapped, 'application/xml')
     if (!doc) return []
 
-    const body = doc.getElementsByTagName('body')[0]
-    if (!body || body.nodeName.toLowerCase() === 'parseerror') return []
+    const xml = doc.getElementsByTagName('xml')[0]
+    if (!xml || xml.nodeName.toLowerCase() === 'parseerror') return []
 
     const components = this.props.components.reduce(
-      (map, type) => ({ ...map, [type.constructor.name]: type })
+      (map, type) => ({
+        ...map,
+        [type.prototype.constructor.name]: type
+      })
     , {})
 
-    return this.parseNode(doc.body.childNodes || [], components)
+    return this.parseNode(xml.childNodes || [], components)
   }
   parseNode(node, components = {}, key) {
-    if (node instanceof NodeList || Array.isArray(node))
+    if (node instanceof NodeList || Array.isArray(node)) {
       return Array.from(node) // handle nodeList or []
         .map((child, key) => this.parseNode(child, components, key))
         .filter(child => child) // remove falsy nodes
+    }
 
     switch (node.nodeType) {
-      case Node.Text:
+      case NODE_TYPE.TEXT:
         // Text node. Collapse whitespace and return it as a String.
         return ('textContent' in node ? node.textContent : node.nodeValue || '')
-          .replace(/\w/g, ' ').replace(/  /g, ' ').trim()
+          .replace(/\s{2,}/g, ' ').trim()
 
-      case Node.Element:
+      case NODE_TYPE.ELEMENT:
         // Element node. Parse its Attributes and Children, then call createElement
         return React.createElement(
           components[node.nodeName] || node.nodeName,
@@ -76,6 +82,7 @@ export default class JsxParser extends Component {
         console.warn(
           `JsxParser encountered a ${NODE_TYPE[node.nodeType]} node, and discarded it.`
         )
+        return null
     }
   }
   parseAttrs(attrs, key) {
@@ -87,7 +94,8 @@ export default class JsxParser extends Component {
       if (value === '') value = true
       if (name.substring(0, 2) === 'on')
         value = new Function(value) // eslint-disable-line no-new-func
-      if (name === 'class') name = 'className'
+      if (name.toLowerCase() === 'class')
+        name = 'className'
 
       return {
         ...current,
@@ -106,12 +114,21 @@ export default class JsxParser extends Component {
 }
 
 JsxParser.propTypes = {
-  components: React.PropTypes.arrayOf(
-    React.PropTypes.oneOf([
-      React.PropTypes.instanceOf(React.Component),
-      React.PropTypes.instanceOf(React.PureComponent),
-    ])
-  ),
+  components: (props, propName, componentName) => {
+    if (!Array.isArray(props[propName]))
+      return new Error(`${propName} must be an Array of Components.`)
+
+    let passes = true
+    props[propName].forEach(component => {
+      if (!component.prototype instanceof React.Component &&
+          !component.prototype instanceof React.PureComponent)
+        passes = false
+    })
+
+    return passes ? null : new Error(
+      `${propName} must contain only Subclasses of React.Component or React.PureComponent.`
+    )
+  },
   jsx: React.PropTypes.string,
 }
 JsxParser.defaultProps = {
