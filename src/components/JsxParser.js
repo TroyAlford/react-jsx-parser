@@ -120,7 +120,16 @@ export default class JsxParser extends Component {
     const props = { key }
     if (!attrs || !attrs.length) return props
 
-    return Array.from(attrs).reduce((current, attr) => {
+    const blacklist = this.props.blacklistedAttrs
+
+    return Array.from(attrs)
+    .filter(attr =>
+      !blacklist.map(mask =>
+        // If any mask matches, it will return a non-null value
+        attr.name.match(new RegExp(mask, 'gi'))
+      ).filter(match => match !== null).length
+    )
+    .reduce((current, attr) => {
       let { name, value } = attr
       if (value === '') value = true
       if (name.substring(0, 2) === 'on')
@@ -146,6 +155,7 @@ export default class JsxParser extends Component {
 
 JsxParser.propTypes = {
   allowScripts: React.PropTypes.bool,
+  blacklistedAttrs: React.PropTypes.arrayOf(React.PropTypes.string),
   blacklistedTags: React.PropTypes.arrayOf(React.PropTypes.string),
   components: (props, propName, componentName) => {
     if (!Array.isArray(props[propName]))
@@ -166,6 +176,7 @@ JsxParser.propTypes = {
 }
 JsxParser.defaultProps = {
   allowScripts: false,
+  blacklistedAttrs: ['on[a-z]*'],
   blacklistedTags: ['script'],
   components: [],
   jsx: '',

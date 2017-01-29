@@ -150,7 +150,7 @@ describe('JsxParser Component', () => {
     expect(divChildren[1].textContent).toEqual('Non-Custom')
   })
 
-  it('strips <script src="..."> tags', () => {
+  it('strips <script src="..."> tags by default', () => {
     const { component, rendered } = render(
       <JsxParser jsx={`\
         <div>Before</div>\
@@ -165,7 +165,7 @@ describe('JsxParser Component', () => {
     expect(parent.getElementsByTagName('script')).toHaveLength(0)
   })
 
-  it('strips <script>...</script> tags', () => {
+  it('strips <script>...</script> tags by default', () => {
     const { component, rendered } = render(
       <JsxParser jsx={`\
         <div>Before</div>\
@@ -180,6 +180,41 @@ describe('JsxParser Component', () => {
     expect(TestUtils.scryRenderedDOMComponentsWithTag(component, 'script')).toHaveLength(0)
     expect(rendered.childNodes).toHaveLength(2)
     expect(parent.getElementsByTagName('script')).toHaveLength(0)
+  })
+
+  it('strips onEvent="..." attributes by default', () => {
+    const { component, rendered } = render(
+      <JsxParser jsx={`\
+        <div onClick="handleClick()">first</div>\
+        <div onChange="handleChange()">second</div>\
+      `} />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(2)
+    expect(rendered.childNodes).toHaveLength(2)
+    expect(component.ParsedChildren[0].props.onClick).toBeUndefined()
+    expect(rendered.childNodes[0].attributes).toHaveLength(0)
+    expect(component.ParsedChildren[1].props.onChange).toBeUndefined()
+    expect(rendered.childNodes[1].attributes).toHaveLength(0)
+  })
+
+  it('strips custom blacklisted tags and attributes', () => {
+    const { component, rendered } = render(
+      <JsxParser jsx={`\
+        <div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>\
+        <Foo>second</Foo>\
+      `} blacklistedTags={['Foo']} blacklistedAttrs={['foo', 'prefixed[a-z]*']}
+      />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(rendered.childNodes).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.foo).toBeUndefined()
+    expect(component.ParsedChildren[0].props.prefixedFoo).toBeUndefined()
+    expect(component.ParsedChildren[0].props.prefixedBar).toBeUndefined()
+    expect(rendered.childNodes[0].attributes.foo).toBeUndefined()
+    expect(rendered.childNodes[0].attributes.prefixedFoo).toBeUndefined()
+    expect(rendered.childNodes[0].attributes.prefixedBar).toBeUndefined()
   })
 })
 
