@@ -2,7 +2,7 @@ jest.unmock('./JsxParser')
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { Simulate } from 'react-addons-test-utils'
+import TestUtils from 'react-addons-test-utils'
 import JsxParser from './JsxParser'
 
 describe('JsxParser Component', () => {
@@ -112,7 +112,7 @@ describe('JsxParser Component', () => {
 
   it('renders custom components with nesting', () => {
     const { component, rendered } = render(
-      <JsxParser components={[Custom]}jsx={`\
+      <JsxParser components={[Custom]} jsx={`\
         <Custom className="outer" text="outerText">\
           <Custom className="inner" text="innerText">\
             <div>Non-Custom</div>\
@@ -148,6 +148,38 @@ describe('JsxParser Component', () => {
     expect(divChildren.map(n => n.nodeType))
       .toEqual([8, 3, 8])
     expect(divChildren[1].textContent).toEqual('Non-Custom')
+  })
+
+  it('strips <script src="..."> tags', () => {
+    const { component, rendered } = render(
+      <JsxParser jsx={`\
+        <div>Before</div>\
+        <script src="http://example.com/test.js"></script>\
+        <div>After</div>\
+      `} />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(2)
+    expect(TestUtils.scryRenderedDOMComponentsWithTag(component, 'script')).toHaveLength(0)
+    expect(rendered.childNodes).toHaveLength(2)
+    expect(parent.getElementsByTagName('script')).toHaveLength(0)
+  })
+
+  it('strips <script>...</script> tags', () => {
+    const { component, rendered } = render(
+      <JsxParser jsx={`\
+        <div>Before</div>\
+        <script>\
+          window.alert("This shouldn't happen!");
+        </script>\
+        <div>After</div>\
+      `} />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(2)
+    expect(TestUtils.scryRenderedDOMComponentsWithTag(component, 'script')).toHaveLength(0)
+    expect(rendered.childNodes).toHaveLength(2)
+    expect(parent.getElementsByTagName('script')).toHaveLength(0)
   })
 })
 

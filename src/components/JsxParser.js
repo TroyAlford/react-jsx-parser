@@ -28,6 +28,21 @@ const ATTRIBUTES = {
 
 const parser = new DOMParser()
 
+const warnParseErrors = doc => {
+  const errors = Array.from(doc.documentElement.childNodes)
+  console.warn(`Unable to parse jsx. Found ${errors.length} error(s):`)
+
+  const warn = (node, indent) => {
+    if (node.childNodes.length)
+      Array.from(node.childNodes)
+        .forEach(n => warn(n, indent.concat(' ')))
+
+    console.warn(`${indent}==> ${node.nodeValue}`)
+  }
+
+  errors.forEach(e => warn(e, ' '))
+}
+
 export default class JsxParser extends Component {
   constructor(props) {
     super(props)
@@ -40,8 +55,12 @@ export default class JsxParser extends Component {
     this.ParsedChildren = this.parseJSX(props.jsx || '')
   }
 
-  parseJSX(jsx) {
-    if (!jsx) return []
+  parseJSX(rawJSX) {
+    if (!rawJSX || typeof rawJSX !== 'string') return []
+
+    let jsx = this.props.blacklistedTags.reduce((raw, tag) =>
+      raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
+    , rawJSX)
 
     const wrapped = `
       <?xml version="1.0" encoding="UTF-8"?>\
@@ -50,8 +69,15 @@ export default class JsxParser extends Component {
     const doc = parser.parseFromString(wrapped, 'application/xml')
     if (!doc) return []
 
+    Array.from(doc.getElementsByTagName('REMOVE')).forEach(tag =>
+      tag.parentNode.removeChild(tag)
+    )
+
     const xml = doc.getElementsByTagName('xml')[0]
-    if (!xml || xml.nodeName.toLowerCase() === 'parseerror') return []
+    if (!xml || xml.nodeName.toLowerCase() === 'parseerror') {
+      warnParseErrors(doc)
+      return []
+    }
 
     const components = this.props.components.reduce(
       (map, type) => ({
@@ -119,6 +145,8 @@ export default class JsxParser extends Component {
 }
 
 JsxParser.propTypes = {
+  allowScripts: React.PropTypes.bool,
+  blacklistedTags: React.PropTypes.arrayOf(React.PropTypes.string),
   components: (props, propName, componentName) => {
     if (!Array.isArray(props[propName]))
       return new Error(`${propName} must be an Array of Components.`)
@@ -137,6 +165,8 @@ JsxParser.propTypes = {
   jsx: React.PropTypes.string,
 }
 JsxParser.defaultProps = {
+  allowScripts: false,
+  blacklistedTags: ['script'],
   components: [],
   jsx: '',
 }
