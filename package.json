@@ -1,0 +1,44 @@
+{
+  "name": "react-jsx-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-plugin-transform-object-rest-spread": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-jest": "^18.0.0",
+    "babel-preset-react": "^6.22.0",
+    "jest": "^18.1.0",
+    "jest-cli": "^18.1.0",
+    "react-addons-test-utils": "^15.4.2"
+  },
+  "scripts": {
+    "test": "jest",
+    "dist": "babel src/components/JsxParser.js -o dist/index.js"
+  },
+  "babel": {
+    "plugins": [
+      "transform-object-rest-spread"
+    ],
+    "presets": [
+      "es2015",
+      "react",
+      "jest"
+    ],
+    "highlightCode": true
+  },
+  "jest": {
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/react/",
+      "<rootDir>/node_modules/react-dom",
+      "<rootDir>/node_modules/react-addons-test-utils"
+    ]
+  }
+}
