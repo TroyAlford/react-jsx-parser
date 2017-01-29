@@ -1,7 +1,7 @@
 import React, { Component, createElement } from 'react'
 import camelCase from '../helpers/camelCase'
 
-const NODE_TYPE = {
+export const NODE_TYPES = {
   ELEMENT: 1,
   TEXT: 3,
 
@@ -19,6 +19,11 @@ const NODE_TYPE = {
   5:  'XML Entity Reference (Deprecated)',
   6:  'XML Entity (Deprecated)',
   12: 'XML Notation (Deprecated)',
+}
+
+const ATTRIBUTES = {
+  'class': 'className',
+  'for': 'htmlFor',
 }
 
 const parser = new DOMParser()
@@ -65,12 +70,12 @@ export default class JsxParser extends Component {
     }
 
     switch (node.nodeType) {
-      case NODE_TYPE.TEXT:
+      case NODE_TYPES.TEXT:
         // Text node. Collapse whitespace and return it as a String.
         return ('textContent' in node ? node.textContent : node.nodeValue || '')
           .replace(/\s{2,}/g, ' ').trim()
 
-      case NODE_TYPE.ELEMENT:
+      case NODE_TYPES.ELEMENT:
         // Element node. Parse its Attributes and Children, then call createElement
         return React.createElement(
           components[node.nodeName] || node.nodeName,
@@ -80,7 +85,7 @@ export default class JsxParser extends Component {
 
       default:
         console.warn(
-          `JsxParser encountered a ${NODE_TYPE[node.nodeType]} node, and discarded it.`
+          `JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`
         )
         return null
     }
@@ -94,12 +99,12 @@ export default class JsxParser extends Component {
       if (value === '') value = true
       if (name.substring(0, 2) === 'on')
         value = new Function(value) // eslint-disable-line no-new-func
-      if (name.toLowerCase() === 'class')
-        name = 'className'
+
+      name = ATTRIBUTES[name.toLowerCase()] || camelCase(name)
 
       return {
         ...current,
-        [camelCase(name)]: value
+        [name]: value
       }
     }, props)
   }
