@@ -1,0 +1,21 @@
+## Customize the test machine
+machine:
+
+  timezone:
+    America/Los_Angeles # Set the timezone
+
+## Customize checkout
+checkout:
+  post:
+    - git submodule sync
+    - git submodule update --init # use submodules
+
+## Customize dependencies
+dependencies:
+  override:
+    - yarn
+
+## Customize test commands
+test:
+  override:
+    - yarn test
