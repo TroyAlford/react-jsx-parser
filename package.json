@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:TroyAlford/react-jsx-parser.git"
-  }
+  },
   "dependencies": {
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
@@ -43,11 +43,5 @@
     ],
     "highlightCode": true
   },
-  "jest": {
-    "unmockedModulePathPatterns": [
-      "<rootDir>/node_modules/react/",
-      "<rootDir>/node_modules/react-dom",
-      "<rootDir>/node_modules/react-addons-test-utils"
-    ]
-  }
+  "jest": {}
 }
