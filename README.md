@@ -66,7 +66,7 @@ JsxParser.defaultProps = {
   // by default, removes all <script> tags
   blacklistedTags:  ['script'],
 
-  components:       [], // there are no default components that are bound
-  jsx:              '', // if omitted, the jsx binding will default to an empty string
+  components: [], // no default components are bound
+  jsx:        '',
 }
 ```
