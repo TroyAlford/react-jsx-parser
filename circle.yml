@@ -7,8 +7,7 @@ machine:
 ## Customize checkout
 checkout:
   post:
-    - git submodule sync
-    - git submodule update --init # use submodules
+    - yarn run dist
 
 ## Customize dependencies
 dependencies:
@@ -19,3 +18,11 @@ dependencies:
 test:
   override:
     - yarn test
+
+deployment:
+  npm:
+    branch: master
+    commands:
+      # login using environment variables
+      - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
+      - yarn run publish-to-npm

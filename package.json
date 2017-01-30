@@ -1,7 +1,7 @@
 {
   "name": "react-jsx-parser",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "A React component which can parse JSX and output rendered React Components",
   "main": "dist/index.js",
   "author": "Troy Alford",
   "license": "MIT",
@@ -26,11 +26,13 @@
     "eslint-plugin-react": "^6.9.0",
     "jest": "^18.1.0",
     "jest-cli": "^18.1.0",
+    "publish": "^0.6.0",
     "react-addons-test-utils": "^15.4.2"
   },
   "scripts": {
     "test": "jest",
-    "dist": "babel src/components/JsxParser.js -o dist/index.js"
+    "dist": "babel src/components/JsxParser.js -o dist/index.js",
+    "publish-to-npm": "publish"
   },
   "babel": {
     "plugins": [
