@@ -1,0 +1,18 @@
+{
+  extends: "airbnb",
+  env: {
+    browser: true,
+    commonjs: true,
+    jest: true,
+    node: true
+  },
+  rules: {
+    "comma-dangle": [1, "always-multiline"],
+    "key-spacing": ["error", { "align": "value" }],
+    "semi": ["error", "never"],
+
+    "import/no-unresolved": "off",
+    "react/jsx-filename-extension": [1, { extensions: [".js"] }],
+    "react/no-unused-prop-types": [1, { skipShapeProps: true }]
+  }
+}

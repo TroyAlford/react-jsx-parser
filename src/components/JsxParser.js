@@ -1,9 +1,9 @@
-import React, { Component, createElement } from 'react'
+import React from 'react'
 import camelCase from '../helpers/camelCase'
 
 export const NODE_TYPES = {
   ELEMENT: 1,
-  TEXT: 3,
+  TEXT:    3,
 
   1:  'Element',
   3:  'Text',
@@ -22,28 +22,31 @@ export const NODE_TYPES = {
 }
 
 const ATTRIBUTES = {
-  'class': 'className',
-  'for': 'htmlFor',
+  class: 'className',
+  for:   'htmlFor',
 }
 
 const parser = new DOMParser()
 
-const warnParseErrors = doc => {
+const warnParseErrors = (doc) => {
   const errors = Array.from(doc.documentElement.childNodes)
+  // eslint-disable-next-line no-console
   console.warn(`Unable to parse jsx. Found ${errors.length} error(s):`)
 
   const warn = (node, indent) => {
-    if (node.childNodes.length)
+    if (node.childNodes.length) {
       Array.from(node.childNodes)
         .forEach(n => warn(n, indent.concat(' ')))
+    }
 
+    // eslint-disable-next-line no-console
     console.warn(`${indent}==> ${node.nodeValue}`)
   }
 
   errors.forEach(e => warn(e, ' '))
 }
 
-export default class JsxParser extends Component {
+export default class JsxParser extends React.Component {
   constructor(props) {
     super(props)
     this.parseJSX.bind(this)
@@ -58,7 +61,7 @@ export default class JsxParser extends Component {
   parseJSX(rawJSX) {
     if (!rawJSX || typeof rawJSX !== 'string') return []
 
-    let jsx = this.props.blacklistedTags.reduce((raw, tag) =>
+    const jsx = this.props.blacklistedTags.reduce((raw, tag) =>
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
     , rawJSX)
 
@@ -82,7 +85,7 @@ export default class JsxParser extends Component {
     const components = this.props.components.reduce(
       (map, type) => ({
         ...map,
-        [type.prototype.constructor.name]: type
+        [type.prototype.constructor.name]: type,
       })
     , {})
 
@@ -91,7 +94,7 @@ export default class JsxParser extends Component {
   parseNode(node, components = {}, key) {
     if (node instanceof NodeList || Array.isArray(node)) {
       return Array.from(node) // handle nodeList or []
-        .map((child, key) => this.parseNode(child, components, key))
+        .map((child, index) => this.parseNode(child, components, index))
         .filter(child => child) // remove falsy nodes
     }
 
@@ -110,9 +113,8 @@ export default class JsxParser extends Component {
         )
 
       default:
-        console.warn(
-          `JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`
-        )
+        // eslint-disable-next-line no-console
+        console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
         return null
     }
   }
@@ -132,14 +134,15 @@ export default class JsxParser extends Component {
     .reduce((current, attr) => {
       let { name, value } = attr
       if (value === '') value = true
-      if (name.substring(0, 2) === 'on')
+      if (name.substring(0, 2) === 'on') {
         value = new Function(value) // eslint-disable-line no-new-func
+      }
 
       name = ATTRIBUTES[name.toLowerCase()] || camelCase(name)
 
       return {
         ...current,
-        [name]: value
+        [name]: value,
       }
     }, props)
   }
@@ -154,18 +157,19 @@ export default class JsxParser extends Component {
 }
 
 JsxParser.propTypes = {
-  allowScripts: React.PropTypes.bool,
   blacklistedAttrs: React.PropTypes.arrayOf(React.PropTypes.string),
-  blacklistedTags: React.PropTypes.arrayOf(React.PropTypes.string),
-  components: (props, propName, componentName) => {
-    if (!Array.isArray(props[propName]))
+  blacklistedTags:  React.PropTypes.arrayOf(React.PropTypes.string),
+  components:       (props, propName) => {
+    if (!Array.isArray(props[propName])) {
       return new Error(`${propName} must be an Array of Components.`)
+    }
 
     let passes = true
-    props[propName].forEach(component => {
-      if (!component.prototype instanceof React.Component &&
-          !component.prototype instanceof React.PureComponent)
+    props[propName].forEach((component) => {
+      if (!(component.prototype instanceof React.Component ||
+            component.prototype instanceof React.PureComponent)) {
         passes = false
+      }
     })
 
     return passes ? null : new Error(
@@ -175,9 +179,8 @@ JsxParser.propTypes = {
   jsx: React.PropTypes.string,
 }
 JsxParser.defaultProps = {
-  allowScripts: false,
   blacklistedAttrs: ['on[a-z]*'],
-  blacklistedTags: ['script'],
-  components: [],
-  jsx: '',
+  blacklistedTags:  ['script'],
+  components:       [],
+  jsx:              '',
 }

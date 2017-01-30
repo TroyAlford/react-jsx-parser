@@ -1,9 +1,22 @@
-jest.unmock('./JsxParser')
-
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import TestUtils from 'react-addons-test-utils'
 import JsxParser from './JsxParser'
+
+jest.unmock('./JsxParser')
+
+// eslint-disable-next-line react/prefer-stateless-function
+class Custom extends React.Component {
+  /* eslint-disable react/prop-types */
+  render() {
+    return (
+      <div className={this.props.className}>
+        {this.props.text}
+        {this.props.children || []}
+      </div>
+    )
+  }
+}
 
 describe('JsxParser Component', () => {
   let parent = null
@@ -13,20 +26,25 @@ describe('JsxParser Component', () => {
   })
 
   function render(element) {
+    // eslint-disable-next-line react/no-render-return-value
     const component = ReactDOM.render(element, parent)
     return {
-      parent, component,
+      parent,
+      component,
+      // eslint-disable-next-line react/no-find-dom-node
       rendered: ReactDOM.findDOMNode(component),
     }
   }
 
   it('renders non-React components', () => {
     const { component, rendered } = render(
-      <JsxParser jsx={'\
-        <h1>Header</h1>\
-        <div class="foo">Foo</div>\
-        <span class="bar">Bar</span>\
-      '} />
+      <JsxParser
+        jsx={'\
+          <h1>Header</h1>\
+          <div class="foo">Foo</div>\
+          <span class="bar">Bar</span>\
+        '}
+      />
     )
 
     expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -48,12 +66,14 @@ describe('JsxParser Component', () => {
 
   it('renders nested components', () => {
     const { component, rendered } = render(
-      <JsxParser jsx={`
-        <div>\
-          Outer\
-          <div>Inner</div>\
-        </div>\
-      `} />
+      <JsxParser
+        jsx={`
+          <div>\
+            Outer\
+            <div>Inner</div>\
+          </div>\
+        `}
+      />
     )
 
     expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -87,10 +107,13 @@ describe('JsxParser Component', () => {
 
   it('renders custom components', () => {
     const { component, rendered } = render(
-      <JsxParser components={[Custom]}jsx={`\
-        <h1>Header</h1>\
-        <Custom className="blah" text="Test Text" />\
-      `} />
+      <JsxParser
+        components={[Custom]}
+        jsx={'\
+          <h1>Header</h1>\
+          <Custom className="blah" text="Test Text" />\
+        '}
+      />
     )
 
     expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -112,13 +135,16 @@ describe('JsxParser Component', () => {
 
   it('renders custom components with nesting', () => {
     const { component, rendered } = render(
-      <JsxParser components={[Custom]} jsx={`\
-        <Custom className="outer" text="outerText">\
-          <Custom className="inner" text="innerText">\
-            <div>Non-Custom</div>\
+      <JsxParser
+        components={[Custom]}
+        jsx={'\
+          <Custom className="outer" text="outerText">\
+            <Custom className="inner" text="innerText">\
+              <div>Non-Custom</div>\
+            </Custom>\
           </Custom>\
-        </Custom>\
-      `} />
+        '}
+      />
     )
 
     expect(component.ParsedChildren).toHaveLength(1)
@@ -152,11 +178,13 @@ describe('JsxParser Component', () => {
 
   it('strips <script src="..."> tags by default', () => {
     const { component, rendered } = render(
-      <JsxParser jsx={`\
-        <div>Before</div>\
-        <script src="http://example.com/test.js"></script>\
-        <div>After</div>\
-      `} />
+      <JsxParser
+        jsx={'\
+          <div>Before</div>\
+          <script src="http://example.com/test.js"></script>\
+          <div>After</div>\
+        '}
+      />
     )
 
     expect(component.ParsedChildren).toHaveLength(2)
@@ -167,13 +195,15 @@ describe('JsxParser Component', () => {
 
   it('strips <script>...</script> tags by default', () => {
     const { component, rendered } = render(
-      <JsxParser jsx={`\
-        <div>Before</div>\
-        <script>\
-          window.alert("This shouldn't happen!");
-        </script>\
-        <div>After</div>\
-      `} />
+      <JsxParser
+        jsx={'\
+          <div>Before</div>\
+          <script>\
+            window.alert("This shouldn\'t happen!");\
+          </script>\
+          <div>After</div>\
+        '}
+      />
     )
 
     expect(component.ParsedChildren).toHaveLength(2)
@@ -184,10 +214,12 @@ describe('JsxParser Component', () => {
 
   it('strips onEvent="..." attributes by default', () => {
     const { component, rendered } = render(
-      <JsxParser jsx={`\
-        <div onClick="handleClick()">first</div>\
-        <div onChange="handleChange()">second</div>\
-      `} />
+      <JsxParser
+        jsx={'\
+          <div onClick="handleClick()">first</div>\
+          <div onChange="handleChange()">second</div>\
+        '}
+      />
     )
 
     expect(component.ParsedChildren).toHaveLength(2)
@@ -200,10 +232,12 @@ describe('JsxParser Component', () => {
 
   it('strips custom blacklisted tags and attributes', () => {
     const { component, rendered } = render(
-      <JsxParser jsx={`\
-        <div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>\
-        <Foo>second</Foo>\
-      `} blacklistedTags={['Foo']} blacklistedAttrs={['foo', 'prefixed[a-z]*']}
+      <JsxParser
+        blacklistedTags={['Foo']} blacklistedAttrs={['foo', 'prefixed[a-z]*']}
+        jsx={'\
+          <div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>\
+          <Foo>second</Foo>\
+        '}
       />
     )
 
@@ -217,14 +251,3 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes[0].attributes.prefixedBar).toBeUndefined()
   })
 })
-
-class Custom extends React.Component {
-  render() {
-    return (
-      <div className={this.props.className}>
-        {this.props.text}
-        {this.props.children || []}
-      </div>
-    )
-  }
-}
