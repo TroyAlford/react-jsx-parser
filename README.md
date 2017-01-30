@@ -12,12 +12,12 @@ class InjectableComponent extends React.Component {
 
 class MyComponent extends React.Component {
   render() {
-    /* Pull out parent props which shouldn't be bound, 
+    /* Pull out parent props which shouldn't be bound,
        then pass the rest as `bindings` to all children */
     const { prop1, prop2, ...bindings } = this.props
-    
+
     return (
-      <JsxParser 
+      <JsxParser
         bindings={bindings}
         components={[InjectableComponent]}
         jsx={'\
@@ -58,12 +58,14 @@ _Note:_ Non-standard tags may throw errors and warnings, but will typically be r
 ## PropTypes / Settings
 ```
 JsxParser.defaultProps = {
+  bindings: {}, // by default, do not add any additional bindings
+
   /* by default, removes all `on*` attributes (onClick, onChange, etc.)
   blacklistedAttrs: ['on[a-z]*'], // Note: this syntax supports regexes
-  
+
   /* by default, removes all <script> tags
   blacklistedTags:  ['script'],
-  
+
   components:       [], // there are no default components that are bound
   jsx:              '', // if omitted, the jsx binding will default to an empty string
 }

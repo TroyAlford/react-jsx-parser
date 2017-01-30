@@ -220,7 +220,7 @@ describe('JsxParser Component', () => {
   })
 
   it('passes bindings to children', () => {
-    const { component, rendered } = render(
+    const { component } = render(
       <JsxParser
         bindings={{ foo: 'Foo', bar: 'Bar' }}
         components={[Custom]}
