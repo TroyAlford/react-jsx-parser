@@ -56,7 +56,7 @@ Any `ComponentA`, `ComponentB`, `ComponentC` or `ComponentD` tags in the dynamic
 _Note:_ Non-standard tags may throw errors and warnings, but will typically be rendered in a reasonable way.
 
 ## PropTypes / Settings
-```
+```javascript
 JsxParser.defaultProps = {
   bindings: {}, // by default, do not add any additional bindings
 
