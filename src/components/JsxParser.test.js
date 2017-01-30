@@ -176,6 +176,48 @@ describe('JsxParser Component', () => {
     expect(divChildren[1].textContent).toEqual('Non-Custom')
   })
 
+  it('handles unrecognized components', () => {
+    const origConsoleError = console.error
+    console.error = jest.fn()
+    const { component, rendered } = render(
+      <JsxParser
+        components={[/* No Components Passed In */]}
+        jsx={'\
+          <Unrecognized class="outer" foo="Foo">\
+            <Unrecognized class="inner" bar="Bar">\
+              <div>Non-Custom</div>\
+            </Unrecognized>\
+          </Unrecognized>\
+        '}
+      />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.foo).toEqual('Foo')
+    expect(component.ParsedChildren[0].props.children).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.children[0].props.bar).toEqual('Bar')
+    expect(component.ParsedChildren[0].props.children[0].props.children).toHaveLength(1)
+
+    expect(rendered.childNodes).toHaveLength(1)
+    const outer = rendered.childNodes[0]
+    expect(outer.nodeName).toEqual('UNRECOGNIZED')
+    expect(outer.childNodes).toHaveLength(1)
+
+    const inner = outer.childNodes[0]
+    expect(inner.nodeName).toEqual('UNRECOGNIZED')
+    expect(inner.childNodes).toHaveLength(1)
+
+    const div = inner.childNodes[0]
+    expect(div.nodeName).toEqual('DIV')
+    expect(div.textContent).toEqual('Non-Custom')
+
+    expect(console.error).toHaveBeenCalledTimes(2)
+    expect(console.error.mock.calls[0][0]).toMatch(/Unknown prop `foo` on <Unrecognized> tag./)
+    expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <Unrecognized> tag./)
+
+    console.error = origConsoleError
+  })
+
   it('strips <script src="..."> tags by default', () => {
     const { component, rendered } = render(
       <JsxParser
