@@ -1,4 +1,9 @@
-# react-jsx-parser
+# react-jsx-parser ![CircleCI][circle-ci] ![Version][npm-version] ![License][npm-license]
+
+[circle-ci]: https://img.shields.io/circleci/project/github/TroyAlford/react-jsx-parser/master.svg
+[npm-version]: https://img.shields.io/npm/v/react-jsx-parser.svg
+[npm-license]: https://img.shields.io/npm/l/react-jsx-parser.svg
+
 A React component which can parse JSX and output rendered React Components.
 
 ## Basic Usage - Injecting JSX as a String
