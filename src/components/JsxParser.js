@@ -108,7 +108,10 @@ export default class JsxParser extends React.Component {
         // Element node. Parse its Attributes and Children, then call createElement
         return React.createElement(
           components[node.nodeName] || node.nodeName,
-          this.parseAttrs(node.attributes, key),
+          {
+            ...this.props.bindings || {},
+            ...this.parseAttrs(node.attributes, key),
+          },
           this.parseNode(node.childNodes, components),
         )
 
@@ -157,6 +160,8 @@ export default class JsxParser extends React.Component {
 }
 
 JsxParser.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  bindings:         React.PropTypes.object.isRequired,
   blacklistedAttrs: React.PropTypes.arrayOf(React.PropTypes.string),
   blacklistedTags:  React.PropTypes.arrayOf(React.PropTypes.string),
   components:       (props, propName) => {
@@ -179,6 +184,7 @@ JsxParser.propTypes = {
   jsx: React.PropTypes.string,
 }
 JsxParser.defaultProps = {
+  bindings:         {},
   blacklistedAttrs: ['on[a-z]*'],
   blacklistedTags:  ['script'],
   components:       [],

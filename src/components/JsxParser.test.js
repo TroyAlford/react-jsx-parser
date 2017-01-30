@@ -177,6 +177,7 @@ describe('JsxParser Component', () => {
   })
 
   it('handles unrecognized components', () => {
+    /* eslint-disable no-console */
     const origConsoleError = console.error
     console.error = jest.fn()
     const { component, rendered } = render(
@@ -216,6 +217,36 @@ describe('JsxParser Component', () => {
     expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <Unrecognized> tag./)
 
     console.error = origConsoleError
+  })
+
+  it('passes bindings to children', () => {
+    const { component, rendered } = render(
+      <JsxParser
+        bindings={{ foo: 'Foo', bar: 'Bar' }}
+        components={[Custom]}
+        jsx={'\
+          <Custom bar="Baz" />\
+          <div foo="Fu"></div>\
+        '}
+      />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(2)
+    // The
+    expect(component.ParsedChildren[0].props).toEqual({
+      foo: 'Foo', // from `bindings`
+      bar: 'Baz', // from jsx attributes (takes precedence)
+
+      children: [], // React auto-creates .children
+    })
+
+    // The <div> should receive `bindings`, too
+    expect(component.ParsedChildren[1].props).toEqual({
+      foo: 'Fu',  // from jsx attributes (takes precedence)
+      bar: 'Bar', // from `bindings`
+
+      children: [], // React auto-creates .children
+    })
   })
 
   it('strips <script src="..."> tags by default', () => {
