@@ -60,10 +60,10 @@ _Note:_ Non-standard tags may throw errors and warnings, but will typically be r
 JsxParser.defaultProps = {
   bindings: {}, // by default, do not add any additional bindings
 
-  /* by default, removes all `on*` attributes (onClick, onChange, etc.)
+  // by default, removes all `on*` attributes (onClick, onChange, etc.)
   blacklistedAttrs: ['on[a-z]*'], // Note: this syntax supports regexes
 
-  /* by default, removes all <script> tags
+  // by default, removes all <script> tags
   blacklistedTags:  ['script'],
 
   components:       [], // there are no default components that are bound
