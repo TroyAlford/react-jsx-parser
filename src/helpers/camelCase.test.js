@@ -1,6 +1,6 @@
-jest.unmock('./camelCase')
-
 import camelCase from './camelCase'
+
+jest.unmock('./camelCase')
 
 describe('camelCase', () => {
   it('removes non-word characters', () => {
