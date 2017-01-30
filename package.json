@@ -5,6 +5,10 @@
   "main": "dist/index.js",
   "author": "Troy Alford",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:TroyAlford/react-jsx-parser.git"
+  }
   "dependencies": {
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
