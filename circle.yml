@@ -7,7 +7,7 @@ machine:
 ## Customize checkout
 checkout:
   post:
-    - yarn run dist
+    - npm run dist
 
 ## Customize dependencies
 dependencies:
@@ -17,7 +17,7 @@ dependencies:
 ## Customize test commands
 test:
   override:
-    - yarn test
+    - npm test
 
 deployment:
   npm:
@@ -25,4 +25,4 @@ deployment:
     commands:
       # login using environment variables
       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      - yarn run publish-to-npm
+      - npm run publish-to-npm
