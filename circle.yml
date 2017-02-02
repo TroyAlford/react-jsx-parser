@@ -7,17 +7,27 @@ machine:
 ## Customize checkout
 checkout:
   post:
-    - npm run dist
+    - yarn dist
+
+database:
+  override:
+    - echo "Skipping DB config"
 
 ## Customize dependencies
 dependencies:
+  cache_directories:
+    - ~/.cache/yarn
   override:
     - yarn
+
+machine:
+  environment:
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
 
 ## Customize test commands
 test:
   override:
-    - npm test
+    - yarn test
 
 deployment:
   npm:
@@ -25,4 +35,4 @@ deployment:
     commands:
       # login using environment variables
       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      - npm run publish-to-npm
+      - yarn publish-to-npm
