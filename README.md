@@ -1,4 +1,9 @@
-# react-jsx-parser
+# react-jsx-parser ![CircleCI][circle-ci] ![Version][npm-version] ![License][npm-license]
+
+[circle-ci]: https://img.shields.io/circleci/project/github/TroyAlford/react-jsx-parser/master.svg
+[npm-version]: https://img.shields.io/npm/v/react-jsx-parser.svg
+[npm-license]: https://img.shields.io/npm/l/react-jsx-parser.svg
+
 A React component which can parse JSX and output rendered React Components.
 
 ## Basic Usage - Injecting JSX as a String
@@ -60,13 +65,16 @@ _Note:_ Non-standard tags may throw errors and warnings, but will typically be r
 JsxParser.defaultProps = {
   bindings: {}, // by default, do not add any additional bindings
 
-  // by default, removes all `on*` attributes (onClick, onChange, etc.)
-  blacklistedAttrs: ['on[a-z]*'], // Note: this syntax supports regexes
+  // by default, just removes `on*` attributes (onClick, onChange, etc.)
+  // values are used as a regex to match property names
+  blacklistedAttrs: ['on[a-z]*'], //= /on[a-z]*/gi
 
   // by default, removes all <script> tags
   blacklistedTags:  ['script'],
 
-  components: [], // no default components are bound
-  jsx:        '',
+  // Components must extend React.Component or React.PureComponent
+  components: [],
+
+  jsx: '',
 }
 ```

@@ -4,20 +4,28 @@ machine:
   timezone:
     America/Los_Angeles # Set the timezone
 
-## Customize checkout
-checkout:
-  post:
-    - yarn run dist
+database:
+  override:
+    - echo "Skipping DB config"
 
 ## Customize dependencies
 dependencies:
+  cache_directories:
+    - ~/.cache/yarn
   override:
-    - yarn
+    - yarn --ignore-engines
+
+machine:
+  environment:
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
 
 ## Customize test commands
 test:
   override:
+    # first, run all tests
     - yarn test
+    # then, attempt a build
+    - yarn dist
 
 deployment:
   npm:
@@ -25,4 +33,4 @@ deployment:
     commands:
       # login using environment variables
       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      - yarn run publish-to-npm
+      - yarn publish-to-npm
