@@ -23,7 +23,6 @@ machine:
 test:
   override:
     - yarn test
-    - yarn dist
 
 deployment:
   npm:
