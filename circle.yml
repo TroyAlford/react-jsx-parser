@@ -32,4 +32,5 @@ deployment:
     branch: master
     commands:
       # login using environment variables
-      - (echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login) && (yarn publish-to-npm)
+      - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
+      - npm publish
