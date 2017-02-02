@@ -22,7 +22,10 @@ machine:
 ## Customize test commands
 test:
   override:
+    # first, run all tests
     - yarn test
+    # then, attempt a build
+    - yarn dist
 
 deployment:
   npm:

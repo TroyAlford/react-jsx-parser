@@ -35,7 +35,7 @@
     "test": "jest",
     "pre-dist": "mkdir -p ./lib && rm -rf ./lib/*",
     "dist": "yarn pre-dist && NODE_ENV=production webpack",
-    "publish-to-npm": "yarn dist && publish"
+    "publish-to-npm": "publish"
   },
   "jest": {}
 }
