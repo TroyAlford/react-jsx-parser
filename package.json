@@ -31,10 +31,12 @@
     "webpack": "^2.2.1"
   },
   "scripts": {
+    "build": "yarn prebuild && NODE_ENV=production webpack",
+    "postversion": "git push && git push --tags",
+    "prebuild": "mkdir -p ./lib && rm -rf ./lib/*",
+    "preversion": "yarn test",
     "test": "jest",
-    "pre-dist": "mkdir -p ./lib && rm -rf ./lib/*",
-    "dist": "yarn pre-dist && NODE_ENV=production webpack",
-    "publish-to-npm": "publish"
+    "version": "yarn build && git add -A ./lib"
   },
   "jest": {}
 }
