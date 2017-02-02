@@ -33,7 +33,7 @@
   },
   "scripts": {
     "test": "jest",
-    "dist": "NODE_ENV=production ./node_modules/.bin/webpack",
+    "dist": "NODE_ENV=production webpack",
     "publish-to-npm": "publish"
   },
   "jest": {}
