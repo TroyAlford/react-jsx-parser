@@ -4,12 +4,6 @@ machine:
   timezone:
     America/Los_Angeles # Set the timezone
 
-## Customize checkout
-checkout:
-  post:
-    - yarn --ignore-engines
-    - yarn dist
-
 database:
   override:
     - echo "Skipping DB config"
@@ -19,7 +13,7 @@ dependencies:
   cache_directories:
     - ~/.cache/yarn
   override:
-    - yarn
+    - yarn --ignore-engines
 
 machine:
   environment:
@@ -29,6 +23,7 @@ machine:
 test:
   override:
     - yarn test
+    - yarn dist
 
 deployment:
   npm:
