@@ -28,10 +28,8 @@
     "jest-cli": "^18.1.0",
     "publish": "^0.6.0",
     "react-addons-test-utils": "^15.4.2",
+    "react-dom": "^15.4.2",
     "webpack": "^2.2.1"
-  },
-  "peerDependencies": {
-    "react-dom": "^15.4.2"
   },
   "scripts": {
     "test": "jest",
