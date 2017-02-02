@@ -7,7 +7,7 @@ machine:
 ## Customize checkout
 checkout:
   post:
-    - yarn
+    - yarn --ignore-engines
     - yarn dist
 
 database:
