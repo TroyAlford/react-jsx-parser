@@ -65,10 +65,7 @@ export default class JsxParser extends React.Component {
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
     , rawJSX)
 
-    const wrapped = `
-      <?xml version="1.0" encoding="UTF-8"?>\
-      <xml>${jsx}</xml>\
-    `
+    const wrapped = `<?xml version="1.0" encoding="UTF-8"?><xml>${jsx}</xml>`
     const doc = parser.parseFromString(wrapped, 'application/xml')
     if (!doc) return []
 

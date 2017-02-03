@@ -25,12 +25,14 @@ test:
     # first, run all tests
     - yarn test
     # then, attempt a build
-    - yarn dist
+    - yarn build
 
-deployment:
-  npm:
-    branch: master
-    commands:
-      # login using environment variables
-      - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      - yarn publish-to-npm
+# deployment:
+#   npm:
+#     branch: master
+#     commands:
+#       # login using environment variables
+#       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
+#       - echo -e "git config --global user.email \""
+#       - npm version patch -m "Version bump for NPM release"
+#       - npm publish
