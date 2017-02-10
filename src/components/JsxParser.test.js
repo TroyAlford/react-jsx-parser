@@ -366,4 +366,21 @@ describe('JsxParser Component', () => {
 
     expect(rendered.childNodes).toHaveLength(2)
   })
+
+  it('does not render children for poorly formed void elements', () => {
+    const { rendered } = render(
+      <JsxParser
+        jsx={
+          '<img src="/foo.png">' +
+            '<div class="invalidChild"></div>' +
+          '</img>'
+        }
+      />
+    )
+
+    expect(rendered.childNodes).toHaveLength(1)
+    expect(rendered.childNodes[0].innerHTML).toEqual('')
+    expect(rendered.childNodes[0].childNodes).toHaveLength(0)
+    expect(rendered.getElementsByTagName('div')).toHaveLength(0)
+  })
 })
