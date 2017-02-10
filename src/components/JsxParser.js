@@ -1,5 +1,6 @@
 import React from 'react'
 import camelCase from '../helpers/camelCase'
+import parseStyle from '../helpers/parseStyle'
 
 export const NODE_TYPES = {
   ELEMENT: 1,
@@ -118,8 +119,7 @@ export default class JsxParser extends React.Component {
     }
   }
   parseAttrs(attrs, key) {
-    const props = { key }
-    if (!attrs || !attrs.length) return props
+    if (!attrs || !attrs.length) return { key }
 
     const blacklist = this.props.blacklistedAttrs
 
@@ -135,6 +135,8 @@ export default class JsxParser extends React.Component {
       if (value === '') value = true
       if (name.substring(0, 2) === 'on') {
         value = new Function(value) // eslint-disable-line no-new-func
+      } else if (name === 'style') {
+        value = parseStyle(value)
       }
 
       name = ATTRIBUTES[name.toLowerCase()] || camelCase(name)
@@ -143,7 +145,7 @@ export default class JsxParser extends React.Component {
         ...current,
         [name]: value,
       }
-    }, props)
+    }, { key })
   }
 
   render() {

@@ -353,4 +353,17 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[i].textContent).toMatch(/^[\r\n\t ]*$/)
     })
   })
+
+  it('handles style attributes gracefully', () => {
+    const { rendered } = render(
+      <JsxParser
+        jsx={
+          '<div style="margin: 0 1px 2px 3px;"></div>' +
+          '<div style="padding-left: 45px; padding-right: 1em;"></div>'
+        }
+      />
+    )
+
+    expect(rendered.childNodes).toHaveLength(2)
+  })
 })
