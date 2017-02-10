@@ -2,30 +2,9 @@ import React from 'react'
 import camelCase from '../helpers/camelCase'
 import parseStyle from '../helpers/parseStyle'
 
-export const NODE_TYPES = {
-  ELEMENT: 1,
-  TEXT:    3,
-
-  1:  'Element',
-  3:  'Text',
-  7:  'Processing Instruction',
-  8:  'Comment',
-  9:  'Document',
-  10: 'Document Type',
-  11: 'Document Fragment',
-
-  /* Deprecated Nodes */
-  2:  'Attribute (Deprecated)',
-  4:  'CData (Deprecated)',
-  5:  'XML Entity Reference (Deprecated)',
-  6:  'XML Entity (Deprecated)',
-  12: 'XML Notation (Deprecated)',
-}
-
-const ATTRIBUTES = {
-  class: 'className',
-  for:   'htmlFor',
-}
+import ATTRIBUTES from '../constants/attributeNames'
+import NODE_TYPES from '../constants/nodeTypes'
+import { canHaveChildren } from '../constants/voidElementTags'
 
 const parser = new DOMParser()
 
@@ -109,7 +88,9 @@ export default class JsxParser extends React.Component {
             ...this.props.bindings || {},
             ...this.parseAttrs(node.attributes, key),
           },
-          this.parseNode(node.childNodes, components),
+          canHaveChildren(node.nodeName)
+            ? this.parseNode(node.childNodes, components)
+            : undefined,
         )
 
       default:
@@ -133,7 +114,8 @@ export default class JsxParser extends React.Component {
     .reduce((current, attr) => {
       let { name, value } = attr
       if (value === '') value = true
-      if (name.substring(0, 2) === 'on') {
+
+      if (name.match(/^on/i)) {
         value = new Function(value) // eslint-disable-line no-new-func
       } else if (name === 'style') {
         value = parseStyle(value)
