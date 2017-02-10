@@ -65,7 +65,7 @@ export default class JsxParser extends React.Component {
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
     , rawJSX)
 
-    const wrapped = `<?xml version="1.0" encoding="UTF-8"?><xml>${jsx}</xml>`
+    const wrapped = `<?xml version="1.0" encoding="UTF-8" ?><xml>${jsx}</xml>`
     const doc = parser.parseFromString(wrapped, 'application/xml')
     if (!doc) return []
 
@@ -99,7 +99,6 @@ export default class JsxParser extends React.Component {
       case NODE_TYPES.TEXT:
         // Text node. Collapse whitespace and return it as a String.
         return ('textContent' in node ? node.textContent : node.nodeValue || '')
-          .replace(/\s{2,}/g, ' ').trim()
 
       case NODE_TYPES.ELEMENT:
         // Element node. Parse its Attributes and Children, then call createElement

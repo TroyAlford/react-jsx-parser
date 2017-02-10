@@ -39,11 +39,11 @@ describe('JsxParser Component', () => {
   it('renders non-React components', () => {
     const { component, rendered } = render(
       <JsxParser
-        jsx={'\
-          <h1>Header</h1>\
-          <div class="foo">Foo</div>\
-          <span class="bar">Bar</span>\
-        '}
+        jsx={
+          '<h1>Header</h1>' +
+          '<div class="foo">Foo</div>' +
+          '<span class="bar">Bar</span>'
+        }
       />
     )
 
@@ -67,12 +67,12 @@ describe('JsxParser Component', () => {
   it('renders nested components', () => {
     const { component, rendered } = render(
       <JsxParser
-        jsx={`
-          <div>\
-            Outer\
-            <div>Inner</div>\
-          </div>\
-        `}
+        jsx={
+          '<div>' +
+            'Outer' +
+            '<div>Inner</div>' +
+          '</div>'
+        }
       />
     )
 
@@ -109,10 +109,10 @@ describe('JsxParser Component', () => {
     const { component, rendered } = render(
       <JsxParser
         components={[Custom]}
-        jsx={'\
-          <h1>Header</h1>\
-          <Custom className="blah" text="Test Text" />\
-        '}
+        jsx={
+          '<h1>Header</h1>' +
+          '<Custom className="blah" text="Test Text" />'
+        }
       />
     )
 
@@ -137,13 +137,13 @@ describe('JsxParser Component', () => {
     const { component, rendered } = render(
       <JsxParser
         components={[Custom]}
-        jsx={'\
-          <Custom className="outer" text="outerText">\
-            <Custom className="inner" text="innerText">\
-              <div>Non-Custom</div>\
-            </Custom>\
-          </Custom>\
-        '}
+        jsx={
+          '<Custom className="outer" text="outerText">' +
+            '<Custom className="inner" text="innerText">' +
+              '<div>Non-Custom</div>' +
+            '</Custom>' +
+          '</Custom>'
+        }
       />
     )
 
@@ -183,13 +183,13 @@ describe('JsxParser Component', () => {
     const { component, rendered } = render(
       <JsxParser
         components={[/* No Components Passed In */]}
-        jsx={'\
-          <Unrecognized class="outer" foo="Foo">\
-            <Unrecognized class="inner" bar="Bar">\
-              <div>Non-Custom</div>\
-            </Unrecognized>\
-          </Unrecognized>\
-        '}
+        jsx={
+          '<Unrecognized class="outer" foo="Foo">' +
+            '<Unrecognized class="inner" bar="Bar">' +
+              '<div>Non-Custom</div>' +
+            '</Unrecognized>' +
+          '</Unrecognized>'
+        }
       />
     )
 
@@ -224,10 +224,10 @@ describe('JsxParser Component', () => {
       <JsxParser
         bindings={{ foo: 'Foo', bar: 'Bar' }}
         components={[Custom]}
-        jsx={'\
-          <Custom bar="Baz" />\
-          <div foo="Fu"></div>\
-        '}
+        jsx={
+          '<Custom bar="Baz" />' +
+          '<div foo="Fu"></div>'
+        }
       />
     )
 
@@ -252,11 +252,11 @@ describe('JsxParser Component', () => {
   it('strips <script src="..."> tags by default', () => {
     const { component, rendered } = render(
       <JsxParser
-        jsx={'\
-          <div>Before</div>\
-          <script src="http://example.com/test.js"></script>\
-          <div>After</div>\
-        '}
+        jsx={
+          '<div>Before</div>' +
+          '<script src="http://example.com/test.js"></script>' +
+          '<div>After</div>'
+        }
       />
     )
 
@@ -269,13 +269,13 @@ describe('JsxParser Component', () => {
   it('strips <script>...</script> tags by default', () => {
     const { component, rendered } = render(
       <JsxParser
-        jsx={'\
-          <div>Before</div>\
-          <script>\
-            window.alert("This shouldn\'t happen!");\
-          </script>\
-          <div>After</div>\
-        '}
+        jsx={
+          '<div>Before</div>' +
+          '<script>' +
+            'window.alert("This shouldn\'t happen!");' +
+          '</script>' +
+          '<div>After</div>'
+        }
       />
     )
 
@@ -288,10 +288,10 @@ describe('JsxParser Component', () => {
   it('strips onEvent="..." attributes by default', () => {
     const { component, rendered } = render(
       <JsxParser
-        jsx={'\
-          <div onClick="handleClick()">first</div>\
-          <div onChange="handleChange()">second</div>\
-        '}
+        jsx={
+          '<div onClick="handleClick()">first</div>' +
+          '<div onChange="handleChange()">second</div>'
+        }
       />
     )
 
@@ -307,10 +307,10 @@ describe('JsxParser Component', () => {
     const { component, rendered } = render(
       <JsxParser
         blacklistedTags={['Foo']} blacklistedAttrs={['foo', 'prefixed[a-z]*']}
-        jsx={'\
-          <div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>\
-          <Foo>second</Foo>\
-        '}
+        jsx={
+          '<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>' +
+          '<Foo>second</Foo>'
+        }
       />
     )
 
@@ -323,4 +323,13 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes[0].attributes.prefixedFoo).toBeUndefined()
     expect(rendered.childNodes[0].attributes.prefixedBar).toBeUndefined()
   })
+
+  // it('handles this random-ass test correctly', () => {
+  //   const jsx = "<h3>Welcome</h3>\n<p>This wiki acts as the System Reference Document (SRD) for the <a href=\"/page/world\">worlds</a>, <a href=\"/page/race\">races</a>, <a href=\"/page/bestiary\">creatures</a> and <a href=\"/page/system\">game system</a> concepts from the AxisRPG role playing game. The primary intent of this work is to provide a single, consistent multiverse which encompasses everything from Fantasy to Sci-Fi, and every stop in-between, while also tying locations and mechanics together in a way that works for cross-genre play and exploration.</p>\n<h3>Licensing &amp; OGL</h3>\n<p>Certain pages contain derivatives or inclusions of OGL content produced by other publishers, and are marked accordingly with an OGL banner. All other work is licensed as described on the <a href=\"/page/open-gaming-license\">Copyright &amp; OGL</a> page.</p>"
+  //   const { component, rendered } = render(
+  //     <JsxParser jsx={jsx} />
+  //   )
+
+  //   expect(component.ParsedChildren).toHaveLength(4)
+  // })
 })
