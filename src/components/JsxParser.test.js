@@ -324,12 +324,33 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes[0].attributes.prefixedBar).toBeUndefined()
   })
 
-  // it('handles this random-ass test correctly', () => {
-  //   const jsx = "<h3>Welcome</h3>\n<p>This wiki acts as the System Reference Document (SRD) for the <a href=\"/page/world\">worlds</a>, <a href=\"/page/race\">races</a>, <a href=\"/page/bestiary\">creatures</a> and <a href=\"/page/system\">game system</a> concepts from the AxisRPG role playing game. The primary intent of this work is to provide a single, consistent multiverse which encompasses everything from Fantasy to Sci-Fi, and every stop in-between, while also tying locations and mechanics together in a way that works for cross-genre play and exploration.</p>\n<h3>Licensing &amp; OGL</h3>\n<p>Certain pages contain derivatives or inclusions of OGL content produced by other publishers, and are marked accordingly with an OGL banner. All other work is licensed as described on the <a href=\"/page/open-gaming-license\">Copyright &amp; OGL</a> page.</p>"
-  //   const { component, rendered } = render(
-  //     <JsxParser jsx={jsx} />
-  //   )
+  it('handles whitespace correctly', () => {
+    const { rendered } = render(
+      <JsxParser
+        jsx={'\
+          <h1>Title</h1>\
+          <div class="foo">Bar</div>\
+        '}
+      />
+    )
 
-  //   expect(component.ParsedChildren).toHaveLength(4)
-  // })
+    // Comment Whitespace Comment
+    // H1
+    // Comment Whitespace Comment
+    // DIV
+    // Comment Whitespace Comment
+    expect(rendered.childNodes).toHaveLength(11)
+    expect(rendered.childNodes[3].nodeType).toEqual(1) // Element
+    expect(rendered.childNodes[3].nodeName).toEqual('H1')
+    expect(rendered.childNodes[7].nodeType).toEqual(1) // Element
+    expect(rendered.childNodes[7].nodeName).toEqual('DIV')
+
+    Array.from([0, 2, 4, 6, 8, 10]).forEach((i) => {
+      expect(rendered.childNodes[i].nodeType).toEqual(8) // Comment
+    })
+    Array.from([1, 5, 9]).forEach((i) => {
+      expect(rendered.childNodes[i].nodeType).toEqual(3) // Text
+      expect(rendered.childNodes[i].textContent).toMatch(/^[\r\n\t ]*$/)
+    })
+  })
 })
