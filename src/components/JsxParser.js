@@ -43,18 +43,17 @@ export default class JsxParser extends React.Component {
 
     const jsx = this.props.blacklistedTags.reduce((raw, tag) =>
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
-    , rawJSX)
+    , rawJSX).trim()
 
-    const wrapped = `<?xml version="1.0" encoding="UTF-8" ?><xml>${jsx}</xml>`
-    const doc = parser.parseFromString(wrapped, 'application/xml')
+    const doc = parser.parseFromString(jsx, 'text/html')
     if (!doc) return []
 
     Array.from(doc.getElementsByTagName('REMOVE')).forEach(tag =>
       tag.parentNode.removeChild(tag)
     )
 
-    const xml = doc.getElementsByTagName('xml')[0]
-    if (!xml || xml.nodeName.toLowerCase() === 'parseerror') {
+    const body = doc.getElementsByTagName('body')[0]
+    if (!body || body.nodeName.toLowerCase() === 'parseerror') {
       warnParseErrors(doc)
       return []
     }
@@ -62,11 +61,11 @@ export default class JsxParser extends React.Component {
     const components = this.props.components.reduce(
       (map, type) => ({
         ...map,
-        [type.prototype.constructor.name]: type,
+        [type.prototype.constructor.name.toUpperCase()]: type,
       })
     , {})
 
-    return this.parseNode(xml.childNodes || [], components)
+    return this.parseNode(body.childNodes || [], components)
   }
   parseNode(node, components = {}, key) {
     if (node instanceof NodeList || Array.isArray(node)) {

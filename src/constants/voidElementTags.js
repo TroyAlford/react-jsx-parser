@@ -20,5 +20,5 @@ const VOID_ELEMENTS = {
 export default VOID_ELEMENTS
 
 export function canHaveChildren(tagName) {
-  return !VOID_ELEMENTS[tagName]
+  return !VOID_ELEMENTS[tagName.toLowerCase()]
 }

@@ -213,8 +213,8 @@ describe('JsxParser Component', () => {
     expect(div.textContent).toEqual('Non-Custom')
 
     expect(console.error).toHaveBeenCalledTimes(2)
-    expect(console.error.mock.calls[0][0]).toMatch(/Unknown prop `foo` on <Unrecognized> tag./)
-    expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <Unrecognized> tag./)
+    expect(console.error.mock.calls[0][0]).toMatch(/Unknown prop `foo` on <UNRECOGNIZED> tag./)
+    expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <UNRECOGNIZED> tag./)
 
     console.error = origConsoleError
   })
@@ -225,7 +225,7 @@ describe('JsxParser Component', () => {
         bindings={{ foo: 'Foo', bar: 'Bar' }}
         components={[Custom]}
         jsx={
-          '<Custom bar="Baz" />' +
+          '<Custom bar="Baz"></Custom>' +
           '<div foo="Fu"></div>'
         }
       />
@@ -334,24 +334,18 @@ describe('JsxParser Component', () => {
       />
     )
 
-    // Comment Whitespace Comment
     // H1
     // Comment Whitespace Comment
     // DIV
-    // Comment Whitespace Comment
-    expect(rendered.childNodes).toHaveLength(11)
-    expect(rendered.childNodes[3].nodeType).toEqual(1) // Element
-    expect(rendered.childNodes[3].nodeName).toEqual('H1')
-    expect(rendered.childNodes[7].nodeType).toEqual(1) // Element
-    expect(rendered.childNodes[7].nodeName).toEqual('DIV')
+    expect(rendered.childNodes).toHaveLength(5)
+    expect(rendered.childNodes[0].nodeType).toEqual(1) // Element
+    expect(rendered.childNodes[0].nodeName).toEqual('H1')
+    expect(rendered.childNodes[4].nodeType).toEqual(1) // Element
+    expect(rendered.childNodes[4].nodeName).toEqual('DIV')
 
-    Array.from([0, 2, 4, 6, 8, 10]).forEach((i) => {
-      expect(rendered.childNodes[i].nodeType).toEqual(8) // Comment
-    })
-    Array.from([1, 5, 9]).forEach((i) => {
-      expect(rendered.childNodes[i].nodeType).toEqual(3) // Text
-      expect(rendered.childNodes[i].textContent).toMatch(/^[\r\n\t ]*$/)
-    })
+    expect(rendered.childNodes[1].nodeType).toEqual(8) // Comment
+    expect(rendered.childNodes[2].nodeType).toEqual(3) // Text
+    expect(rendered.childNodes[3].nodeType).toEqual(8) // Comment
   })
 
   it('handles style attributes gracefully', () => {
@@ -378,9 +372,13 @@ describe('JsxParser Component', () => {
       />
     )
 
-    expect(rendered.childNodes).toHaveLength(1)
+    expect(rendered.childNodes).toHaveLength(2)
+    expect(rendered.getElementsByTagName('img')).toHaveLength(1)
     expect(rendered.childNodes[0].innerHTML).toEqual('')
     expect(rendered.childNodes[0].childNodes).toHaveLength(0)
-    expect(rendered.getElementsByTagName('div')).toHaveLength(0)
+
+    expect(rendered.getElementsByTagName('div')).toHaveLength(1)
+    expect(Array.from(rendered.childNodes[1].classList)).toContain('invalidChild')
+    expect(rendered.childNodes[1].innerHTML).toEqual('')
   })
 })

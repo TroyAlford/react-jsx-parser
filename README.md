@@ -27,7 +27,7 @@ class MyComponent extends React.Component {
         components={[InjectableComponent]}
         jsx={'\
           <h1>Header</h1>\
-          <InjectableComponent />\
+          <InjectableComponent></InjectableComponent>\
         '}
       />
     )
@@ -78,3 +78,6 @@ JsxParser.defaultProps = {
   jsx: '',
 }
 ```
+
+## Known Limitations
+* Custom elements must have a closing tag.
