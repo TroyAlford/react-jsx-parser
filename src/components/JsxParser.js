@@ -54,7 +54,7 @@ export default class JsxParser extends React.Component {
 
     const body = doc.getElementsByTagName('body')[0]
     if (!body || body.nodeName.toLowerCase() === 'parseerror') {
-      warnParseErrors(doc)
+      if (this.props.showWarnings) warnParseErrors(doc)
       return []
     }
 
@@ -93,8 +93,10 @@ export default class JsxParser extends React.Component {
         )
 
       default:
-        // eslint-disable-next-line no-console
-        console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
+        if (this.props.showWarnings) {
+          // eslint-disable-next-line no-console
+          console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
+        }
         return null
     }
   }
@@ -161,6 +163,8 @@ JsxParser.propTypes = {
     )
   },
   jsx: React.PropTypes.string,
+
+  showWarnings: React.PropTypes.bool,
 }
 JsxParser.defaultProps = {
   bindings:         {},
@@ -168,4 +172,5 @@ JsxParser.defaultProps = {
   blacklistedTags:  ['script'],
   components:       [],
   jsx:              '',
+  showWarnings:     false,
 }
