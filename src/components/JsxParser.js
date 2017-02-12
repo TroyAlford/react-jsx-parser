@@ -4,7 +4,7 @@ import parseStyle from '../helpers/parseStyle'
 
 import ATTRIBUTES from '../constants/attributeNames'
 import NODE_TYPES from '../constants/nodeTypes'
-import { canHaveChildren } from '../constants/voidElementTags'
+import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 
 const parser = new DOMParser()
 
@@ -74,31 +74,38 @@ export default class JsxParser extends React.Component {
         .filter(child => child) // remove falsy nodes
     }
 
-    switch (node.nodeType) {
-      case NODE_TYPES.TEXT:
-        // Text node. Collapse whitespace and return it as a String.
-        return ('textContent' in node ? node.textContent : node.nodeValue || '')
-
-      case NODE_TYPES.ELEMENT:
-        // Element node. Parse its Attributes and Children, then call createElement
-        return React.createElement(
-          components[node.nodeName] || node.nodeName,
-          {
-            ...this.props.bindings || {},
-            ...this.parseAttrs(node.attributes, key),
-          },
-          canHaveChildren(node.nodeName)
-            ? this.parseNode(node.childNodes, components)
-            : undefined,
-        )
-
-      default:
-        if (this.props.showWarnings) {
-          // eslint-disable-next-line no-console
-          console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
+    if (node.nodeType === NODE_TYPES.TEXT) {
+      // Text node. Collapse whitespace and return it as a String.
+      return ('textContent' in node ? node.textContent : node.nodeValue || '')
+        .replace(/[\r\n\t\f\v]/g, '')
+        .replace(/\s{2,}/g, ' ')
+    } else if (node.nodeType === NODE_TYPES.ELEMENT) {
+      // Element node. Parse its Attributes and Children, then call createElement
+      let children
+      if (canHaveChildren(node.nodeName)) {
+        children = this.parseNode(node.childNodes, components)
+        if (!canHaveWhitespace(node.nodeName)) {
+          children = children.filter(child =>
+            typeof child !== 'string' || !child.match(/^\s*$/)
+          )
         }
-        return null
+      }
+
+      return React.createElement(
+        components[node.nodeName] || node.nodeName,
+        {
+          ...this.props.bindings || {},
+          ...this.parseAttrs(node.attributes, key),
+        },
+        children,
+      )
     }
+
+    if (this.props.showWarnings) {
+      // eslint-disable-next-line no-console
+      console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
+    }
+    return null
   }
   parseAttrs(attrs, key) {
     if (!attrs || !attrs.length) return { key }
