@@ -17,7 +17,7 @@ if (PRODUCTION) {
 
 module.exports = {
   entry:  `${__dirname}/src/components/JsxParser.js`,
-  externals: { react: 'React' },
+  externals: { react: 'react' },
   module: {
     loaders: [{
       test:    /\.js$/,
