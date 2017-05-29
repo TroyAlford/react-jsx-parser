@@ -1,30 +1,10 @@
 import React from 'react'
 import camelCase from '../helpers/camelCase'
+import parseStyle from '../helpers/parseStyle'
 
-export const NODE_TYPES = {
-  ELEMENT: 1,
-  TEXT:    3,
-
-  1:  'Element',
-  3:  'Text',
-  7:  'Processing Instruction',
-  8:  'Comment',
-  9:  'Document',
-  10: 'Document Type',
-  11: 'Document Fragment',
-
-  /* Deprecated Nodes */
-  2:  'Attribute (Deprecated)',
-  4:  'CData (Deprecated)',
-  5:  'XML Entity Reference (Deprecated)',
-  6:  'XML Entity (Deprecated)',
-  12: 'XML Notation (Deprecated)',
-}
-
-const ATTRIBUTES = {
-  class: 'className',
-  for:   'htmlFor',
-}
+import ATTRIBUTES from '../constants/attributeNames'
+import NODE_TYPES from '../constants/nodeTypes'
+import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 
 const parser = new DOMParser()
 
@@ -63,30 +43,29 @@ export default class JsxParser extends React.Component {
 
     const jsx = this.props.blacklistedTags.reduce((raw, tag) =>
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
-    , rawJSX)
+    , rawJSX).trim()
 
-    const wrapped = `<?xml version="1.0" encoding="UTF-8"?><xml>${jsx}</xml>`
-    const doc = parser.parseFromString(wrapped, 'application/xml')
+    const doc = parser.parseFromString(jsx, 'text/html')
     if (!doc) return []
 
     Array.from(doc.getElementsByTagName('REMOVE')).forEach(tag =>
       tag.parentNode.removeChild(tag)
     )
 
-    const xml = doc.getElementsByTagName('xml')[0]
-    if (!xml || xml.nodeName.toLowerCase() === 'parseerror') {
-      warnParseErrors(doc)
+    const body = doc.getElementsByTagName('body')[0]
+    if (!body || body.nodeName.toLowerCase() === 'parseerror') {
+      if (this.props.showWarnings) warnParseErrors(doc)
       return []
     }
 
     const components = this.props.components.reduce(
       (map, type) => ({
         ...map,
-        [type.prototype.constructor.name]: type,
+        [type.prototype.constructor.name.toUpperCase()]: type,
       })
     , {})
 
-    return this.parseNode(xml.childNodes || [], components)
+    return this.parseNode(body.childNodes || [], components)
   }
   parseNode(node, components = {}, key) {
     if (node instanceof NodeList || Array.isArray(node)) {
@@ -95,32 +74,41 @@ export default class JsxParser extends React.Component {
         .filter(child => child) // remove falsy nodes
     }
 
-    switch (node.nodeType) {
-      case NODE_TYPES.TEXT:
-        // Text node. Collapse whitespace and return it as a String.
-        return ('textContent' in node ? node.textContent : node.nodeValue || '')
-          .replace(/\s{2,}/g, ' ').trim()
+    if (node.nodeType === NODE_TYPES.TEXT) {
+      // Text node. Collapse whitespace and return it as a String.
+      return ('textContent' in node ? node.textContent : node.nodeValue || '')
+        .replace(/[\r\n\t\f\v]/g, '')
+        .replace(/\s{2,}/g, ' ')
+    } else if (node.nodeType === NODE_TYPES.ELEMENT) {
+      // Element node. Parse its Attributes and Children, then call createElement
+      let children
+      if (canHaveChildren(node.nodeName)) {
+        children = this.parseNode(node.childNodes, components)
+        if (!canHaveWhitespace(node.nodeName)) {
+          children = children.filter(child =>
+            typeof child !== 'string' || !child.match(/^\s*$/)
+          )
+        }
+      }
 
-      case NODE_TYPES.ELEMENT:
-        // Element node. Parse its Attributes and Children, then call createElement
-        return React.createElement(
-          components[node.nodeName] || node.nodeName,
-          {
-            ...this.props.bindings || {},
-            ...this.parseAttrs(node.attributes, key),
-          },
-          this.parseNode(node.childNodes, components),
-        )
-
-      default:
-        // eslint-disable-next-line no-console
-        console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
-        return null
+      return React.createElement(
+        components[node.nodeName] || node.nodeName,
+        {
+          ...this.props.bindings || {},
+          ...this.parseAttrs(node.attributes, key),
+        },
+        children,
+      )
     }
+
+    if (this.props.showWarnings) {
+      // eslint-disable-next-line no-console
+      console.warn(`JsxParser encountered a(n) ${NODE_TYPES[node.nodeType]} node, and discarded it.`)
+    }
+    return null
   }
   parseAttrs(attrs, key) {
-    const props = { key }
-    if (!attrs || !attrs.length) return props
+    if (!attrs || !attrs.length) return { key }
 
     const blacklist = this.props.blacklistedAttrs
 
@@ -134,8 +122,11 @@ export default class JsxParser extends React.Component {
     .reduce((current, attr) => {
       let { name, value } = attr
       if (value === '') value = true
-      if (name.substring(0, 2) === 'on') {
+
+      if (name.match(/^on/i)) {
         value = new Function(value) // eslint-disable-line no-new-func
+      } else if (name === 'style') {
+        value = parseStyle(value)
       }
 
       name = ATTRIBUTES[name.toLowerCase()] || camelCase(name)
@@ -144,7 +135,7 @@ export default class JsxParser extends React.Component {
         ...current,
         [name]: value,
       }
-    }, props)
+    }, { key })
   }
 
   render() {
@@ -179,6 +170,8 @@ JsxParser.propTypes = {
     )
   },
   jsx: React.PropTypes.string,
+
+  showWarnings: React.PropTypes.bool,
 }
 JsxParser.defaultProps = {
   bindings:         {},
@@ -186,4 +179,5 @@ JsxParser.defaultProps = {
   blacklistedTags:  ['script'],
   components:       [],
   jsx:              '',
+  showWarnings:     false,
 }
