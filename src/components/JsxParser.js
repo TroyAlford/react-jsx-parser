@@ -152,33 +152,37 @@ export default class JsxParser extends React.Component {
   }
 }
 
-JsxParser.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  bindings:         React.PropTypes.object.isRequired,
-  blacklistedAttrs: React.PropTypes.arrayOf(React.PropTypes.string),
-  blacklistedTags:  React.PropTypes.arrayOf(React.PropTypes.string),
-  components:       (props, propName) => {
-    if (!Array.isArray(props[propName])) {
-      return new Error(`${propName} must be an Array of Components.`)
-    }
-
-    let passes = true
-    props[propName].forEach((component) => {
-      if (!(component.prototype instanceof React.Component ||
-            component.prototype instanceof React.PureComponent ||
-            typeof component === 'function'
-        )) {
-        passes = false
+if (process.env.NODE_ENV === 'production') {
+  // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+  const PropTypes = require('prop-types')
+  JsxParser.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    bindings:         PropTypes.object.isRequired,
+    blacklistedAttrs: PropTypes.arrayOf(PropTypes.string),
+    blacklistedTags:  PropTypes.arrayOf(PropTypes.string),
+    components:       (props, propName) => {
+      if (!Array.isArray(props[propName])) {
+        return new Error(`${propName} must be an Array of Components.`)
       }
-    })
 
-    return passes ? null : new Error(
-      `${propName} must contain only Subclasses of React.Component or React.PureComponent.`
-    )
-  },
-  jsx: React.PropTypes.string,
+      let passes = true
+      props[propName].forEach((component) => {
+        if (!(component.prototype instanceof React.Component ||
+              component.prototype instanceof React.PureComponent ||
+              typeof component === 'function'
+          )) {
+          passes = false
+        }
+      })
 
-  showWarnings: React.PropTypes.bool,
+      return passes ? null : new Error(
+        `${propName} must contain only Subclasses of React.Component or React.PureComponent.`
+      )
+    },
+    jsx: PropTypes.string,
+
+    showWarnings: PropTypes.bool,
+  }
 }
 JsxParser.defaultProps = {
   bindings:         {},
