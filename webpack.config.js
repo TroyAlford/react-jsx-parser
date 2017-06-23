@@ -11,13 +11,20 @@ const filename = PRODUCTION ? `${library}.min.js` : `${library}.js`
 const plugins = []
 
 if (PRODUCTION) {
-  const Uglify = webpack.optimize.UglifyJsPlugin
-  plugins.push(new Uglify({ minimize: true }))
+  plugins.push(
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(ENVIRONMENT),
+    }),
+    new webpack.optimize.UglifyJsPlugin({ minimize: true })
+  )
 }
 
 module.exports = {
   entry:  `${__dirname}/src/components/JsxParser.js`,
-  externals: { react: 'react' },
+  externals: {
+    'react': 'React',
+    'react-dom': 'react-dom',
+  },
   module: {
     loaders: [{
       test:    /\.js$/,
