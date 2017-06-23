@@ -213,8 +213,8 @@ describe('JsxParser Component', () => {
     expect(div.textContent).toEqual('Non-Custom')
 
     expect(console.error).toHaveBeenCalledTimes(2)
-    expect(console.error.mock.calls[0][0]).toMatch(/Unknown prop `foo` on <UNRECOGNIZED> tag./)
-    expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <UNRECOGNIZED> tag./)
+    expect(console.error.mock.calls[0][0]).toMatch(/Unknown prop `foo` on <Unrecognized> tag./)
+    expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <Unrecognized> tag./)
 
     console.error = origConsoleError
   })
@@ -372,13 +372,29 @@ describe('JsxParser Component', () => {
       />
     )
 
-    expect(rendered.childNodes).toHaveLength(2)
+    expect(rendered.childNodes).toHaveLength(1)
     expect(rendered.getElementsByTagName('img')).toHaveLength(1)
     expect(rendered.childNodes[0].innerHTML).toEqual('')
     expect(rendered.childNodes[0].childNodes).toHaveLength(0)
 
-    expect(rendered.getElementsByTagName('div')).toHaveLength(1)
-    expect(Array.from(rendered.childNodes[1].classList)).toContain('invalidChild')
-    expect(rendered.childNodes[1].innerHTML).toEqual('')
+    expect(rendered.getElementsByTagName('div')).toHaveLength(0)
+  })
+
+  it('does render custom element without closing tag', () => {
+    // eslint-disable-next-line react/prefer-stateless-function
+    const CustomContent = () => <h1>Custom Content</h1>
+
+    const { rendered } = render(
+      <JsxParser
+        components={[CustomContent]}
+        jsx="<CustomContent /><p>Text</p>"
+      />
+    )
+
+    expect(rendered.childNodes).toHaveLength(2)
+    expect(rendered.getElementsByTagName('p')).toHaveLength(1)
+
+    expect(rendered.getElementsByTagName('h1')).toHaveLength(1)
+    expect(rendered.getElementsByTagName('h1')[0].textContent).toEqual('Custom Content')
   })
 })
