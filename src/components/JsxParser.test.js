@@ -415,4 +415,14 @@ describe('JsxParser Component', () => {
     expect(rendered.getElementsByTagName('h1')[0].textContent).toEqual('Ipsum')
     expect(rendered.getElementsByTagName('h1')[1].textContent).toEqual('Lorem')
   })
+
+  it('does work when DOCTYPE and html is already added', () => {
+    const { rendered } = render(
+      <JsxParser
+        jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'}
+      />
+    )
+
+    expect(rendered.childNodes).toHaveLength(2)
+  })
 })
