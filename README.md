@@ -51,7 +51,7 @@ const dynamicHtml = loadRemoteData()
 // Within your component's render method, bind these components and the fragment as props
 <JsxParser
   bindings={bindings}
-  components={[ComponentA, ComponentB, ComponentC, ComponentD}
+  components={[ComponentA, ComponentB, ComponentC, ComponentD]}
   jsx={dynamicHtml}
 />
 ```
