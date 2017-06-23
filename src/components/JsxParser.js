@@ -176,7 +176,7 @@ if (process.env.NODE_ENV === 'production') {
       })
 
       return passes ? null : new Error(
-        `${propName} must contain only Subclasses of React.Component or React.PureComponent.`
+        `${propName} must contain only React.Component|PureComponent or functions.`
       )
     },
     jsx: PropTypes.string,
