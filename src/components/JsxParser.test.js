@@ -397,4 +397,22 @@ describe('JsxParser Component', () => {
     expect(rendered.getElementsByTagName('h1')).toHaveLength(1)
     expect(rendered.getElementsByTagName('h1')[0].textContent).toEqual('Custom Content')
   })
+
+  it('does render custom element without closing tag', () => {
+    // eslint-disable-next-line react/prefer-stateless-function
+    const CustomContent = () => <h1>Ipsum</h1>
+    const CuStomContent = () => <h1>Lorem</h1>
+
+    const { rendered } = render(
+      <JsxParser
+        components={[CustomContent, CuStomContent]}
+        jsx="<CustomContent /><CuStomContent />"
+      />
+    )
+
+    expect(rendered.childNodes).toHaveLength(2)
+    expect(rendered.getElementsByTagName('h1')).toHaveLength(2)
+    expect(rendered.getElementsByTagName('h1')[0].textContent).toEqual('Ipsum')
+    expect(rendered.getElementsByTagName('h1')[1].textContent).toEqual('Lorem')
+  })
 })
