@@ -306,7 +306,8 @@ describe('JsxParser Component', () => {
   it('strips custom blacklisted tags and attributes', () => {
     const { component, rendered } = render(
       <JsxParser
-        blacklistedTags={['Foo']} blacklistedAttrs={['foo', 'prefixed[a-z]*']}
+        blacklistedTags={['Foo']}
+        blacklistedAttrs={['foo', 'prefixed[a-z]*']}
         jsx={
           '<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>' +
           '<Foo>second</Foo>'
