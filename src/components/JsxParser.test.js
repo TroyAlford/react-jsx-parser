@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import TestUtils from 'react-addons-test-utils'
+import TestUtils from 'react-dom/test-utils'
 import JsxParser from './JsxParser'
 
 jest.unmock('./JsxParser')
@@ -306,7 +306,8 @@ describe('JsxParser Component', () => {
   it('strips custom blacklisted tags and attributes', () => {
     const { component, rendered } = render(
       <JsxParser
-        blacklistedTags={['Foo']} blacklistedAttrs={['foo', 'prefixed[a-z]*']}
+        blacklistedTags={['Foo']}
+        blacklistedAttrs={['foo', 'prefixed[a-z]*']}
         jsx={
           '<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>' +
           '<Foo>second</Foo>'
