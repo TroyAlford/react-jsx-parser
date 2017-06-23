@@ -45,7 +45,10 @@ export default class JsxParser extends React.Component {
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
     , rawJSX).trim()
 
-    const doc = parser.parseFromString(jsx, 'text/html')
+    const wrappedJsx = `<!DOCTYPE html>\n<html><body>${jsx}</body></html>`
+
+    const doc = parser.parseFromString(wrappedJsx, 'application/xhtml+xml')
+
     if (!doc) return []
 
     Array.from(doc.getElementsByTagName('REMOVE')).forEach(tag =>
@@ -61,7 +64,7 @@ export default class JsxParser extends React.Component {
     const components = this.props.components.reduce(
       (map, type) => ({
         ...map,
-        [type.prototype.constructor.name.toUpperCase()]: type,
+        [type.prototype.constructor.name]: type,
       })
     , {})
 
@@ -91,8 +94,10 @@ export default class JsxParser extends React.Component {
         }
       }
 
+      const component = components[node.nodeName] || node.nodeName
+
       return React.createElement(
-        components[node.nodeName] || node.nodeName,
+        component,
         {
           ...this.props.bindings || {},
           ...this.parseAttrs(node.attributes, key),
@@ -107,6 +112,7 @@ export default class JsxParser extends React.Component {
     }
     return null
   }
+
   parseAttrs(attrs, key) {
     if (!attrs || !attrs.length) return { key }
 
@@ -160,7 +166,9 @@ JsxParser.propTypes = {
     let passes = true
     props[propName].forEach((component) => {
       if (!(component.prototype instanceof React.Component ||
-            component.prototype instanceof React.PureComponent)) {
+            component.prototype instanceof React.PureComponent ||
+            typeof component === 'function'
+        )) {
         passes = false
       }
     })
