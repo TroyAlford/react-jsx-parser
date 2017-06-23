@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import camelCase from '../helpers/camelCase'
 import parseStyle from '../helpers/parseStyle'
 import hasDoctype from '../helpers/hasDoctype'
@@ -27,7 +27,7 @@ const warnParseErrors = (doc) => {
   errors.forEach(e => warn(e, ' '))
 }
 
-export default class JsxParser extends React.Component {
+export default class JsxParser extends Component {
   constructor(props) {
     super(props)
     this.parseJSX.bind(this)
