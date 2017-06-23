@@ -1,6 +1,7 @@
 import React from 'react'
 import camelCase from '../helpers/camelCase'
 import parseStyle from '../helpers/parseStyle'
+import hasDoctype from '../helpers/hasDoctype'
 
 import ATTRIBUTES from '../constants/attributeNames'
 import NODE_TYPES from '../constants/nodeTypes'
@@ -45,7 +46,7 @@ export default class JsxParser extends React.Component {
       raw.replace(new RegExp(`(</?)${tag}`, 'ig'), '$1REMOVE')
     , rawJSX).trim()
 
-    const wrappedJsx = `<!DOCTYPE html>\n<html><body>${jsx}</body></html>`
+    const wrappedJsx = hasDoctype(jsx) ? jsx : `<!DOCTYPE html>\n<html><body>${jsx}</body></html>`
 
     const doc = parser.parseFromString(wrappedJsx, 'application/xhtml+xml')
 
