@@ -94,10 +94,8 @@ export default class JsxParser extends React.Component {
         }
       }
 
-      const component = components[node.nodeName] || node.nodeName
-
       return React.createElement(
-        component,
+        components[node.nodeName] || node.nodeName,
         {
           ...this.props.bindings || {},
           ...this.parseAttrs(node.attributes, key),
