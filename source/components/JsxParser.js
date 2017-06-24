@@ -62,20 +62,13 @@ export default class JsxParser extends Component {
       return []
     }
 
-    const components = this.props.components.reduce(
-      (map, type) => ({
-        ...map,
-        [type.prototype.constructor.name]: type,
-      })
-    , {})
-
-    return this.parseNode(body.childNodes || [], components)
+    return this.parseNode(body.childNodes || [], this.props.components)
   }
   parseNode(node, components = {}, key) {
     if (node instanceof NodeList || Array.isArray(node)) {
       return Array.from(node) // handle nodeList or []
         .map((child, index) => this.parseNode(child, components, index))
-        .filter(child => child) // remove falsy nodes
+        .filter(Boolean) // remove falsy nodes
     }
 
     if (node.nodeType === NODE_TYPES.TEXT) {
@@ -165,30 +158,11 @@ if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
   const PropTypes = require('prop-types')
   JsxParser.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    bindings:         PropTypes.object.isRequired,
+    bindings:         PropTypes.shape({}),
     blacklistedAttrs: PropTypes.arrayOf(PropTypes.string),
     blacklistedTags:  PropTypes.arrayOf(PropTypes.string),
-    components:       (props, propName) => {
-      if (!Array.isArray(props[propName])) {
-        return new Error(`${propName} must be an Array of Components.`)
-      }
-
-      let passes = true
-      props[propName].forEach((component) => {
-        if (!(component.prototype instanceof React.Component ||
-              component.prototype instanceof React.PureComponent ||
-              typeof component === 'function'
-          )) {
-          passes = false
-        }
-      })
-
-      return passes ? null : new Error(
-        `${propName} must contain only React.Component|PureComponent or functions.`
-      )
-    },
-    jsx: PropTypes.string,
+    components:       PropTypes.shape({}),
+    jsx:              PropTypes.string,
 
     showWarnings: PropTypes.bool,
   }
