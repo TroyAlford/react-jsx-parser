@@ -27,7 +27,7 @@ if (PRODUCTION) {
 
 module.exports = {
   devtool: SOURCEMAP ? 'source-map' : 'none',
-  entry:  `${__dirname}/src/components/JsxParser.js`,
+  entry:  `${__dirname}/source/components/JsxParser.js`,
   externals: {
     'react': 'react',
     'react-dom': 'react-dom',
