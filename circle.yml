@@ -18,8 +18,6 @@ dependencies:
 machine:
   environment:
     PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
-  node:
-    version: v7.10.0
 
 ## Customize test commands
 test:

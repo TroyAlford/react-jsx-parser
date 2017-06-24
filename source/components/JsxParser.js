@@ -27,14 +27,6 @@ const warnParseErrors = (doc) => {
   errors.forEach(e => warn(e, ' '))
 }
 
-function isValidComponent(component) {
-  return (component && (
-    component.prototype instanceof React.Component ||
-    component.prototype instanceof React.PureComponent ||
-    typeof component === 'function'
-  ))
-}
-
 export default class JsxParser extends Component {
   constructor(props) {
     super(props)
@@ -166,11 +158,10 @@ if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
   const PropTypes = require('prop-types')
   JsxParser.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    bindings:         PropTypes.object.isRequired,
+    bindings:         PropTypes.shape({}),
     blacklistedAttrs: PropTypes.arrayOf(PropTypes.string),
     blacklistedTags:  PropTypes.arrayOf(PropTypes.string),
-    components:       PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    components:       PropTypes.shape({}),
     jsx:              PropTypes.string,
 
     showWarnings: PropTypes.bool,
