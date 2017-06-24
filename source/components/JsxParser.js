@@ -27,6 +27,14 @@ const warnParseErrors = (doc) => {
   errors.forEach(e => warn(e, ' '))
 }
 
+function isValidComponent(component) {
+  return (component && (
+    component.prototype instanceof React.Component ||
+    component.prototype instanceof React.PureComponent ||
+    typeof component === 'function'
+  ))
+}
+
 export default class JsxParser extends Component {
   constructor(props) {
     super(props)
@@ -62,12 +70,10 @@ export default class JsxParser extends Component {
       return []
     }
 
-    const components = this.props.components.reduce(
-      (map, type) => ({
-        ...map,
-        [type.prototype.constructor.name]: type,
-      })
-    , {})
+    const components = Object.entries(this.props.components).reduce((map, [key, component]) => {
+      if (isValidComponent(component)) return ({ ...map, [key]: component })
+      return map
+    }, {})
 
     return this.parseNode(body.childNodes || [], components)
   }
@@ -169,26 +175,8 @@ if (process.env.NODE_ENV === 'production') {
     bindings:         PropTypes.object.isRequired,
     blacklistedAttrs: PropTypes.arrayOf(PropTypes.string),
     blacklistedTags:  PropTypes.arrayOf(PropTypes.string),
-    components:       (props, propName) => {
-      if (!Array.isArray(props[propName])) {
-        return new Error(`${propName} must be an Array of Components.`)
-      }
-
-      let passes = true
-      props[propName].forEach((component) => {
-        if (!(component.prototype instanceof React.Component ||
-              component.prototype instanceof React.PureComponent ||
-              typeof component === 'function'
-          )) {
-          passes = false
-        }
-      })
-
-      return passes ? null : new Error(
-        `${propName} must contain only React.Component|PureComponent or functions.`
-      )
-    },
-    jsx: PropTypes.string,
+    components:       PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    jsx:              PropTypes.string,
 
     showWarnings: PropTypes.bool,
   }

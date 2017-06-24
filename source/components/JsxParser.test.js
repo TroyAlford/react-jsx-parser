@@ -1,13 +1,14 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
 import TestUtils from 'react-dom/test-utils'
 import JsxParser from './JsxParser'
 
 jest.unmock('./JsxParser')
 
 // eslint-disable-next-line react/prefer-stateless-function
-class Custom extends React.Component {
+class Custom extends Component {
   /* eslint-disable react/prop-types */
+
   render() {
     return (
       <div className={this.props.className}>
@@ -108,7 +109,7 @@ describe('JsxParser Component', () => {
   it('renders custom components', () => {
     const { component, rendered } = render(
       <JsxParser
-        components={[Custom]}
+        components={{ Custom }}
         jsx={
           '<h1>Header</h1>' +
           '<Custom className="blah" text="Test Text" />'
@@ -136,7 +137,7 @@ describe('JsxParser Component', () => {
   it('renders custom components with nesting', () => {
     const { component, rendered } = render(
       <JsxParser
-        components={[Custom]}
+        components={{ Custom }}
         jsx={
           '<Custom className="outer" text="outerText">' +
             '<Custom className="inner" text="innerText">' +
@@ -223,7 +224,7 @@ describe('JsxParser Component', () => {
     const { component } = render(
       <JsxParser
         bindings={{ foo: 'Foo', bar: 'Bar' }}
-        components={[Custom]}
+        components={{ Custom }}
         jsx={
           '<Custom bar="Baz"></Custom>' +
           '<div foo="Fu"></div>'
@@ -387,7 +388,7 @@ describe('JsxParser Component', () => {
 
     const { rendered } = render(
       <JsxParser
-        components={[CustomContent]}
+        components={{ CustomContent }}
         jsx="<CustomContent /><p>Text</p>"
       />
     )
@@ -406,7 +407,7 @@ describe('JsxParser Component', () => {
 
     const { rendered } = render(
       <JsxParser
-        components={[CustomContent, CuStomContent]}
+        components={{ CustomContent, CuStomContent }}
         jsx="<CustomContent /><CuStomContent />"
       />
     )
