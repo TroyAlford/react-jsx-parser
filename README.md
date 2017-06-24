@@ -1,6 +1,6 @@
-# react-jsx-parser ![CircleCI][circle-ci] ![Version][npm-version] ![License][npm-license]
+# react-jsx-parser [![CircleCI][circle-ci-badge]](https://circleci.com/gh/TroyAlford/react-jsx-parser) [![Version][npm-version]](https://www.npmjs.com/package/react-jsx-parser) [![License][npm-license]](https://github.com/TroyAlford/react-jsx-parser/blob/master/LICENSE)
 
-[circle-ci]: https://img.shields.io/circleci/project/github/TroyAlford/react-jsx-parser/master.svg
+[circle-ci-badge]: https://img.shields.io/circleci/project/github/TroyAlford/react-jsx-parser/master.svg
 [npm-version]: https://img.shields.io/npm/v/react-jsx-parser.svg
 [npm-license]: https://img.shields.io/npm/l/react-jsx-parser.svg
 
