@@ -152,6 +152,15 @@ export default class JsxParser extends Component {
   }
 }
 
+JsxParser.defaultProps = {
+  bindings:         {},
+  blacklistedAttrs: ['on[a-z]*'],
+  blacklistedTags:  ['script'],
+  components:       [],
+  jsx:              '',
+  showWarnings:     false,
+}
+
 if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
   const PropTypes = require('prop-types')
@@ -183,12 +192,4 @@ if (process.env.NODE_ENV === 'production') {
 
     showWarnings: PropTypes.bool,
   }
-}
-JsxParser.defaultProps = {
-  bindings:         {},
-  blacklistedAttrs: ['on[a-z]*'],
-  blacklistedTags:  ['script'],
-  components:       [],
-  jsx:              '',
-  showWarnings:     false,
 }
