@@ -70,18 +70,13 @@ export default class JsxParser extends Component {
       return []
     }
 
-    const components = Object.entries(this.props.components).reduce((map, [key, component]) => {
-      if (isValidComponent(component)) return ({ ...map, [key]: component })
-      return map
-    }, {})
-
-    return this.parseNode(body.childNodes || [], components)
+    return this.parseNode(body.childNodes || [], this.props.components)
   }
   parseNode(node, components = {}, key) {
     if (node instanceof NodeList || Array.isArray(node)) {
       return Array.from(node) // handle nodeList or []
         .map((child, index) => this.parseNode(child, components, index))
-        .filter(child => child) // remove falsy nodes
+        .filter(Boolean) // remove falsy nodes
     }
 
     if (node.nodeType === NODE_TYPES.TEXT) {
