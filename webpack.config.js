@@ -4,6 +4,7 @@ const webpack = require('webpack')
 
 const ENVIRONMENT = process.env.NODE_ENV
 const PRODUCTION = ENVIRONMENT === 'production'
+const SOURCEMAP = !PRODUCTION || process.env.SOURCEMAP
 
 const library = 'react-jsx-parser'
 const filename = PRODUCTION ? `${library}.min.js` : `${library}.js`
@@ -15,14 +16,20 @@ if (PRODUCTION) {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(ENVIRONMENT),
     }),
-    new webpack.optimize.UglifyJsPlugin({ minimize: true })
+    new webpack.optimize.ModuleConcatenationPlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      minimize: true,
+      output: { comments: false, semicolons: false },
+      sourceMap: SOURCEMAP,
+    })
   )
 }
 
 module.exports = {
+  devtool: SOURCEMAP ? 'source-map' : 'none',
   entry:  `${__dirname}/src/components/JsxParser.js`,
   externals: {
-    'react': 'React',
+    'react': 'react',
     'react-dom': 'react-dom',
   },
   module: {
