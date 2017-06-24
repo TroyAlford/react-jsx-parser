@@ -8,14 +8,14 @@ A React component which can parse JSX and output rendered React Components.
 
 ## Basic Usage - Injecting JSX as a String
 ```javascript
-import * as React from 'react'
+import React, { Component } from 'react'
 import JsxParser from 'react-jsx-parser'
 
-class InjectableComponent extends React.Component {
+class InjectableComponent extends Component {
   // ... inner workings of InjectableComponent
 }
 
-class MyComponent extends React.Component {
+class MyComponent extends Component {
   render() {
     /* Pull out parent props which shouldn't be bound,
        then pass the rest as `bindings` to all children */
@@ -24,7 +24,7 @@ class MyComponent extends React.Component {
     return (
       <JsxParser
         bindings={bindings}
-        components={[InjectableComponent]}
+        components={{ InjectableComponent }}
         jsx={'\
           <h1>Header</h1>\
           <InjectableComponent />\
@@ -40,8 +40,7 @@ Because `InjectableComponent` is passed into the `JsxParser.props.components` pr
 ## Advanced Usage - Injecting Dynamic JSX
 ```javascript
 // Import desired set of components
-import ComponentA from 'somePackage/ComponentA'
-import ComponentB from 'somePackage/ComponentB'
+import { ComponentA, ComponentB } from 'somePackage/Components'
 import ComponentC from 'somePackage/ComponentC'
 import ComponentD from 'somePackage/ComponentD'
 ...
@@ -51,7 +50,7 @@ const dynamicHtml = loadRemoteData()
 // Within your component's render method, bind these components and the fragment as props
 <JsxParser
   bindings={bindings}
-  components={[ComponentA, ComponentB, ComponentC, ComponentD]}
+  components={{ ComponentA, ComponentB, ComponentC, ComponentD }}
   jsx={dynamicHtml}
 />
 ```
@@ -72,12 +71,9 @@ JsxParser.defaultProps = {
   // by default, removes all <script> tags
   blacklistedTags:  ['script'],
 
-  // Components must extend React.Component or React.PureComponent
-  components: [],
+  // Components must extend React.Component, React.PureComponent, or be a Function
+  components: {},
 
   jsx: '',
 }
 ```
-
-## Known Limitations
-* Custom elements must have a closing tag.
