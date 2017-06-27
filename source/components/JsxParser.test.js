@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import TestUtils from 'react-dom/test-utils'
 import JsxParser from './JsxParser'
 
+jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -233,7 +234,6 @@ describe('JsxParser Component', () => {
     )
 
     expect(component.ParsedChildren).toHaveLength(2)
-    // The
     expect(component.ParsedChildren[0].props).toEqual({
       foo: 'Foo', // from `bindings`
       bar: 'Baz', // from jsx attributes (takes precedence)
@@ -418,7 +418,7 @@ describe('JsxParser Component', () => {
     expect(rendered.getElementsByTagName('h1')[1].textContent).toEqual('Lorem')
   })
 
-  it('does work when DOCTYPE and html is already added', () => {
+  it('skips over DOCTYPE, html, head, and div if found', () => {
     const { rendered } = render(
       <JsxParser
         jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'}
