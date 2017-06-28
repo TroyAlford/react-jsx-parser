@@ -1,12 +1,11 @@
-import { parse } from 'acorn-jsx'
+import { Parser } from 'acorn-jsx'
 import React, { Component } from 'react'
-// import camelCase from '../helpers/camelCase'
 import parseStyle from '../helpers/parseStyle'
-// import hasDoctype from '../helpers/hasDoctype'
 
 import ATTRIBUTES from '../constants/attributeNames'
-// import NODE_TYPES from '../constants/nodeTypes'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
+
+const parserOptions = { plugins: { jsx: true } }
 
 export default class JsxParser extends Component {
   constructor(props) {
@@ -37,7 +36,7 @@ export default class JsxParser extends Component {
     const wrappedJsx = `<root>${rawJSX}</root>`
     let parsed = []
     try {
-      parsed = parse(wrappedJsx, { plugins: { jsx: true } })
+      parsed = (new Parser(parserOptions, wrappedJsx)).parse()
       parsed = parsed.body[0].expression.children || []
     } catch (error) {
       // eslint-disable-next-line no-console
