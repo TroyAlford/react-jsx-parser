@@ -49,7 +49,6 @@ export default class JsxParser extends Component {
 
   parseExpression(expression, key) {
     /* eslint-disable no-case-declarations */
-    const name = expression.name && expression.name.name
     const value = expression.value
 
     switch (expression.type) {
@@ -58,10 +57,8 @@ export default class JsxParser extends Component {
       case 'JSXText':
         return (value || '').replace(/\s+/g, ' ')
       case 'JSXAttribute':
-        return {
-          name:  ATTRIBUTES[name] || name,
-          value: this.parseExpression(value),
-        }
+        if (expression.value === null) return true
+        return this.parseExpression(expression.value)
 
       case 'ArrayExpression':
         return expression.elements.map(this.parseExpression)
@@ -100,9 +97,13 @@ export default class JsxParser extends Component {
 
     const attrs = { key, ...bindings }
     attributes.forEach((expr) => {
-      const attr = this.parseExpression(expr)
-      const matches = this.blacklistedAttrs.filter(re => re.test(attr.name))
-      if (matches.length === 0) attrs[attr.name] = attr.value
+      const rawName = expr.name.name
+      const attributeName = ATTRIBUTES[rawName] || rawName
+      // if the value is null, this is an implicitly "true" prop, such as readOnly
+      const value = this.parseExpression(expr)
+
+      const matches = this.blacklistedAttrs.filter(re => re.test(attributeName))
+      if (matches.length === 0) attrs[attributeName] = value
     })
 
     if (typeof attrs.style === 'string') {

@@ -363,6 +363,19 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes).toHaveLength(2)
   })
 
+  it('handles implicit boolean props correctly', () => {
+    const { component } = render(
+      <JsxParser
+        components={{ Custom }}
+        jsx="<Custom shouldBeTrue shouldBeFalse={false} />"
+      />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.shouldBeTrue).toBeTruthy()
+    expect(component.ParsedChildren[0].props.shouldBeFalse).not.toBeTruthy()
+  })
+
   it('does not render children for poorly formed void elements', () => {
     const { rendered } = render(
       <JsxParser
