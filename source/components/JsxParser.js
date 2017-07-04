@@ -93,6 +93,8 @@ export default class JsxParser extends Component {
           typeof child !== 'string' || !/^\s*$/.test(child)
         )
       }
+
+      if (parsedChildren.length === 0) parsedChildren = undefined
     }
 
     const attrs = { key, ...bindings }
