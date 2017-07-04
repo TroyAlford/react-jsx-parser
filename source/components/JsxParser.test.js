@@ -237,16 +237,12 @@ describe('JsxParser Component', () => {
     expect(component.ParsedChildren[0].props).toEqual({
       foo: 'Foo', // from `bindings`
       bar: 'Baz', // from jsx attributes (takes precedence)
-
-      children: [], // React auto-creates .children
     })
 
     // The <div> should receive `bindings`, too
     expect(component.ParsedChildren[1].props).toEqual({
       foo: 'Fu',  // from jsx attributes (takes precedence)
       bar: 'Bar', // from `bindings`
-
-      children: [], // React auto-creates .children
     })
   })
 
@@ -302,6 +298,24 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes[0].attributes).toHaveLength(0)
     expect(component.ParsedChildren[1].props.onChange).toBeUndefined()
     expect(rendered.childNodes[1].attributes).toHaveLength(0)
+  })
+
+  it('parses childless elements with children = undefined', () => {
+    const { component } = render(
+      <JsxParser components={{ Custom }} jsx={'<Custom />'} />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.children).toBeUndefined()
+  })
+
+  it('parses bound object values', () => {
+    const { component } = render(
+      <JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar" }} />'} />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.obj).toEqual({ foo: 'bar' })
   })
 
   it('strips custom blacklisted tags and attributes', () => {

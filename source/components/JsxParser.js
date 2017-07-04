@@ -68,7 +68,7 @@ export default class JsxParser extends Component {
           object[prop.key.name] = this.parseExpression(prop.value)
         })
         return object
-      case 'JsxExpressionContainer':
+      case 'JSXExpressionContainer':
         return this.parseExpression(expression.expression)
       case 'Literal':
         return value
@@ -93,6 +93,8 @@ export default class JsxParser extends Component {
           typeof child !== 'string' || !/^\s*$/.test(child)
         )
       }
+
+      if (parsedChildren.length === 0) parsedChildren = undefined
     }
 
     const attrs = { key, ...bindings }
