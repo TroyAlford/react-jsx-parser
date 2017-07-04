@@ -304,6 +304,18 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes[1].attributes).toHaveLength(0)
   })
 
+  test.only('parses bound object values', () => {
+    const { component, rendered } = render(
+      <JsxParser
+        components={{ Custom }}
+        jsx={'<Custom obj={{ foo: "bar" }} />'}
+      />
+    )
+
+    expect(component.ParsedChildren).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.obj).toEqual({ foo: 'bar' })
+  })
+
   it('strips custom blacklisted tags and attributes', () => {
     const { component, rendered } = render(
       <JsxParser

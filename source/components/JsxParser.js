@@ -68,7 +68,7 @@ export default class JsxParser extends Component {
           object[prop.key.name] = this.parseExpression(prop.value)
         })
         return object
-      case 'JsxExpressionContainer':
+      case 'JSXExpressionContainer':
         return this.parseExpression(expression.expression)
       case 'Literal':
         return value
