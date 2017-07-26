@@ -41,6 +41,7 @@ export default class JsxParser extends Component {
     } catch (error) {
       // eslint-disable-next-line no-console
       if (this.props.showWarnings) console.warn(error)
+      if (this.props.onError) this.props.onError(error)
       return []
     }
 
@@ -146,7 +147,7 @@ if (process.env.NODE_ENV !== 'production') {
     blacklistedTags: PropTypes.arrayOf(PropTypes.string),
     components:      PropTypes.shape({}),
     jsx:             PropTypes.string,
-
+    onError: PropTypes.func,
     showWarnings: PropTypes.bool,
   }
 }
