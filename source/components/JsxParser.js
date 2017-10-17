@@ -96,6 +96,7 @@ export default class JsxParser extends Component {
       }
 
       if (parsedChildren.length === 0) parsedChildren = undefined
+      else if (parsedChildren.length === 1) parsedChildren = parsedChildren[0]
     }
 
     const attrs = { key, ...bindings }

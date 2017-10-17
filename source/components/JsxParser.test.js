@@ -20,6 +20,19 @@ class Custom extends Component {
   }
 }
 
+// eslint-disable-next-line react/prefer-stateless-function
+class OnlyOne extends Component {
+  /* eslint-disable react/prop-types */
+
+  render() {
+    return (
+      <div>
+        {React.Children.only(this.props.children)}
+      </div>
+    )
+  }
+}
+
 describe('JsxParser Component', () => {
   let parent = null
 
@@ -148,7 +161,6 @@ describe('JsxParser Component', () => {
         }
       />
     )
-
     expect(component.ParsedChildren).toHaveLength(1)
     expect(rendered.childNodes).toHaveLength(1)
 
@@ -172,10 +184,9 @@ describe('JsxParser Component', () => {
     expect(div.nodeName).toEqual('DIV')
 
     const divChildren = Array.from(div.childNodes)
-    expect(divChildren).toHaveLength(3)
-    expect(divChildren.map(n => n.nodeType))
-      .toEqual([8, 3, 8])
-    expect(divChildren[1].textContent).toEqual('Non-Custom')
+    expect(divChildren).toHaveLength(1)
+    expect(divChildren[0].nodeType).toEqual(3)
+    expect(divChildren[0].textContent).toEqual('Non-Custom')
   })
 
   it('handles unrecognized components', () => {
@@ -195,11 +206,8 @@ describe('JsxParser Component', () => {
       />
     )
 
-    expect(component.ParsedChildren).toHaveLength(1)
     expect(component.ParsedChildren[0].props.foo).toEqual('Foo')
-    expect(component.ParsedChildren[0].props.children).toHaveLength(1)
-    expect(component.ParsedChildren[0].props.children[0].props.bar).toEqual('Bar')
-    expect(component.ParsedChildren[0].props.children[0].props.children).toHaveLength(1)
+    expect(component.ParsedChildren[0].props.children.props.bar).toEqual('Bar')
 
     expect(rendered.childNodes).toHaveLength(1)
     const outer = rendered.childNodes[0]
@@ -453,5 +461,25 @@ describe('JsxParser Component', () => {
     )
 
     expect(rendered.childNodes).toHaveLength(2)
+  })
+
+  it('renders only one children without throwing', () => {
+    expect(() => render(
+      <JsxParser
+        components={{ OnlyOne }}
+        jsx={`<OnlyOne><h1>Ipsum</h1></OnlyOne>`}
+      />
+      )
+    ).not.toThrow()
+  })
+
+  it('throws with more than one child', () => {
+    expect(() => render(
+      <JsxParser
+        components={{ OnlyOne }}
+        jsx={`<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>`}
+      />
+      )
+    ).toThrow()
   })
 })
