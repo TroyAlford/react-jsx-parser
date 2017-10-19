@@ -20,19 +20,6 @@ class Custom extends Component {
   }
 }
 
-// eslint-disable-next-line react/prefer-stateless-function
-class OnlyOne extends Component {
-  /* eslint-disable react/prop-types */
-
-  render() {
-    return (
-      <div>
-        {React.Children.only(this.props.children)}
-      </div>
-    )
-  }
-}
-
 describe('JsxParser Component', () => {
   let parent = null
 
@@ -463,11 +450,16 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes).toHaveLength(2)
   })
 
+
+  const OnlyOne = ({ children }) => (
+    <div>{React.Children.only(children)}</div>
+  )
+
   it('renders only one children without throwing', () => {
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
-        jsx={`<OnlyOne><h1>Ipsum</h1></OnlyOne>`}
+        jsx={'<OnlyOne><h1>Ipsum</h1></OnlyOne>'}
       />
       )
     ).not.toThrow()
@@ -477,9 +469,33 @@ describe('JsxParser Component', () => {
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
-        jsx={`<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>`}
+        jsx={'<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>'}
       />
       )
     ).toThrow()
+  })
+
+  it('allows void-element named custom components to take children', () => {
+    const link = ({ to, children }) => (<a href={to}>{children}</a>)
+    const { rendered } = render(
+      <JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />
+    )
+    expect(rendered.childNodes[0].nodeName).toEqual('A')
+    expect(rendered.childNodes[0].textContent).toEqual('Text')
+  })
+
+  it('allows no-whitespace-element named custom components to take whitespace', () => {
+    const tr = ({ children }) => (<div className="tr">{children}</div>)
+    const { rendered } = render(
+      <JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />
+    )
+    expect(rendered.childNodes[0].nodeName).toEqual('DIV')
+    expect(rendered.childNodes[0].childNodes).toHaveLength(7)
+
+    const nodeTypes = Array.from(rendered.childNodes[0].childNodes).map(cn => cn.nodeType)
+    expect(nodeTypes).toEqual([8, 3, 8, 1, 8, 3, 8])
+    expect(rendered.childNodes[0].childNodes[1].textContent).toEqual(' ')
+    expect(rendered.childNodes[0].childNodes[3].textContent).toEqual('Text')
+    expect(rendered.childNodes[0].childNodes[5].textContent).toEqual(' ')
   })
 })
