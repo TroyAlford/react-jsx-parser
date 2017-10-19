@@ -450,7 +450,6 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes).toHaveLength(2)
   })
 
-
   const OnlyOne = ({ children }) => (
     <div>{React.Children.only(children)}</div>
   )
