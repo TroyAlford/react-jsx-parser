@@ -485,11 +485,17 @@ describe('JsxParser Component', () => {
   })
 
   it('allows no-whitespace-element named custom components to take whitespace', () => {
-    const td = ({ children }) => (<div className="td">{children}</div>)
+    const tr = ({ children }) => (<div className="tr">{children}</div>)
     const { rendered } = render(
-      <JsxParser components={{ td }} jsx={'<td> Text </td>'} />
+      <JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />
     )
     expect(rendered.childNodes[0].nodeName).toEqual('DIV')
-    expect(rendered.childNodes[0].textContent).toEqual(' Text ')
+    expect(rendered.childNodes[0].childNodes).toHaveLength(7)
+
+    const nodeTypes = Array.from(rendered.childNodes[0].childNodes).map(cn => cn.nodeType)
+    expect(nodeTypes).toEqual([8, 3, 8, 1, 8, 3, 8])
+    expect(rendered.childNodes[0].childNodes[1].textContent).toEqual(' ')
+    expect(rendered.childNodes[0].childNodes[3].textContent).toEqual('Text')
+    expect(rendered.childNodes[0].childNodes[5].textContent).toEqual(' ')
   })
 })
