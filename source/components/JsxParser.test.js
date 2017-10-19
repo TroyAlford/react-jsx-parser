@@ -20,19 +20,6 @@ class Custom extends Component {
   }
 }
 
-// eslint-disable-next-line react/prefer-stateless-function
-class OnlyOne extends Component {
-  /* eslint-disable react/prop-types */
-
-  render() {
-    return (
-      <div>
-        {React.Children.only(this.props.children)}
-      </div>
-    )
-  }
-}
-
 describe('JsxParser Component', () => {
   let parent = null
 
@@ -463,11 +450,16 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes).toHaveLength(2)
   })
 
+
+  const OnlyOne = ({ children }) => (
+    <div>{React.Children.only(children)}</div>
+  )
+
   it('renders only one children without throwing', () => {
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
-        jsx={`<OnlyOne><h1>Ipsum</h1></OnlyOne>`}
+        jsx={'<OnlyOne><h1>Ipsum</h1></OnlyOne>'}
       />
       )
     ).not.toThrow()
@@ -477,9 +469,27 @@ describe('JsxParser Component', () => {
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
-        jsx={`<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>`}
+        jsx={'<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>'}
       />
       )
     ).toThrow()
+  })
+
+  it('allows void-element named custom components to take children', () => {
+    const link = ({ to, children }) => (<a href={to}>{children}</a>)
+    const { rendered } = render(
+      <JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />
+    )
+    expect(rendered.childNodes[0].nodeName).toEqual('A')
+    expect(rendered.childNodes[0].textContent).toEqual('Text')
+  })
+
+  it('allows no-whitespace-element named custom components to take whitespace', () => {
+    const td = ({ children }) => (<div className="td">{children}</div>)
+    const { rendered } = render(
+      <JsxParser components={{ td }} jsx={'<td> Text </td>'} />
+    )
+    expect(rendered.childNodes[0].nodeName).toEqual('DIV')
+    expect(rendered.childNodes[0].textContent).toEqual(' Text ')
   })
 })
