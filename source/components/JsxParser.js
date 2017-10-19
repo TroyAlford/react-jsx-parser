@@ -87,16 +87,19 @@ export default class JsxParser extends Component {
 
     if (this.blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
     let parsedChildren
-    if (canHaveChildren(name)) {
+    if (components[name] || canHaveChildren(name)) {
       parsedChildren = children.map(this.parseExpression)
-      if (!canHaveWhitespace(name)) {
+      if (!components[name] && !canHaveWhitespace(name)) {
         parsedChildren = parsedChildren.filter(child =>
           typeof child !== 'string' || !/^\s*$/.test(child)
         )
       }
 
-      if (parsedChildren.length === 0) parsedChildren = undefined
-      else if (parsedChildren.length === 1) parsedChildren = parsedChildren[0]
+      if (parsedChildren.length === 0) {
+        parsedChildren = undefined
+      } else if (parsedChildren.length === 1) {
+        parsedChildren = parsedChildren[0]
+      }
     }
 
     const attrs = { key, ...bindings }
@@ -132,6 +135,7 @@ JsxParser.defaultProps = {
   blacklistedTags:  ['script'],
   components:       [],
   jsx:              '',
+  onError:          () => {},
   showWarnings:     false,
 }
 
@@ -148,7 +152,7 @@ if (process.env.NODE_ENV !== 'production') {
     blacklistedTags: PropTypes.arrayOf(PropTypes.string),
     components:      PropTypes.shape({}),
     jsx:             PropTypes.string,
-    onError: PropTypes.func,
-    showWarnings: PropTypes.bool,
+    onError:         PropTypes.func,
+    showWarnings:    PropTypes.bool,
   }
 }
