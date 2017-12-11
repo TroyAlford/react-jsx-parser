@@ -359,6 +359,66 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes[3].nodeType).toEqual(8) // Comment
   })
 
+  it('keeps non-breaking spaces as such', () => {
+    const { rendered } = render(
+      <JsxParser
+        jsx={'\
+          <p>Contains a&nbsp;non-breaking space (html named entity)</p>\
+          <p>Contains a&#160;non-breaking space (html numbered entity)</p>\
+          <p>Contains a\u00a0non-breaking space (utf sequence)</p>\
+          <p>Contains a non-breaking space (hard coded, using alt+space)</p>\
+          <p>Contains a&#8239;narrow non-breaking space (html numbered entity)</p>\
+          <p>Contains a\u202Fnarrow non-breaking space (utf sequence)</p>\
+          <p>This is a test with regular spaces only</p>\
+        '}
+      />
+    )
+
+    // P
+    // Comment Whitespace Comment
+    // P
+    // Comment Whitespace Comment
+    // P
+    // .
+    // Entites are converted to utf sequences
+    // The first four paragraphs should contain \u00A0 (utf non-breaking space)
+    // The two next paragraphs should contain \u202F (utf narrow non-breaking space)
+    // The last paragraph should *not* contain any non breaking spaces
+    expect(rendered.childNodes).toHaveLength(25)
+
+    expect(rendered.childNodes[0].nodeType).toEqual(1) // Element
+    expect(rendered.childNodes[0].nodeName).toEqual('P')
+    expect(rendered.childNodes[0].textContent).toMatch(/[\u00A0]/)
+
+    for (let i = 0; i < 3; i += 1) {
+      expect(rendered.childNodes[(i * 4) + 1].nodeType).toEqual(8) // Comment
+      expect(rendered.childNodes[(i * 4) + 2].nodeType).toEqual(3) // Text
+      expect(rendered.childNodes[(i * 4) + 3].nodeType).toEqual(8) // Comment
+
+      expect(rendered.childNodes[(i * 4) + 4].nodeType).toEqual(1) // Element
+      expect(rendered.childNodes[(i * 4) + 4].nodeName).toEqual('P')
+      expect(rendered.childNodes[(i * 4) + 4].textContent).toMatch(/[\u00A0]/)
+    }
+
+    for (let i = 3; i < 4; i += 1) {
+      expect(rendered.childNodes[(i * 4) + 1].nodeType).toEqual(8) // Comment
+      expect(rendered.childNodes[(i * 4) + 2].nodeType).toEqual(3) // Text
+      expect(rendered.childNodes[(i * 4) + 3].nodeType).toEqual(8) // Comment
+
+      expect(rendered.childNodes[(i * 4) + 4].nodeType).toEqual(1) // Element
+      expect(rendered.childNodes[(i * 4) + 4].nodeName).toEqual('P')
+      expect(rendered.childNodes[(i * 4) + 4].textContent).toMatch(/[\u202F]/)
+    }
+
+    expect(rendered.childNodes[21].nodeType).toEqual(8) // Comment
+    expect(rendered.childNodes[22].nodeType).toEqual(3) // Text
+    expect(rendered.childNodes[23].nodeType).toEqual(8) // Comment
+
+    expect(rendered.childNodes[24].nodeType).toEqual(1) // Element
+    expect(rendered.childNodes[24].nodeName).toEqual('P')
+    expect(rendered.childNodes[24].textContent).not.toMatch(/[\u00A0|\u202F]/)
+  })
+
   it('handles style attributes gracefully', () => {
     const { rendered } = render(
       <JsxParser
