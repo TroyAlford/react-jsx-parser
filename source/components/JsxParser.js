@@ -56,7 +56,7 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression, key)
       case 'JSXText':
-        return (value || '').replace(/\s+/g, ' ')
+        return (value || '')
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
