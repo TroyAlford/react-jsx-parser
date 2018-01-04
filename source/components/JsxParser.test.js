@@ -6,7 +6,7 @@ import JsxParser from './JsxParser'
 jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
 
-/* eslint-disable function-paren-newline */
+/* eslint-disable function-paren-newline, no-console, no-underscore-dangle */
 
 // eslint-disable-next-line react/prop-types
 const Custom = ({ children = [], className, text }) => (
@@ -18,8 +18,25 @@ const Custom = ({ children = [], className, text }) => (
 
 describe('JsxParser Component', () => {
   let parent = null
+  let originalConsoleError = null
+  let originalJsDomEmit = null
+
+  beforeAll(() => {
+    originalConsoleError = console.error
+    console.error = jest.fn()
+
+    originalJsDomEmit = window._virtualConsole.emit
+    window._virtualConsole.emit = jest.fn()
+  })
+
+  afterAll(() => {
+    console.error = originalConsoleError
+    window._virtualConsole.emit = originalJsDomEmit
+  })
 
   beforeEach(() => {
+    console.error.mockReset()
+    window._virtualConsole.emit.mockReset()
     parent = document.createElement('div')
   })
 
@@ -158,9 +175,6 @@ describe('JsxParser Component', () => {
   })
 
   it('handles unrecognized components', () => {
-    /* eslint-disable no-console */
-    const origConsoleError = console.error
-    console.error = jest.fn()
     const { component, rendered } = render(
       <JsxParser
         components={[/* No Components Passed In */]}
@@ -195,8 +209,6 @@ describe('JsxParser Component', () => {
     expect(firstError[0]).toMatch(/using uppercase HTML/)
     expect(secondError[0]).toMatch(/unrecognized in this browser/)
     expect(thirdError[0]).toMatch(/using uppercase HTML/)
-
-    console.error = origConsoleError
   })
 
   it('passes bindings to children', () => {
@@ -455,12 +467,20 @@ describe('JsxParser Component', () => {
 
   it('skips over DOCTYPE, html, head, and div if found', () => {
     const { rendered } = render(
-      <JsxParser
-        jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'}
-      />
+      <JsxParser jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'} />
     )
 
     expect(rendered.childNodes).toHaveLength(2)
+  })
+
+  it('outputs no wrapper element when renderInWrapper prop is false', () => {
+    render(<JsxParser jsx={'<h1>Foo</h1><hr />'} renderInWrapper={false} />)
+    expect(parent.childNodes).toHaveLength(2)
+
+    const [h1, hr] = Array.from(parent.childNodes)
+    expect([h1.nodeType, h1.nodeName, h1.textContent])
+      .toEqual([Node.ELEMENT_NODE, 'H1', 'Foo'])
+    expect([hr.nodeType, hr.nodeName]).toEqual([Node.ELEMENT_NODE, 'HR'])
   })
 
   // eslint-disable-next-line react/prop-types
@@ -469,13 +489,6 @@ describe('JsxParser Component', () => {
   )
 
   it('correctly interops with React.Children.only()', () => {
-    /* eslint-disable no-underscore-dangle */
-    let emit
-    if (window._virtualConsole) {
-      emit = window._virtualConsole.emit // eslint-disable-line
-      window._virtualConsole.emit = () => {}
-    }
-
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
@@ -490,10 +503,6 @@ describe('JsxParser Component', () => {
         jsx={'<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>'}
       />
     )).toThrow()
-
-    if (emit) {
-      window._virtualConsole.emit = emit
-    }
   })
 
   it('allows void-element named custom components to take children', () => {

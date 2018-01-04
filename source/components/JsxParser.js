@@ -10,11 +10,6 @@ const parserOptions = { plugins: { jsx: true } }
 export default class JsxParser extends Component {
   constructor(props) {
     super(props)
-    this.parseElement = this.parseElement.bind(this)
-    this.parseExpression = this.parseExpression.bind(this)
-    this.parseJSX = this.parseJSX.bind(this)
-    this.handleNewProps = this.handleNewProps.bind(this)
-
     this.handleNewProps(props)
   }
 
@@ -22,7 +17,7 @@ export default class JsxParser extends Component {
     this.handleNewProps(props)
   }
 
-  handleNewProps(props) {
+  handleNewProps = (props) => {
     this.blacklistedTags = (props.blacklistedTags || [])
       .map(tag => tag.trim().toLowerCase()).filter(Boolean)
     this.blacklistedAttrs = (props.blacklistedAttrs || [])
@@ -32,7 +27,7 @@ export default class JsxParser extends Component {
     this.ParsedChildren = this.parseJSX(jsx)
   }
 
-  parseJSX(rawJSX) {
+  parseJSX = (rawJSX) => {
     const wrappedJsx = `<root>${rawJSX}</root>`
     let parsed = []
     try {
@@ -48,7 +43,7 @@ export default class JsxParser extends Component {
     return parsed.map(this.parseExpression).filter(Boolean)
   }
 
-  parseExpression(expression, key) {
+  parseExpression = (expression, key) => {
     /* eslint-disable no-case-declarations */
     switch (expression.type) {
       case 'JSXElement':
@@ -77,7 +72,7 @@ export default class JsxParser extends Component {
     }
   }
 
-  parseElement(element, key) {
+  parseElement = (element, key) => {
     const { bindings = {}, components = {} } = this.props
     const { children = [], openingElement: { attributes, name: { name } } } = element
 
@@ -118,13 +113,11 @@ export default class JsxParser extends Component {
     return React.createElement(components[name] || name, attrs, parsedChildren)
   }
 
-  render() {
-    return (
-      <div className="jsx-parser">
-        {this.ParsedChildren}
-      </div>
-    )
-  }
+  render = () => (
+    this.props.renderInWrapper
+      ? <div className="jsx-parser">{this.ParsedChildren}</div>
+      : this.ParsedChildren
+  )
 }
 
 JsxParser.defaultProps = {
@@ -135,6 +128,7 @@ JsxParser.defaultProps = {
   jsx:              '',
   onError:          () => {},
   showWarnings:     false,
+  renderInWrapper:  true,
 }
 
 if (process.env.NODE_ENV !== 'production') {
@@ -152,5 +146,6 @@ if (process.env.NODE_ENV !== 'production') {
     jsx:             PropTypes.string,
     onError:         PropTypes.func,
     showWarnings:    PropTypes.bool,
+    renderInWrapper: PropTypes.bool,
   }
 }
