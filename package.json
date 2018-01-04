@@ -10,8 +10,8 @@
     "url": "git@github.com:TroyAlford/react-jsx-parser.git"
   },
   "dependencies": {
-    "acorn-jsx": "^4.0.1",
-    "react": "^15.6.1"
+    "acorn-jsx": "^4.1.0",
+    "react": "^16.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -29,7 +29,7 @@
     "jest": "^22.0.4",
     "jest-cli": "^22.0.4",
     "prop-types": "^15.6.0",
-    "react-dom": "^15.6.1",
+    "react-dom": "^16.2.0",
     "source-map-explorer": "^1.5.0",
     "webpack": "^3.10.0"
   },

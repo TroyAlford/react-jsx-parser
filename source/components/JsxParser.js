@@ -50,13 +50,11 @@ export default class JsxParser extends Component {
 
   parseExpression(expression, key) {
     /* eslint-disable no-case-declarations */
-    const value = expression.value
-
     switch (expression.type) {
       case 'JSXElement':
         return this.parseElement(expression, key)
       case 'JSXText':
-        return (value || '')
+        return (expression.value || '')
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
@@ -72,7 +70,7 @@ export default class JsxParser extends Component {
       case 'JSXExpressionContainer':
         return this.parseExpression(expression.expression)
       case 'Literal':
-        return value
+        return expression.value
 
       default:
         return undefined
@@ -90,15 +88,15 @@ export default class JsxParser extends Component {
     if (components[name] || canHaveChildren(name)) {
       parsedChildren = children.map(this.parseExpression)
       if (!components[name] && !canHaveWhitespace(name)) {
-        parsedChildren = parsedChildren.filter(child =>
+        parsedChildren = parsedChildren.filter(child => (
           typeof child !== 'string' || !/^\s*$/.test(child)
-        )
+        ))
       }
 
       if (parsedChildren.length === 0) {
         parsedChildren = undefined
       } else if (parsedChildren.length === 1) {
-        parsedChildren = parsedChildren[0]
+        [parsedChildren] = parsedChildren
       }
     }
 
@@ -140,7 +138,7 @@ JsxParser.defaultProps = {
 }
 
 if (process.env.NODE_ENV !== 'production') {
-  /* eslint-disable react/no-unused-prop-types*/
+  /* eslint-disable react/no-unused-prop-types */
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
   const PropTypes = require('prop-types')
   JsxParser.propTypes = {

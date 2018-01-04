@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
 import TestUtils from 'react-dom/test-utils'
 import JsxParser from './JsxParser'
@@ -6,19 +6,15 @@ import JsxParser from './JsxParser'
 jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
 
-// eslint-disable-next-line react/prefer-stateless-function
-class Custom extends Component {
-  /* eslint-disable react/prop-types */
+/* eslint-disable function-paren-newline */
 
-  render() {
-    return (
-      <div className={this.props.className}>
-        {this.props.text}
-        {this.props.children || []}
-      </div>
-    )
-  }
-}
+// eslint-disable-next-line react/prop-types
+const Custom = ({ children = [], className, text }) => (
+  <div className={className}>
+    {text}
+    {children}
+  </div>
+)
 
 describe('JsxParser Component', () => {
   let parent = null
@@ -85,26 +81,15 @@ describe('JsxParser Component', () => {
 
     const outer = rendered.childNodes[0]
     expect(outer.nodeName).toEqual('DIV')
+    expect(outer.childNodes).toHaveLength(2)
 
-    // React will wrap the Outer text with comments:
-    // <!-- react-text: {key} -->
-    // Outer
-    // <!-- /react-text -->
-    // <div>Inner</div>
+    const [text, div] = outer.childNodes
+    expect(text.nodeType).toEqual(Node.TEXT_NODE) // Text
+    expect(text.textContent).toEqual('Outer')
 
-    expect(outer.childNodes).toHaveLength(4)
-    expect(outer.childNodes[0].nodeType).toEqual(8) // Comment
-    expect(outer.childNodes[0].textContent).toMatch(/react-text/)
-
-    expect(outer.childNodes[1].nodeType).toEqual(3) // Text
-    expect(outer.childNodes[1].textContent).toEqual('Outer')
-
-    expect(outer.childNodes[2].nodeType).toEqual(8) // Comment
-    expect(outer.childNodes[2].textContent).toMatch(/\/react-text/)
-
-    expect(outer.childNodes[3].nodeType).toEqual(1) // Element
-    expect(outer.childNodes[3].nodeName).toEqual('DIV')
-    expect(outer.childNodes[3].textContent).toEqual('Inner')
+    expect(div.nodeType).toEqual(Node.ELEMENT_NODE) // Element
+    expect(div.nodeName).toEqual('DIV')
+    expect(div.textContent).toEqual('Inner')
   })
 
   it('renders custom components', () => {
@@ -153,27 +138,23 @@ describe('JsxParser Component', () => {
 
     const outer = rendered.childNodes[0]
     expect(outer.nodeName).toEqual('DIV')
+    expect(outer.className).toEqual('outer')
+    expect(outer.childNodes).toHaveLength(2)
 
-    const outerChildren = Array.from(outer.childNodes)
-    expect(outerChildren.map(n => n.nodeType))
-      .toEqual([8, 3, 8, 1])
-    expect(outerChildren[1].textContent).toEqual('outerText')
-
-    const inner = outer.childNodes[3]
+    const [text, inner] = Array.from(outer.childNodes)
+    expect(text.nodeType).toEqual(Node.TEXT_NODE)
+    expect(text.textContent).toEqual('outerText')
+    expect(inner.nodeType).toEqual(Node.ELEMENT_NODE)
     expect(inner.nodeName).toEqual('DIV')
+    expect(inner.className).toEqual('inner')
+    expect(inner.childNodes).toHaveLength(2)
 
-    const innerChildren = Array.from(inner.childNodes)
-    expect(innerChildren.map(n => n.nodeType))
-      .toEqual([8, 3, 8, 1])
-    expect(innerChildren[1].textContent).toEqual('innerText')
-
-    const div = inner.childNodes[3]
-    expect(div.nodeName).toEqual('DIV')
-
-    const divChildren = Array.from(div.childNodes)
-    expect(divChildren).toHaveLength(1)
-    expect(divChildren[0].nodeType).toEqual(3)
-    expect(divChildren[0].textContent).toEqual('Non-Custom')
+    const [innerText, innerDiv] = Array.from(inner.childNodes)
+    expect(innerText.nodeType).toEqual(Node.TEXT_NODE)
+    expect(innerText.textContent).toEqual('innerText')
+    expect(innerDiv.nodeType).toEqual(Node.ELEMENT_NODE)
+    expect(innerDiv.nodeName).toEqual('DIV')
+    expect(innerDiv.textContent).toEqual('Non-Custom')
   })
 
   it('handles unrecognized components', () => {
@@ -209,9 +190,11 @@ describe('JsxParser Component', () => {
     expect(div.nodeName).toEqual('DIV')
     expect(div.textContent).toEqual('Non-Custom')
 
-    expect(console.error).toHaveBeenCalledTimes(2)
-    expect(console.error.mock.calls[0][0]).toMatch(/Unknown prop `foo` on <Unrecognized> tag./)
-    expect(console.error.mock.calls[1][0]).toMatch(/Unknown prop `bar` on <Unrecognized> tag./)
+    expect(console.error).toHaveBeenCalledTimes(3)
+    const [firstError, secondError, thirdError] = console.error.mock.calls
+    expect(firstError[0]).toMatch(/using uppercase HTML/)
+    expect(secondError[0]).toMatch(/unrecognized in this browser/)
+    expect(thirdError[0]).toMatch(/using uppercase HTML/)
 
     console.error = origConsoleError
   })
@@ -236,7 +219,7 @@ describe('JsxParser Component', () => {
 
     // The <div> should receive `bindings`, too
     expect(component.ParsedChildren[1].props).toEqual({
-      foo: 'Fu',  // from jsx attributes (takes precedence)
+      foo: 'Fu', // from jsx attributes (takes precedence)
       bar: 'Bar', // from `bindings`
     })
   })
@@ -296,18 +279,14 @@ describe('JsxParser Component', () => {
   })
 
   it('parses childless elements with children = undefined', () => {
-    const { component } = render(
-      <JsxParser components={{ Custom }} jsx={'<Custom />'} />
-    )
+    const { component } = render(<JsxParser components={{ Custom }} jsx={'<Custom />'} />)
 
     expect(component.ParsedChildren).toHaveLength(1)
     expect(component.ParsedChildren[0].props.children).toBeUndefined()
   })
 
   it('parses bound object values', () => {
-    const { component } = render(
-      <JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar" }} />'} />
-    )
+    const { component } = render(<JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar" }} />'} />)
 
     expect(component.ParsedChildren).toHaveLength(1)
     expect(component.ParsedChildren[0].props.obj).toEqual({ foo: 'bar' })
@@ -348,75 +327,49 @@ describe('JsxParser Component', () => {
     // H1
     // Comment Whitespace Comment
     // DIV
-    expect(rendered.childNodes).toHaveLength(5)
-    expect(rendered.childNodes[0].nodeType).toEqual(1) // Element
-    expect(rendered.childNodes[0].nodeName).toEqual('H1')
-    expect(rendered.childNodes[4].nodeType).toEqual(1) // Element
-    expect(rendered.childNodes[4].nodeName).toEqual('DIV')
+    const children = Array.from(rendered.childNodes)
+    expect(children).toHaveLength(3)
 
-    expect(rendered.childNodes[1].nodeType).toEqual(8) // Comment
-    expect(rendered.childNodes[2].nodeType).toEqual(3) // Text
-    expect(rendered.childNodes[3].nodeType).toEqual(8) // Comment
+    const [h1, whitespace, div] = children
+    expect(h1.nodeType).toEqual(Node.ELEMENT_NODE)
+    expect(h1.nodeName).toEqual('H1')
+    expect(h1.textContent).toEqual('Title')
+    expect(whitespace.nodeType).toEqual(Node.TEXT_NODE)
+    expect(whitespace.textContent).toMatch(/^\s+$/i)
+    expect(div.nodeType).toEqual(Node.ELEMENT_NODE)
+    expect(div.nodeName).toEqual('DIV')
+    expect(div.textContent).toEqual('Bar')
+    expect(div.className).toEqual('foo')
   })
 
   it('keeps non-breaking spaces as such', () => {
     const { rendered } = render(
       <JsxParser
-        jsx={'\
-          <p>Contains a&nbsp;non-breaking space (html named entity)</p>\
-          <p>Contains a&#160;non-breaking space (html numbered entity)</p>\
-          <p>Contains a\u00a0non-breaking space (utf sequence)</p>\
-          <p>Contains a non-breaking space (hard coded, using alt+space)</p>\
-          <p>Contains a&#8239;narrow non-breaking space (html numbered entity)</p>\
-          <p>Contains a\u202Fnarrow non-breaking space (utf sequence)</p>\
-          <p>This is a test with regular spaces only</p>\
-        '}
+        jsx={
+          '<p>Contains a&nbsp;non-breaking space (html named entity)</p>' +
+          '<p>Contains a&#160;non-breaking space (html numbered entity)</p>' +
+          '<p>Contains a\u00a0non-breaking space (utf sequence)</p>' +
+          '<p>Contains a non-breaking space (hard coded, using alt+space)</p>' +
+          '<p>Contains a&#8239;narrow non-breaking space (html numbered entity)</p>' +
+          '<p>Contains a\u202Fnarrow non-breaking space (utf sequence)</p>' +
+          '<p>This is a test with regular spaces only</p>'
+        }
       />
     )
 
-    // P
-    // Comment Whitespace Comment
-    // P
-    // Comment Whitespace Comment
-    // P
-    // .
     // Entites are converted to utf sequences
     // The first four paragraphs should contain \u00A0 (utf non-breaking space)
     // The two next paragraphs should contain \u202F (utf narrow non-breaking space)
     // The last paragraph should *not* contain any non breaking spaces
-    expect(rendered.childNodes).toHaveLength(25)
+    const children = Array.from(rendered.childNodes)
 
-    expect(rendered.childNodes[0].nodeType).toEqual(1) // Element
-    expect(rendered.childNodes[0].nodeName).toEqual('P')
-    expect(rendered.childNodes[0].textContent).toMatch(/[\u00A0]/)
+    expect(children).toHaveLength(7)
+    expect(children.every(c => c.nodeType === Node.ELEMENT_NODE))
+    expect(children.every(c => c.nodeName === 'P'))
 
-    for (let i = 0; i < 3; i += 1) {
-      expect(rendered.childNodes[(i * 4) + 1].nodeType).toEqual(8) // Comment
-      expect(rendered.childNodes[(i * 4) + 2].nodeType).toEqual(3) // Text
-      expect(rendered.childNodes[(i * 4) + 3].nodeType).toEqual(8) // Comment
-
-      expect(rendered.childNodes[(i * 4) + 4].nodeType).toEqual(1) // Element
-      expect(rendered.childNodes[(i * 4) + 4].nodeName).toEqual('P')
-      expect(rendered.childNodes[(i * 4) + 4].textContent).toMatch(/[\u00A0]/)
-    }
-
-    for (let i = 3; i < 4; i += 1) {
-      expect(rendered.childNodes[(i * 4) + 1].nodeType).toEqual(8) // Comment
-      expect(rendered.childNodes[(i * 4) + 2].nodeType).toEqual(3) // Text
-      expect(rendered.childNodes[(i * 4) + 3].nodeType).toEqual(8) // Comment
-
-      expect(rendered.childNodes[(i * 4) + 4].nodeType).toEqual(1) // Element
-      expect(rendered.childNodes[(i * 4) + 4].nodeName).toEqual('P')
-      expect(rendered.childNodes[(i * 4) + 4].textContent).toMatch(/[\u202F]/)
-    }
-
-    expect(rendered.childNodes[21].nodeType).toEqual(8) // Comment
-    expect(rendered.childNodes[22].nodeType).toEqual(3) // Text
-    expect(rendered.childNodes[23].nodeType).toEqual(8) // Comment
-
-    expect(rendered.childNodes[24].nodeType).toEqual(1) // Element
-    expect(rendered.childNodes[24].nodeName).toEqual('P')
-    expect(rendered.childNodes[24].textContent).not.toMatch(/[\u00A0|\u202F]/)
+    const last = children.pop()
+    expect(children.every(c => c.textContent.match(/[\u00A0]/)))
+    expect(last.textContent).not.toMatch(/[\u00A0|\u202F]/)
   })
 
   it('handles style attributes gracefully', () => {
@@ -464,7 +417,7 @@ describe('JsxParser Component', () => {
     expect(rendered.getElementsByTagName('div')).toHaveLength(0)
   })
 
-  it('does render custom element without closing tag', () => {
+  it('renders custom elements without requiring closing tags', () => {
     // eslint-disable-next-line react/prefer-stateless-function
     const CustomContent = () => <h1>Custom Content</h1>
 
@@ -510,51 +463,59 @@ describe('JsxParser Component', () => {
     expect(rendered.childNodes).toHaveLength(2)
   })
 
+  // eslint-disable-next-line react/prop-types
   const OnlyOne = ({ children }) => (
     <div>{React.Children.only(children)}</div>
   )
 
-  it('renders only one children without throwing', () => {
+  it('correctly interops with React.Children.only()', () => {
+    /* eslint-disable no-underscore-dangle */
+    let emit
+    if (window._virtualConsole) {
+      emit = window._virtualConsole.emit // eslint-disable-line
+      window._virtualConsole.emit = () => {}
+    }
+
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
         jsx={'<OnlyOne><h1>Ipsum</h1></OnlyOne>'}
       />
-      )
-    ).not.toThrow()
-  })
+    )).not.toThrow()
 
-  it('throws with more than one child', () => {
+    // Multiple children passed - should throw
     expect(() => render(
       <JsxParser
         components={{ OnlyOne }}
         jsx={'<OnlyOne><h1>Ipsum</h1><h1>Ipsum</h1></OnlyOne>'}
       />
-      )
-    ).toThrow()
+    )).toThrow()
+
+    if (emit) {
+      window._virtualConsole.emit = emit
+    }
   })
 
   it('allows void-element named custom components to take children', () => {
+    // eslint-disable-next-line react/prop-types
     const link = ({ to, children }) => (<a href={to}>{children}</a>)
-    const { rendered } = render(
-      <JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />
-    )
+    const { rendered } = render(<JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />)
     expect(rendered.childNodes[0].nodeName).toEqual('A')
     expect(rendered.childNodes[0].textContent).toEqual('Text')
   })
 
   it('allows no-whitespace-element named custom components to take whitespace', () => {
+    // eslint-disable-next-line react/prop-types
     const tr = ({ children }) => (<div className="tr">{children}</div>)
-    const { rendered } = render(
-      <JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />
-    )
+    const { rendered } = render(<JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />)
     expect(rendered.childNodes[0].nodeName).toEqual('DIV')
-    expect(rendered.childNodes[0].childNodes).toHaveLength(7)
+    expect(rendered.childNodes[0].childNodes).toHaveLength(3)
 
-    const nodeTypes = Array.from(rendered.childNodes[0].childNodes).map(cn => cn.nodeType)
-    expect(nodeTypes).toEqual([8, 3, 8, 1, 8, 3, 8])
-    expect(rendered.childNodes[0].childNodes[1].textContent).toEqual(' ')
-    expect(rendered.childNodes[0].childNodes[3].textContent).toEqual('Text')
-    expect(rendered.childNodes[0].childNodes[5].textContent).toEqual(' ')
+    const [space1, text, space2] = Array.from(rendered.childNodes[0].childNodes)
+    const nodeTypes = [space1, text, space2].map(n => n.nodeType)
+    expect(nodeTypes).toEqual([Node.TEXT_NODE, Node.ELEMENT_NODE, Node.TEXT_NODE])
+    expect(space1.textContent).toEqual(' ')
+    expect(text.textContent).toEqual('Text')
+    expect(space2.textContent).toEqual(' ')
   })
 })
