@@ -77,5 +77,14 @@ JsxParser.defaultProps = {
   components: {},
 
   jsx: '',
+  
+  // If you specify an onError function, any rendering errors will be reported to it
+  onError: () => {},
+  
+  // If you specify showWarnings, any rendering errors will be output to console.warn
+  showWarnings: false,
+  
+  // If you specify renderInWrapper=false, the HTML output will have no <div> wrapper
+  renderInWrapper: true,
 }
 ```
