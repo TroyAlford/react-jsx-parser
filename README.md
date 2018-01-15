@@ -27,10 +27,10 @@ class MyComponent extends Component {
       <JsxParser
         bindings={bindings}
         components={{ InjectableComponent }}
-        jsx={'\
-          <h1>Header</h1>\
-          <InjectableComponent />\
-        '}
+        jsx={`
+          <h1>Header</h1>
+          <InjectableComponent />
+        `}
       />
     )
   }
