@@ -59,7 +59,7 @@ export default class JsxParser extends Component {
       case 'ObjectExpression':
         const object = {}
         expression.properties.forEach((prop) => {
-          object[prop.key.name] = this.parseExpression(prop.value)
+          object[prop.key.name || prop.key.value] = this.parseExpression(prop.value)
         })
         return object
       case 'JSXExpressionContainer':
