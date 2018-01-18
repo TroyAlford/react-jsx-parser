@@ -298,10 +298,10 @@ describe('JsxParser Component', () => {
   })
 
   it('parses bound object values', () => {
-    const { component } = render(<JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar" }} />'} />)
+    const { component } = render(<JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar", bar: "foo" }} />'} />)
 
     expect(component.ParsedChildren).toHaveLength(1)
-    expect(component.ParsedChildren[0].props.obj).toEqual({ foo: 'bar' })
+    expect(component.ParsedChildren[0].props.obj).toEqual({ foo: 'bar', bar: 'foo' })
   })
 
   it('strips custom blacklisted tags and attributes', () => {

@@ -27,10 +27,10 @@ class MyComponent extends Component {
       <JsxParser
         bindings={bindings}
         components={{ InjectableComponent }}
-        jsx={'\
-          <h1>Header</h1>\
-          <InjectableComponent />\
-        '}
+        jsx={`
+          <h1>Header</h1>
+          <InjectableComponent />
+        `}
       />
     )
   }
@@ -68,7 +68,7 @@ JsxParser.defaultProps = {
 
   // by default, just removes `on*` attributes (onClick, onChange, etc.)
   // values are used as a regex to match property names
-  blacklistedAttrs: ['on[a-z]*'], //= /on[a-z]*/gi
+  blacklistedAttrs: [/^on.+/i],
 
   // by default, removes all <script> tags
   blacklistedTags:  ['script'],
