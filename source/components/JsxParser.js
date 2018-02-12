@@ -74,7 +74,8 @@ export default class JsxParser extends Component {
 
   parseElement = (element, key) => {
     const { bindings = {}, components = {} } = this.props
-    const { children = [], openingElement: { attributes, name: { name } } } = element
+    const { children = [], openingElement = {} } = element
+    const { attributes = [], name: { name = element.type } = {} } = openingElement
 
     if (/^(html|head|body)$/i.test(name)) return children.map(c => this.parseElement(c))
 
@@ -126,7 +127,7 @@ JsxParser.defaultProps = {
   blacklistedTags:  ['script'],
   components:       [],
   jsx:              '',
-  onError:          () => {},
+  onError:          () => { },
   showWarnings:     false,
   renderInWrapper:  true,
 }
