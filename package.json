@@ -1,6 +1,6 @@
 {
   "name": "react-jsx-parser",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A React component which can parse JSX and output rendered React Components",
   "main": "lib/react-jsx-parser.min.js",
   "author": "Troy Alford",
