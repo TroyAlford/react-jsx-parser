@@ -1,6 +1,7 @@
 import { Parser } from 'acorn-jsx'
 import React, { Component } from 'react'
 import parseStyle from '../helpers/parseStyle'
+import { randomHash } from '../helpers/hash'
 
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
@@ -45,11 +46,11 @@ export default class JsxParser extends Component {
     return parsed.map(this.parseExpression).filter(Boolean)
   }
 
-  parseExpression = (expression, key) => {
+  parseExpression = (expression) => {
     /* eslint-disable no-case-declarations */
     switch (expression.type) {
       case 'JSXElement':
-        return this.parseElement(expression, key)
+        return this.parseElement(expression)
       case 'JSXText':
         return (expression.value || '')
       case 'JSXAttribute':
@@ -98,7 +99,7 @@ export default class JsxParser extends Component {
       }
     }
 
-    const attrs = { key, ...bindings }
+    const attrs = { key: randomHash(), ...bindings }
     attributes.forEach((expr) => {
       const rawName = expr.name.name
       const attributeName = ATTRIBUTES[rawName] || rawName
