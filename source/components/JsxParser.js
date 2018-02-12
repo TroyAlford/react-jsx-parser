@@ -9,6 +9,8 @@ import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 const parserOptions = { plugins: { jsx: true } }
 
 export default class JsxParser extends Component {
+  static displayName = 'JsxParser'
+
   constructor(props) {
     super(props)
     this.handleNewProps(props)
