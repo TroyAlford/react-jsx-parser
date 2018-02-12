@@ -23,7 +23,9 @@ export default class JsxParser extends Component {
     this.blacklistedAttrs = (props.blacklistedAttrs || [])
       .map(attr => (attr instanceof RegExp ? attr : new RegExp(attr, 'i')))
 
-    const jsx = (props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
+    const jsx = (props.jsx || '').trim()
+      .replace(/<!DOCTYPE([^>]*)>/g, '')
+      .replace(/(\r|\n)/g, '')
     this.ParsedChildren = this.parseJSX(jsx)
   }
 
@@ -72,10 +74,10 @@ export default class JsxParser extends Component {
     }
   }
 
-  parseElement = (element, key) => {
+  parseElement = (element) => {
     const { bindings = {}, components = {} } = this.props
-    const { children = [], openingElement = {} } = element
-    const { attributes = [], name: { name = element.type } = {} } = openingElement
+    const { children = [], openingElement } = element
+    const { attributes = [], name: { name } = {} } = openingElement
 
     if (/^(html|head|body)$/i.test(name)) return children.map(c => this.parseElement(c))
 
