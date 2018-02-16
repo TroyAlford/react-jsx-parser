@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import TestUtils from 'react-dom/test-utils'
+import { shallow } from 'enzyme'
 import JsxParser from './JsxParser'
 
 jest.unmock('acorn-jsx')
@@ -84,8 +85,8 @@ describe('JsxParser Component', () => {
       <JsxParser
         jsx={
           '<div>' +
-            'Outer' +
-            '<div>Inner</div>' +
+          'Outer' +
+          '<div>Inner</div>' +
           '</div>'
         }
       />
@@ -143,9 +144,9 @@ describe('JsxParser Component', () => {
         components={{ Custom }}
         jsx={
           '<Custom className="outer" text="outerText">' +
-            '<Custom className="inner" text="innerText">' +
-              '<div>Non-Custom</div>' +
-            '</Custom>' +
+          '<Custom className="inner" text="innerText">' +
+          '<div>Non-Custom</div>' +
+          '</Custom>' +
           '</Custom>'
         }
       />
@@ -180,9 +181,9 @@ describe('JsxParser Component', () => {
         components={[/* No Components Passed In */]}
         jsx={
           '<Unrecognized class="outer" foo="Foo">' +
-            '<Unrecognized class="inner" bar="Bar">' +
-              '<div>Non-Custom</div>' +
-            '</Unrecognized>' +
+          '<Unrecognized class="inner" bar="Bar">' +
+          '<div>Non-Custom</div>' +
+          '</Unrecognized>' +
           '</Unrecognized>'
         }
       />
@@ -259,7 +260,7 @@ describe('JsxParser Component', () => {
         jsx={
           '<div>Before</div>' +
           '<script>' +
-            'window.alert("This shouldn\'t happen!");' +
+          'window.alert("This shouldn\'t happen!");' +
           '</script>' +
           '<div>After</div>'
         }
@@ -415,7 +416,7 @@ describe('JsxParser Component', () => {
       <JsxParser
         jsx={
           '<img src="/foo.png">' +
-            '<div class="invalidChild"></div>' +
+          '<div class="invalidChild"></div>' +
           '</img>'
         }
       />
@@ -526,5 +527,11 @@ describe('JsxParser Component', () => {
     expect(space1.textContent).toEqual(' ')
     expect(text.textContent).toEqual('Text')
     expect(space2.textContent).toEqual(' ')
+  })
+
+  it('leaves a space between elements as-coded', () => {
+    const jsx = '<b>first</b> <b>second</b>'
+    const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)
+    expect(wrapper.html()).toBe(jsx)
   })
 })
