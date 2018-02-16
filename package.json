@@ -23,6 +23,8 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-jest": "^22.0.3",
     "babel-preset-react": "^6.22.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.14.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
@@ -44,5 +46,7 @@
     "test": "jest",
     "version": "yarn build && git add -A ./lib"
   },
-  "jest": {}
+  "jest": {
+    "setupTestFrameworkScriptFile": "<rootDir>setupTests.js"
+  }
 }
