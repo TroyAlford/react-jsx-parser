@@ -77,6 +77,8 @@ export default class JsxParser extends Component {
           object[prop.key.name || prop.key.value] = this.parseExpression(prop.value)
         })
         return object
+      case 'Identifier':
+        return this.props.bindings[expression.name] || undefined
       case 'JSXExpressionContainer':
         return this.parseExpression(expression.expression)
       case 'Literal':
@@ -88,7 +90,7 @@ export default class JsxParser extends Component {
   }
 
   parseElement = (element) => {
-    const { bindings = {}, components = {} } = this.props
+    const { components = {} } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [], name: { name } = {} } = openingElement
 
@@ -111,7 +113,7 @@ export default class JsxParser extends Component {
       }
     }
 
-    const props = { ...bindings, key: randomHash() }
+    const props = { key: randomHash() }
     attributes.forEach((expr) => {
       const rawName = expr.name.name
       const attributeName = ATTRIBUTES[rawName] || rawName
@@ -126,7 +128,9 @@ export default class JsxParser extends Component {
       props.style = parseStyle(props.style)
     }
 
-    return React.createElement(components[name] || name.toLowerCase(), props, children)
+    if (children) props.children = children
+
+    return React.createElement(components[name] || name.toLowerCase(), props)
   }
 
   render = () => (

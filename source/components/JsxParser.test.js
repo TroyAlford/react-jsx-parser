@@ -210,28 +210,28 @@ describe('JsxParser Component', () => {
   })
 
   it('passes bindings to children', () => {
+    const logFn = () => { console.log('Foo!') }
     const { component } = render(
       <JsxParser
-        bindings={{ foo: 'Foo', bar: 'Bar' }}
+        bindings={{
+          foo: 'Foo',
+          bar: 'Bar',
+          logFn,
+        }}
+        blacklistedAttrs={[]}
         components={{ Custom }}
         jsx={
-          '<Custom bar="Baz"></Custom>' +
-          '<div foo="Fu"></div>'
+          '<Custom foo={foo} bar={bar}></Custom>' +
+          '<div foo={foo} />' +
+          '<span onClick={logFn}>Click Me!</span>'
         }
       />
     )
 
-    expect(component.ParsedChildren).toHaveLength(2)
-    expect(component.ParsedChildren[0].props).toEqual({
-      foo: 'Foo', // from `bindings`
-      bar: 'Baz', // from jsx attributes (takes precedence)
-    })
-
-    // The <div> should receive `bindings`, too
-    expect(component.ParsedChildren[1].props).toEqual({
-      foo: 'Fu', // from jsx attributes (takes precedence)
-      bar: 'Bar', // from `bindings`
-    })
+    expect(component.ParsedChildren).toHaveLength(3)
+    expect(component.ParsedChildren[0].props).toEqual({ foo: 'Foo', bar: 'Bar' })
+    expect(component.ParsedChildren[1].props).toEqual({ foo: 'Foo' })
+    expect(component.ParsedChildren[2].props.onClick).toEqual(logFn)
   })
 
   it('strips <script src="..."> tags by default', () => {
