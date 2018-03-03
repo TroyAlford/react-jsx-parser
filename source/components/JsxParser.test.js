@@ -534,4 +534,10 @@ describe('JsxParser Component', () => {
     const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)
     expect(wrapper.html()).toBe(jsx)
   })
+
+  it('keeps line-breaks', () => {
+    const jsx = '<code class="markdown"># hello\n\na paragraph\n</code>'
+    const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)
+    expect(wrapper.html()).toBe(jsx)
+  })
 })

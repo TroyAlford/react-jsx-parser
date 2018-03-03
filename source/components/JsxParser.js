@@ -28,7 +28,6 @@ export default class JsxParser extends Component {
 
     const jsx = (props.jsx || '').trim()
       .replace(/<!DOCTYPE([^>]*)>/g, '')
-      .replace(/(\r|\n)/g, '')
     this.ParsedChildren = this.parseJSX(jsx)
   }
 
