@@ -53,7 +53,7 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression)
       case 'JSXText':
-        return <Fragment>{expression.value || ''}</Fragment>
+        return <Fragment key={randomHash()}>{expression.value || ''}</Fragment>
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
@@ -78,29 +78,29 @@ export default class JsxParser extends Component {
 
   parseElement = (element) => {
     const { bindings = {}, components = {} } = this.props
-    const { children = [], openingElement } = element
+    const { children: childNodes = [], openingElement } = element
     const { attributes = [], name: { name } = {} } = openingElement
 
-    if (/^(html|head|body)$/i.test(name)) return children.map(c => this.parseElement(c))
+    if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
 
     if (this.blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
-    let parsedChildren
+    let children
     if (components[name] || canHaveChildren(name)) {
-      parsedChildren = children.map(this.parseExpression)
+      children = childNodes.map(this.parseExpression)
       if (!components[name] && !canHaveWhitespace(name)) {
-        parsedChildren = parsedChildren.filter(child => (
+        children = children.filter(child => (
           typeof child !== 'string' || !/^\s*$/.test(child)
         ))
       }
 
-      if (parsedChildren.length === 0) {
-        parsedChildren = undefined
-      } else if (parsedChildren.length === 1) {
-        [parsedChildren] = parsedChildren
+      if (children.length === 0) {
+        children = undefined
+      } else if (children.length === 1) {
+        [children] = children
       }
     }
 
-    const attrs = { key: randomHash(), ...bindings }
+    const props = { ...bindings, key: randomHash() }
     attributes.forEach((expr) => {
       const rawName = expr.name.name
       const attributeName = ATTRIBUTES[rawName] || rawName
@@ -108,14 +108,14 @@ export default class JsxParser extends Component {
       const value = this.parseExpression(expr)
 
       const matches = this.blacklistedAttrs.filter(re => re.test(attributeName))
-      if (matches.length === 0) attrs[attributeName] = value
+      if (matches.length === 0) props[attributeName] = value
     })
 
-    if (typeof attrs.style === 'string') {
-      attrs.style = parseStyle(attrs.style)
+    if (typeof props.style === 'string') {
+      props.style = parseStyle(props.style)
     }
 
-    return React.createElement(components[name] || name, attrs, parsedChildren)
+    return React.createElement(components[name] || name.toLowerCase(), props, children)
   }
 
   render = () => (

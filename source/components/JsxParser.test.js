@@ -205,11 +205,8 @@ describe('JsxParser Component', () => {
     expect(div.nodeName).toEqual('DIV')
     expect(div.textContent).toEqual('Non-Custom')
 
-    expect(console.error).toHaveBeenCalledTimes(3)
-    const [firstError, secondError, thirdError] = console.error.mock.calls
-    expect(firstError[0]).toMatch(/using uppercase HTML/)
-    expect(secondError[0]).toMatch(/unrecognized in this browser/)
-    expect(thirdError[0]).toMatch(/using uppercase HTML/)
+    expect(console.error).toHaveBeenCalledTimes(1)
+    expect(console.error.mock.calls[0][0]).toMatch(/unrecognized in this browser/)
   })
 
   it('passes bindings to children', () => {
