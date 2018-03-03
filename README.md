@@ -10,31 +10,28 @@ A React component which can parse JSX and output rendered React Components.
 
 ## Basic Usage - Injecting JSX as a String
 ```javascript
-import React, { Component } from 'react'
+import React from 'react'
 import JsxParser from 'react-jsx-parser'
 
 class InjectableComponent extends Component {
+  static defaultProps = {
+    eventHandler: () => {}
+  }
   // ... inner workings of InjectableComponent
 }
 
-class MyComponent extends Component {
-  render() {
-    /* Pull out parent props which shouldn't be bound,
-       then pass the rest as `bindings` to all children */
-    const { prop1, prop2, ...bindings } = this.props
-
-    return (
-      <JsxParser
-        bindings={bindings}
-        components={{ InjectableComponent }}
-        jsx={`
-          <h1>Header</h1>
-          <InjectableComponent />
-        `}
-      />
-    )
-  }
-}
+const MyComponent = () => (
+  <JsxParser
+    bindings={{
+      myEventHandler: () => { /* ... do stuff ... */ }
+    }}
+    components={{ InjectableComponent }}
+    jsx={`
+      <h1>Header</h1>
+      <InjectableComponent eventHandler={myEventHandler} />
+    `}
+  />
+)
 ```
 
 Because `InjectableComponent` is passed into the `JsxParser.props.components` prop, it is treated as a known element type, and created using `React.createElement(...)` when parsed out of the JSX.
