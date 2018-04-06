@@ -32,6 +32,7 @@ export default class JsxParser extends Component {
   }
 
   handleNewProps = (props) => {
+    this.bindings = (props.bindings || {})
     this.blacklistedTags = (props.blacklistedTags || [])
       .map(tag => tag.trim().toLowerCase()).filter(Boolean)
     this.blacklistedAttrs = (props.blacklistedAttrs || [])
@@ -78,7 +79,7 @@ export default class JsxParser extends Component {
         })
         return object
       case 'Identifier':
-        return this.props.bindings[expression.name] || undefined
+        return this.bindings[expression.name] || undefined
       case 'JSXExpressionContainer':
         return this.parseExpression(expression.expression)
       case 'Literal':
