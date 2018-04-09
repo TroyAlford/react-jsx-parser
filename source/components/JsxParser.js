@@ -58,6 +58,17 @@ export default class JsxParser extends Component {
     return parsed.map(this.parseExpression).filter(Boolean)
   }
 
+  getObject = (expression) => {
+    switch (expression.type) {
+      case 'MemberExpression':
+        return (this.getObject(expression.object) || {})[expression.property.name]
+      case 'Identifier':
+        return this.props.bindings[expression.name] || {}
+      default:
+        return undefined
+    }
+  }
+
   parseExpression = (expression) => {
     /* eslint-disable no-case-declarations */
     switch (expression.type) {
@@ -83,6 +94,8 @@ export default class JsxParser extends Component {
         return this.parseExpression(expression.expression)
       case 'Literal':
         return expression.value
+      case 'MemberExpression':
+        return this.getObject(expression)
 
       default:
         return undefined
