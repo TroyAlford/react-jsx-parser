@@ -217,21 +217,28 @@ describe('JsxParser Component', () => {
           foo: 'Foo',
           bar: 'Bar',
           logFn,
+          nested: {
+            objects: {
+              work: true
+            }
+          }
         }}
         blacklistedAttrs={[]}
         components={{ Custom }}
         jsx={
           '<Custom foo={foo} bar={bar}></Custom>' +
           '<div foo={foo} />' +
-          '<span onClick={logFn}>Click Me!</span>'
+          '<span onClick={logFn}>Click Me!</span>' +
+          '<div doTheyWork={nested.objects.work} />'
         }
       />
     )
 
-    expect(component.ParsedChildren).toHaveLength(3)
+    expect(component.ParsedChildren).toHaveLength(4)
     expect(component.ParsedChildren[0].props).toEqual({ foo: 'Foo', bar: 'Bar' })
     expect(component.ParsedChildren[1].props).toEqual({ foo: 'Foo' })
     expect(component.ParsedChildren[2].props.onClick).toEqual(logFn)
+    expect(component.ParsedChildren[3].props).toEqual({ doTheyWork: true })
   })
 
   it('strips <script src="..."> tags by default', () => {
