@@ -22,26 +22,6 @@ export default class JsxParser extends Component {
 
   static displayName = 'JsxParser'
 
-  constructor(props) {
-    super(props)
-    this.handleNewProps(props)
-  }
-
-  componentWillReceiveProps(props) {
-    this.handleNewProps(props)
-  }
-
-  handleNewProps = (props) => {
-    this.blacklistedTags = (props.blacklistedTags || [])
-      .map(tag => tag.trim().toLowerCase()).filter(Boolean)
-    this.blacklistedAttrs = (props.blacklistedAttrs || [])
-      .map(attr => (attr instanceof RegExp ? attr : new RegExp(attr, 'i')))
-
-    const jsx = (props.jsx || '').trim()
-      .replace(/<!DOCTYPE([^>]*)>/g, '')
-    this.ParsedChildren = this.parseJSX(jsx)
-  }
-
   parseJSX = (rawJSX) => {
     const wrappedJsx = `<root>${rawJSX}</root>`
     let parsed = []
@@ -56,17 +36,6 @@ export default class JsxParser extends Component {
     }
 
     return parsed.map(this.parseExpression).filter(Boolean)
-  }
-
-  getObject = (expression) => {
-    switch (expression.type) {
-      case 'MemberExpression':
-        return (this.getObject(expression.object) || {})[expression.property.name]
-      case 'Identifier':
-        return this.props.bindings[expression.name] || {}
-      default:
-        return undefined
-    }
   }
 
   parseExpression = (expression) => {
@@ -89,13 +58,13 @@ export default class JsxParser extends Component {
         })
         return object
       case 'Identifier':
-        return this.props.bindings[expression.name] || undefined
+        return (this.props.bindings || {})[expression.name]
       case 'JSXExpressionContainer':
         return this.parseExpression(expression.expression)
       case 'Literal':
         return expression.value
       case 'MemberExpression':
-        return this.getObject(expression)
+        return (this.parseExpression(expression.object) || {})[expression.property.name]
 
       default:
         return undefined
@@ -107,9 +76,15 @@ export default class JsxParser extends Component {
     const { children: childNodes = [], openingElement } = element
     const { attributes = [], name: { name } = {} } = openingElement
 
+    const blacklistedAttrs = (this.props.blacklistedAttrs || [])
+      .map(attr => (attr instanceof RegExp ? attr : new RegExp(attr, 'i')))
+    const blacklistedTags = (this.props.blacklistedTags || [])
+      .map(tag => tag.trim().toLowerCase()).filter(Boolean)
+
+
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
 
-    if (this.blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
+    if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
     let children
     if (components[name] || canHaveChildren(name)) {
       children = childNodes.map(this.parseExpression)
@@ -133,7 +108,7 @@ export default class JsxParser extends Component {
       // if the value is null, this is an implicitly "true" prop, such as readOnly
       const value = this.parseExpression(expr)
 
-      const matches = this.blacklistedAttrs.filter(re => re.test(attributeName))
+      const matches = blacklistedAttrs.filter(re => re.test(attributeName))
       if (matches.length === 0) props[attributeName] = value
     })
 
@@ -146,11 +121,16 @@ export default class JsxParser extends Component {
     return React.createElement(components[name] || name.toLowerCase(), props)
   }
 
-  render = () => (
-    this.props.renderInWrapper
-      ? <div className="jsx-parser">{this.ParsedChildren}</div>
-      : <Fragment>{this.ParsedChildren}</Fragment>
-  )
+  render = () => {
+    const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
+    this.ParsedChildren = this.parseJSX(jsx)
+
+    return (
+      this.props.renderInWrapper
+        ? <div className="jsx-parser">{this.ParsedChildren}</div>
+        : <Fragment>{this.ParsedChildren}</Fragment>
+    )
+  }
 }
 
 if (process.env.NODE_ENV !== 'production') {
