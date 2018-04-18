@@ -14,11 +14,11 @@ export default class JsxParser extends Component {
     blacklistedAttrs: [/^on.+/i],
     blacklistedTags:  ['script'],
     components:       [],
+    componentsOnly:   false,
     jsx:              '',
     onError:          () => { },
     showWarnings:     false,
     renderInWrapper:  true,
-    componentsOnly: false
   }
 
   static displayName = 'JsxParser'
@@ -73,7 +73,7 @@ export default class JsxParser extends Component {
   }
 
   parseElement = (element) => {
-    const { components = {} } = this.props
+    const { components = {}, componentsOnly } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [], name: { name } = {} } = openingElement
 
@@ -86,7 +86,7 @@ export default class JsxParser extends Component {
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
 
     if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
-    if(this.props.componentsOnly && !(name in components)) return undefined; 
+    if (componentsOnly && !components[name]) return undefined
 
     let children
     if (components[name] || canHaveChildren(name)) {
@@ -148,6 +148,7 @@ if (process.env.NODE_ENV !== 'production') {
     ])),
     blacklistedTags: PropTypes.arrayOf(PropTypes.string),
     components:      PropTypes.shape({}),
+    componentsOnly:  PropTypes.bool,
     jsx:             PropTypes.string,
     onError:         PropTypes.func,
     showWarnings:    PropTypes.bool,

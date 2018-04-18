@@ -329,6 +329,28 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].attributes.prefixedFoo).toBeUndefined()
       expect(rendered.childNodes[0].attributes.prefixedBar).toBeUndefined()
     })
+    it('strips HTML tags if componentsOnly=true', () => {
+      // eslint-disable-next-line react/prop-types
+      const Simple = ({ children, text }) => <div>{text}{children}</div>
+      const { rendered } = render(
+        <JsxParser
+          components={{ Simple }}
+          componentsOnly
+          jsx={`
+            <h1>Ignored</h1>
+            <Simple text="Parent">
+              <Simple text="Child">
+                <h2>Ignored</h2>
+              </Simple>
+            </Simple>
+          `}
+        />
+      )
+      expect(rendered.getElementsByTagName('h1')).toHaveLength(0)
+      expect(rendered.getElementsByTagName('h2')).toHaveLength(0)
+      expect(rendered.getElementsByTagName('div')).toHaveLength(2)
+      expect(rendered.textContent.replace(/\s/g, '')).toEqual('ParentChild')
+    })
   })
   describe('whitespace', () => {
     it('allows no-whitespace-element named custom components to take whitespace', () => {
@@ -543,39 +565,6 @@ describe('JsxParser Component', () => {
           jsx={'<OnlyOne><h1>Ipsum</h1><h2>Foo</h2></OnlyOne>'}
         />
       )).toThrow()
-    })
-  })
-  describe('HTML tags are ignored', () => {
-    const Simple = ({ children, text }) => (
-      <div>
-        {text}
-        {children}
-      </div>
-    )
-    it('ignores h1 and h2 tag', () => {
-      const { component, rendered } = render(
-        <JsxParser
-          components={{ Simple }}
-          jsx={
-            '<h1>Ignore Header</h1>' +
-            '<Simple text="Test Text:">' +
-              '<Simple text="Child">' +
-                '<h2>Ignore me</h2>' +
-              '</Simple>'+
-            '</Simple>'
-          }
-          componentsOnly={true}
-        />
-      )
-      expect(rendered.getElementsByTagName('h1')).toHaveLength(0)
-      expect(rendered.getElementsByTagName('h2')).toHaveLength(0)
-
-      expect(rendered.childNodes).toHaveLength(1)
-      const simple = component.ParsedChildren[0]
-      expect(simple instanceof Simple)
-
-      const simpleHTML = rendered.childNodes[0]
-      expect(simpleHTML.textContent).toEqual('Test Text:Child')
     })
   })
 })
