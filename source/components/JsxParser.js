@@ -18,6 +18,7 @@ export default class JsxParser extends Component {
     onError:          () => { },
     showWarnings:     false,
     renderInWrapper:  true,
+    componentsOnly: false
   }
 
   static displayName = 'JsxParser'
@@ -85,6 +86,8 @@ export default class JsxParser extends Component {
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
 
     if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
+    if(this.props.componentsOnly && !(name in components)) return undefined; 
+
     let children
     if (components[name] || canHaveChildren(name)) {
       children = childNodes.map(this.parseExpression)

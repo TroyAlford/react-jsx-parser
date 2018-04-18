@@ -545,4 +545,37 @@ describe('JsxParser Component', () => {
       )).toThrow()
     })
   })
+  describe('HTML tags are ignored', () => {
+    const Simple = ({ children, text }) => (
+      <div>
+        {text}
+        {children}
+      </div>
+    )
+    it('ignores h1 and h2 tag', () => {
+      const { component, rendered } = render(
+        <JsxParser
+          components={{ Simple }}
+          jsx={
+            '<h1>Ignore Header</h1>' +
+            '<Simple text="Test Text:">' +
+              '<Simple text="Child">' +
+                '<h2>Ignore me</h2>' +
+              '</Simple>'+
+            '</Simple>'
+          }
+          componentsOnly={true}
+        />
+      )
+      expect(rendered.getElementsByTagName('h1')).toHaveLength(0)
+      expect(rendered.getElementsByTagName('h2')).toHaveLength(0)
+
+      expect(rendered.childNodes).toHaveLength(1)
+      const simple = component.ParsedChildren[0]
+      expect(simple instanceof Simple)
+
+      const simpleHTML = rendered.childNodes[0]
+      expect(simpleHTML.textContent).toEqual('Test Text:Child')
+    })
+  })
 })
