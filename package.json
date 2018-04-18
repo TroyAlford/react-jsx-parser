@@ -1,6 +1,6 @@
 {
   "name": "react-jsx-parser",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "A React component which can parse JSX and output rendered React Components",
   "main": "lib/react-jsx-parser.min.js",
   "author": "Troy Alford",
@@ -23,6 +23,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-jest": "^22.0.3",
     "babel-preset-react": "^6.22.0",
+    "cross-env": "^5.1.4",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.14.0",
@@ -32,16 +33,17 @@
     "eslint-plugin-react": "^7.5.1",
     "jest": "^22.0.4",
     "jest-cli": "^22.0.4",
+    "mkdirp": "^0.5.1",
     "prop-types": "^15.6.0",
     "react-dom": "^16.2.0",
     "source-map-explorer": "^1.5.0",
     "webpack": "^3.10.0"
   },
   "scripts": {
-    "build": "yarn prebuild && NODE_ENV=production webpack",
-    "inspect-sourcemap": "NODE_ENV=production SOURCEMAP=true webpack && source-map-explorer ./lib/react-jsx-parser.min.js",
+    "build": "yarn prebuild && cross-env NODE_ENV=production webpack",
+    "inspect-sourcemap": "cross-env NODE_ENV=production SOURCEMAP=true webpack && source-map-explorer ./lib/react-jsx-parser.min.js",
     "postversion": "git push origin HEAD && git push origin HEAD --tags",
-    "prebuild": "mkdir -p ./lib && rm -rf ./lib/*",
+    "prebuild": "mkdirp ./lib && rm -rf ./lib/*",
     "preversion": "yarn test",
     "test": "jest",
     "version": "yarn build && git add -A ./lib"
