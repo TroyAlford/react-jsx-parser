@@ -49,7 +49,6 @@ export default class JsxParser extends Component {
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
-
       case 'ArrayExpression':
         return expression.elements.map(this.parseExpression)
       case 'ObjectExpression':
@@ -67,17 +66,14 @@ export default class JsxParser extends Component {
       case 'MemberExpression':
         return (this.parseExpression(expression.object) || {})[expression.property.name]
       case 'CallExpression':
-        return this.parseExpression(expression.callee);
+        return this.parseExpression(expression.callee)
       case 'LogicalExpression':
-        const left = this.parseExpression(expression.left);
-
-        if (expression.operator === '||' && left) return true;
-
+        const left = this.parseExpression(expression.left)
+        if (expression.operator === '||' && left) return true
         if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
-          return this.parseExpression(expression.right);
+          return this.parseExpression(expression.right)
         }
-
-        return false;
+        return false
       default:
         return undefined
     }

@@ -501,8 +501,8 @@ describe('JsxParser Component', () => {
       const { component } = render(
         <JsxParser
           bindings={{
-            foo: 'Foo',
-            bar: 'Bar',
+            foo:    'Foo',
+            bar:    'Bar',
             logFn,
             nested: {
               objects: {
@@ -530,13 +530,13 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[4].props).toEqual({ unresolvable: undefined })
     })
 
-    it('use symbols conditions to render an element', () => {
+    it('honors conditional rendering based on bound values', () => {
       const logFn = () => { console.log('Foo!') }
       const { component } = render(
         <JsxParser
           bindings={{
-            foo: 'Foo',
-            bar: 'Bar',
+            foo:    'Foo',
+            bar:    'Bar',
             logFn,
             nested: {
               objects: {
@@ -561,19 +561,18 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[2].props).toEqual({ doTheyWork: true })
       expect(component.ParsedChildren[3].props).toEqual({ unresolvable: undefined })
     })
-
-    it('use symbols conditions and bound functions to render an element', () => {
+    it('allows use of bound functions in conditionals rendering', () => {
       const logFn = () => { console.log('Foo!') }
       const { component } = render(
         <JsxParser
           bindings={{
-            foo: 'Foo',
-            bar: 'Bar',
+            foo:    'Foo',
+            bar:    'Bar',
             logFn,
             nested: {
               objects: {
-                work: false,
-                noWork: () => { return true },
+                work:   false,
+                noWork: () => true,
               },
             },
           }}
@@ -594,7 +593,6 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[2].props).toEqual({ doTheyWork: false })
       expect(component.ParsedChildren[3].props).toEqual({ unresolvable: undefined })
     })
-
     it('updates bindings on subsequent renders', () => {
       const wrapper = mount(
         <JsxParser
@@ -608,6 +606,21 @@ describe('JsxParser Component', () => {
       wrapper.setProps({ bindings: { isChecked: false } })
       expect(wrapper.find('input')).toHaveLength(1)
       expect(wrapper.find('input').props().checked).toBe(false)
+    })
+    it('will not execute arbitrary javascript', () => {
+      window.foo = jest.fn(() => true)
+      const wrapper = mount(
+        <JsxParser
+          jsx={
+            '<div>Before {window.foo() && <span>Foo!</span>}</div>' +
+            '<div>{Number.isNaN(NaN) && <span>Foo!</span>} After</div>'
+          }
+        />
+      )
+
+      expect(window.foo).toHaveBeenCalledTimes(0)
+      expect(wrapper.find('span')).toHaveLength(0)
+      expect(wrapper.html()).toMatchSnapshot()
     })
   })
   describe('React.Children.only()', () => {

@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JsxParser Component prop bindings will not execute arbitrary javascript 1`] = `"<div class=\\"jsx-parser\\"><div>Before </div><div> After</div></div>"`;
