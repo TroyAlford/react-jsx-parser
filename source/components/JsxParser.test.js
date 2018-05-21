@@ -529,6 +529,72 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[3].props).toEqual({ doTheyWork: true })
       expect(component.ParsedChildren[4].props).toEqual({ unresolvable: undefined })
     })
+
+    it('use symbols conditions to render an element', () => {
+      const logFn = () => { console.log('Foo!') }
+      const { component } = render(
+        <JsxParser
+          bindings={{
+            foo: 'Foo',
+            bar: 'Bar',
+            logFn,
+            nested: {
+              objects: {
+                work: true,
+              },
+            },
+          }}
+          blacklistedAttrs={[]}
+          components={{ Custom }}
+          jsx={
+            '<div foo={foo} />' +
+            '<span onClick={logFn}>Click Me!</span>' +
+            '{nested.objects.work && <div doTheyWork={nested.objects.work} />}' +
+            '<div unresolvable={a.bad.binding} />'
+          }
+        />
+      )
+
+      expect(component.ParsedChildren).toHaveLength(4)
+      expect(component.ParsedChildren[0].props).toEqual({ foo: 'Foo' })
+      expect(component.ParsedChildren[1].props.onClick).toEqual(logFn)
+      expect(component.ParsedChildren[2].props).toEqual({ doTheyWork: true })
+      expect(component.ParsedChildren[3].props).toEqual({ unresolvable: undefined })
+    })
+
+    it('use symbols conditions and bound functions to render an element', () => {
+      const logFn = () => { console.log('Foo!') }
+      const { component } = render(
+        <JsxParser
+          bindings={{
+            foo: 'Foo',
+            bar: 'Bar',
+            logFn,
+            nested: {
+              objects: {
+                work: false,
+                noWork: () => { return true },
+              },
+            },
+          }}
+          blacklistedAttrs={[]}
+          components={{ Custom }}
+          jsx={
+            '<div foo={foo} />' +
+            '<span onClick={logFn}>Click Me!</span>' +
+            '{( nested.objects.work || nested.objects.noWork()) && <div doTheyWork={nested.objects.work} />}' +
+            '<div unresolvable={a.bad.binding} />'
+          }
+        />
+      )
+
+      expect(component.ParsedChildren).toHaveLength(4)
+      expect(component.ParsedChildren[0].props).toEqual({ foo: 'Foo' })
+      expect(component.ParsedChildren[1].props.onClick).toEqual(logFn)
+      expect(component.ParsedChildren[2].props).toEqual({ doTheyWork: false })
+      expect(component.ParsedChildren[3].props).toEqual({ unresolvable: undefined })
+    })
+
     it('updates bindings on subsequent renders', () => {
       const wrapper = mount(
         <JsxParser
