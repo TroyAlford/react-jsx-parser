@@ -9,6 +9,8 @@ import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 const parserOptions = { plugins: { jsx: true } }
 
 export default class JsxParser extends Component {
+  static displayName = 'JsxParser'
+
   static defaultProps = {
     bindings:         {},
     blacklistedAttrs: [/^on.+/i],
@@ -20,8 +22,6 @@ export default class JsxParser extends Component {
     showWarnings:     false,
     renderInWrapper:  true,
   }
-
-  static displayName = 'JsxParser'
 
   parseJSX = (rawJSX) => {
     const wrappedJsx = `<root>${rawJSX}</root>`
@@ -138,7 +138,7 @@ export default class JsxParser extends Component {
     return (
       this.props.renderInWrapper
         ? <div className="jsx-parser">{this.ParsedChildren}</div>
-        : <Fragment>{this.ParsedChildren}</Fragment>
+        : <>{this.ParsedChildren}</>
     )
   }
 }

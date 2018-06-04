@@ -1,13 +1,10 @@
 {
   "plugins": [
-    "transform-class-properties",
-    "transform-object-rest-spread",
-    "transform-react-remove-prop-types"
+    "@babel/plugin-proposal-class-properties"
   ],
   "presets": [
-    "env",
-    "react",
-    "jest"
+    "@babel/preset-env",
+    "@babel/preset-react"
   ],
   "highlightCode": true
 }
