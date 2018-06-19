@@ -255,6 +255,21 @@ describe('JsxParser Component', () => {
         .toEqual([Node.ELEMENT_NODE, 'H1', 'Foo'])
       expect([hr.nodeType, hr.nodeName]).toEqual([Node.ELEMENT_NODE, 'HR'])
     })
+    it('omits unknown elements and errors if !allowUnknownElements', () => {
+      const onError = jest.fn()
+      const wrapper = mount(
+        <JsxParser
+          allowUnknownElements={false}
+          jsx={'<foo>Foo</foo><div>div</div><bar>Bar</bar>'}
+          onError={onError}
+          renderInWrapper={false}
+        />
+      )
+      expect(onError).toHaveBeenCalledTimes(2)
+      expect(onError).toHaveBeenCalledWith(expect.stringContaining('<foo> is unrecognized'))
+      expect(onError).toHaveBeenCalledWith(expect.stringContaining('<bar> is unrecognized'))
+      expect(wrapper.html()).toMatchSnapshot()
+    })
   })
   describe('blacklisting & whitelisting', () => {
     it('strips <script src="..."> tags by default', () => {

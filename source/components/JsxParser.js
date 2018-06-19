@@ -12,15 +12,16 @@ export default class JsxParser extends Component {
   static displayName = 'JsxParser'
 
   static defaultProps = {
-    bindings:         {},
-    blacklistedAttrs: [/^on.+/i],
-    blacklistedTags:  ['script'],
-    components:       [],
-    componentsOnly:   false,
-    jsx:              '',
-    onError:          () => { },
-    showWarnings:     false,
-    renderInWrapper:  true,
+    allowUnknownElements: true,
+    bindings:             {},
+    blacklistedAttrs:     [/^on.+/i],
+    blacklistedTags:      ['script'],
+    components:           [],
+    componentsOnly:       false,
+    jsx:                  '',
+    onError:              () => { },
+    showWarnings:         false,
+    renderInWrapper:      true,
   }
 
   parseJSX = (rawJSX) => {
@@ -80,7 +81,9 @@ export default class JsxParser extends Component {
   }
 
   parseElement = (element) => {
-    const { components = {}, componentsOnly } = this.props
+    const {
+      allowUnknownElements, components = {}, componentsOnly, onError,
+    } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [], name: { name } = {} } = openingElement
 
@@ -89,11 +92,15 @@ export default class JsxParser extends Component {
     const blacklistedTags = (this.props.blacklistedTags || [])
       .map(tag => tag.trim().toLowerCase()).filter(Boolean)
 
-
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
-
     if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
-    if (componentsOnly && !components[name]) return undefined
+    if (!components[name]) {
+      if (componentsOnly) return undefined
+      if (!allowUnknownElements && document.createElement(name) instanceof HTMLUnknownElement) {
+        onError(`Error: The tag <${name}> is unrecognized in this browser, and will not be rendered.`)
+        return undefined
+      }
+    }
 
     let children
     if (components[name] || canHaveChildren(name)) {
@@ -148,8 +155,9 @@ if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line global-require,import/no-extraneous-dependencies
   const PropTypes = require('prop-types')
   JsxParser.propTypes = {
-    bindings:         PropTypes.shape({}),
-    blacklistedAttrs: PropTypes.arrayOf(PropTypes.oneOfType([
+    allowUnknownElements: PropTypes.bool,
+    bindings:             PropTypes.shape({}),
+    blacklistedAttrs:     PropTypes.arrayOf(PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.instanceOf(RegExp),
     ])),
