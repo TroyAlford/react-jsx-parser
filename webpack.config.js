@@ -42,6 +42,7 @@ module.exports = {
     path: `${__dirname}/lib`,
     libraryTarget: 'umd',
     umdNamedDefine: true,
+    globalObject: 'this'
   },
   plugins,
 }
