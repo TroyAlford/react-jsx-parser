@@ -18,8 +18,9 @@
     "@babel/plugin-proposal-class-properties": "^7.0.0-beta.49",
     "@babel/preset-env": "^7.0.0-beta.49",
     "@babel/preset-react": "^7.0.0-beta.49",
-    "babel-7-jest": "^21.3.3",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.3",
+    "babel-jest": "^23.2.0",
     "babel-loader": "^8.0.0-beta",
     "cross-env": "^5.1.6",
     "enzyme": "^3.3.0",
@@ -50,7 +51,7 @@
   "jest": {
     "setupTestFrameworkScriptFile": "<rootDir>setupTests.js",
     "transform": {
-      ".js$": "babel-7-jest"
+      ".js$": "babel-jest"
     }
   }
 }
