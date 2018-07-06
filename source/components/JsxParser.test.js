@@ -637,6 +637,17 @@ describe('JsxParser Component', () => {
       expect(wrapper.find('span')).toHaveLength(0)
       expect(wrapper.html()).toMatchSnapshot()
     })
+    it('will do basic math', () => {
+      const { rendered } = render(
+        <JsxParser
+          jsx={
+            '<span>{ 1 + 2 * 4 / 8 }</span>'
+          }
+        />
+      )
+
+      expect(rendered.childNodes[0].textContent).toEqual('2')
+    })
   })
   describe('React.Children.only()', () => {
     // eslint-disable-next-line react/prop-types

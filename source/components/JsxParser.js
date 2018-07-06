@@ -75,6 +75,19 @@ export default class JsxParser extends Component {
           return this.parseExpression(expression.right)
         }
         return false
+      case 'BinaryExpression':
+        switch(expression.operator) {
+          case '+':
+            return this.parseExpression(expression.left) + this.parseExpression(expression.right)
+          case '-':
+            return this.parseExpression(expression.left) - this.parseExpression(expression.right)
+          case '*':
+            return this.parseExpression(expression.left) * this.parseExpression(expression.right)
+          case '/':
+            return this.parseExpression(expression.left) / this.parseExpression(expression.right)
+          default:
+            return undefined
+        }
       default:
         return undefined
     }
