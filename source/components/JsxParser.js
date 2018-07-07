@@ -76,7 +76,7 @@ export default class JsxParser extends Component {
         }
         return false
       case 'BinaryExpression':
-        switch(expression.operator) {
+        switch (expression.operator) {
           case '+':
             return this.parseExpression(expression.left) + this.parseExpression(expression.right)
           case '-':
