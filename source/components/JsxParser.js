@@ -167,7 +167,7 @@ export default class JsxParser extends Component {
 
     if (children) props.children = children
 
-    return React.createElement(component || name.toLowerCase(), { ...this.props.bindings, ...props })
+    return React.createElement(component || name.toLowerCase(), props)
   }
 
   render = () => {
