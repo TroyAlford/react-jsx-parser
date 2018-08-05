@@ -12,6 +12,7 @@ A React component which can parse JSX and output rendered React Components.
 ```javascript
 import React from 'react'
 import JsxParser from 'react-jsx-parser'
+import Library from 'someLibrary'
 
 class InjectableComponent extends Component {
   static defaultProps = {
@@ -25,16 +26,19 @@ const MyComponent = () => (
     bindings={{
       myEventHandler: () => { /* ... do stuff ... */ }
     }}
-    components={{ InjectableComponent }}
+    components={{ InjectableComponent, Library }}
     jsx={`
       <h1>Header</h1>
       <InjectableComponent eventHandler={myEventHandler} />
+      <Library.SomeComponent />
     `}
   />
 )
 ```
 
 Because `InjectableComponent` is passed into the `JsxParser.props.components` prop, it is treated as a known element type, and created using `React.createElement(...)` when parsed out of the JSX.
+
+You can also pass a set of components into the `JsxParser.props.components` prop, and use it in JSX with dot notation.
 
 ## Advanced Usage - Injecting Dynamic JSX
 ```javascript

@@ -2,6 +2,7 @@ import { Parser } from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
 import parseStyle from '../helpers/parseStyle'
 import { randomHash } from '../helpers/hash'
+import { get } from 'lodash'
 
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
@@ -93,12 +94,29 @@ export default class JsxParser extends Component {
     }
   }
 
+  parseName = (element) => {
+    /* eslint-disable no-case-declarations */
+    switch (element.type) {
+      case 'JSXIdentifier':
+        return element.name
+      case 'JSXMemberExpression':
+        return `${this.parseName(element.object)}.${this.parseName(element.property)}`
+      default:
+        return ''
+    }
+  }
+
   parseElement = (element) => {
     const {
       allowUnknownElements, components = {}, componentsOnly, onError,
     } = this.props
     const { children: childNodes = [], openingElement } = element
-    const { attributes = [], name: { name } = {} } = openingElement
+    const { attributes = [] } = openingElement
+    const name = this.parseName(openingElement.name)
+    if (name === '') {
+      onError('Error: The tag name is unrecognized, and will not be rendered.')
+      return undefined
+    }
 
     const blacklistedAttrs = (this.props.blacklistedAttrs || [])
       .map(attr => (attr instanceof RegExp ? attr : new RegExp(attr, 'i')))
@@ -107,7 +125,7 @@ export default class JsxParser extends Component {
 
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
     if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
-    if (!components[name]) {
+    if (!get(components, name)) {
       if (componentsOnly) return undefined
       if (!allowUnknownElements && document.createElement(name) instanceof HTMLUnknownElement) {
         onError(`Error: The tag <${name}> is unrecognized in this browser, and will not be rendered.`)
@@ -116,9 +134,10 @@ export default class JsxParser extends Component {
     }
 
     let children
-    if (components[name] || canHaveChildren(name)) {
+    const component = get(components, name)
+    if (component || canHaveChildren(name)) {
       children = childNodes.map(this.parseExpression)
-      if (!components[name] && !canHaveWhitespace(name)) {
+      if (!component&& !canHaveWhitespace(name)) {
         children = children.filter(child => (
           typeof child !== 'string' || !/^\s*$/.test(child)
         ))
@@ -148,7 +167,7 @@ export default class JsxParser extends Component {
 
     if (children) props.children = children
 
-    return React.createElement(components[name] || name.toLowerCase(), props)
+    return React.createElement(component || name.toLowerCase(), props)
   }
 
   render = () => {

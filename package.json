@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "acorn-jsx": "^4.1.1",
+    "lodash": "^4.17.10",
     "react": "^16.4.0"
   },
   "devDependencies": {
@@ -49,6 +50,7 @@
     "version": "yarn build && git add -A ./lib"
   },
   "jest": {
+    "testURL": "http://localhost/",
     "setupTestFrameworkScriptFile": "<rootDir>setupTests.js",
     "transform": {
       ".js$": "babel-jest"

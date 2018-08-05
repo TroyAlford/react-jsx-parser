@@ -246,6 +246,63 @@ describe('JsxParser Component', () => {
       expect(rendered.getElementsByTagName('h1')[0].textContent).toEqual('Ipsum')
       expect(rendered.getElementsByTagName('h1')[1].textContent).toEqual('Lorem')
     })
+    it('renders custom elements with dot notation tags', () => {
+      const Lib = { Custom }
+      const { component, rendered } = render(
+        <JsxParser
+          components={{ Lib }}
+          jsx={
+            '<h1>Header</h1>' +
+            '<Lib.Custom className="blah" text="Test Text" />'
+          }
+        />
+      )
+
+      expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
+
+      expect(component.ParsedChildren).toHaveLength(2)
+      expect(rendered.childNodes).toHaveLength(2)
+
+      expect(rendered.childNodes[0].nodeName).toEqual('H1')
+      expect(rendered.childNodes[0].textContent).toEqual('Header')
+
+      const custom = component.ParsedChildren[1]
+      expect(custom instanceof Custom)
+      expect(custom.props.text).toEqual('Test Text')
+
+      const customHTML = rendered.childNodes[1]
+      expect(customHTML.nodeName).toEqual('DIV')
+      expect(customHTML.textContent).toEqual('Test Text')
+    })
+    it('renders custom elements with multiple dot notation tags', () => {
+      const SubLib = { Custom }
+      const Lib = { SubLib }
+      const { component, rendered } = render(
+        <JsxParser
+          components={{ Lib }}
+          jsx={
+            '<h1>Header</h1>' +
+            '<Lib.SubLib.Custom className="blah" text="Test Text" />'
+          }
+        />
+      )
+
+      expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
+
+      expect(component.ParsedChildren).toHaveLength(2)
+      expect(rendered.childNodes).toHaveLength(2)
+
+      expect(rendered.childNodes[0].nodeName).toEqual('H1')
+      expect(rendered.childNodes[0].textContent).toEqual('Header')
+
+      const custom = component.ParsedChildren[1]
+      expect(custom instanceof Custom)
+      expect(custom.props.text).toEqual('Test Text')
+
+      const customHTML = rendered.childNodes[1]
+      expect(customHTML.nodeName).toEqual('DIV')
+      expect(customHTML.textContent).toEqual('Test Text')
+    })
     it('outputs no wrapper element when renderInWrapper prop is false', () => {
       render(<JsxParser jsx={'<h1>Foo</h1><hr />'} renderInWrapper={false} />)
       expect(parent.childNodes).toHaveLength(2)
