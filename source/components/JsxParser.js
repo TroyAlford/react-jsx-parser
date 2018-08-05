@@ -1,8 +1,8 @@
 import { Parser } from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
+import { get } from 'lodash'
 import parseStyle from '../helpers/parseStyle'
 import { randomHash } from '../helpers/hash'
-import { get } from 'lodash'
 
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
@@ -102,7 +102,7 @@ export default class JsxParser extends Component {
       case 'JSXMemberExpression':
         return `${this.parseName(element.object)}.${this.parseName(element.property)}`
       default:
-        return ''
+        return undefined
     }
   }
 
@@ -113,7 +113,7 @@ export default class JsxParser extends Component {
     const { children: childNodes = [], openingElement } = element
     const { attributes = [] } = openingElement
     const name = this.parseName(openingElement.name)
-    if (name === '') {
+    if (!name) {
       onError('Error: The tag name is unrecognized, and will not be rendered.')
       return undefined
     }
@@ -137,7 +137,7 @@ export default class JsxParser extends Component {
     const component = get(components, name)
     if (component || canHaveChildren(name)) {
       children = childNodes.map(this.parseExpression)
-      if (!component&& !canHaveWhitespace(name)) {
+      if (!component && !canHaveWhitespace(name)) {
         children = children.filter(child => (
           typeof child !== 'string' || !/^\s*$/.test(child)
         ))
