@@ -50,7 +50,6 @@
     "version": "yarn build && git add -A ./lib"
   },
   "jest": {
-    "testURL": "http://localhost/",
     "setupTestFrameworkScriptFile": "<rootDir>setupTests.js",
     "transform": {
       ".js$": "babel-jest"
