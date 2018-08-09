@@ -1,98 +1,82 @@
-import get from './get'
+import resolvePath from './resolvePath'
 
-jest.unmock('./get')
+jest.unmock('./resolvePath')
 
-describe('get', () => {
+describe('resolvePath', () => {
   it('null object, null path', () => {
-    const result = get(null, null)
+    const result = resolvePath(null, null)
     expect(result).toBeUndefined()
   })
   it('null object, undefined path', () => {
-    const result = get(null, undefined)
+    const result = resolvePath(null, undefined)
     expect(result).toBeUndefined()
   })
   it('null object, empty string path', () => {
-    const result = get(null, '')
+    const result = resolvePath(null, '')
     expect(result).toBeUndefined()
   })
   it('null object, non-empty string path', () => {
-    const result = get(null, 'path')
+    const result = resolvePath(null, 'path')
     expect(result).toBeUndefined()
   })
   it('undefined object, null path', () => {
-    const result = get(undefined, null)
+    const result = resolvePath(undefined, null)
     expect(result).toBeUndefined()
   })
   it('undefined object, undefined path', () => {
-    const result = get(undefined, undefined)
+    const result = resolvePath(undefined, undefined)
     expect(result).toBeUndefined()
   })
   it('undefined object, empty string path', () => {
-    const result = get(undefined, '')
+    const result = resolvePath(undefined, '')
     expect(result).toBeUndefined()
   })
   it('undefined object, non-empty string path', () => {
-    const result = get(undefined, 'path')
+    const result = resolvePath(undefined, 'path')
     expect(result).toBeUndefined()
   })
   it('valid object, null path', () => {
-    const result = get({ a: 'test' }, null)
+    const result = resolvePath({ a: 'test' }, null)
     expect(result).toBeUndefined()
   })
   it('valid object, undefined path', () => {
-    const result = get({ a: 'test' }, undefined)
+    const result = resolvePath({ a: 'test' }, undefined)
     expect(result).toBeUndefined()
   })
   it('valid object, empty string path', () => {
-    const result = get({ a: 'test' }, '')
+    const result = resolvePath({ a: 'test' }, '')
     expect(result).toBeUndefined()
   })
   it('valid object, one-level string path', () => {
-    const result = get({ a: 'test' }, 'a')
+    const result = resolvePath({ a: 'test' }, 'a')
     expect(result).toEqual('test')
   })
   it('valid object, string path level exceeds', () => {
-    const result = get({ a: 'test' }, 'a.b')
+    const result = resolvePath({ a: 'test' }, 'a.b')
     expect(result).toBeUndefined()
   })
   it('valid object, string path not exist', () => {
-    const result = get({ a: 'test' }, 'b')
+    const result = resolvePath({ a: 'test' }, 'b')
     expect(result).toBeUndefined()
   })
   it('valid object, string path not exist', () => {
-    const object = {
-      a: {
-        b: 'test',
-      }
-    }
-    const result = get(object, 'b')
+    const object = { a: { b: 'test' } }
+    const result = resolvePath(object, 'b')
     expect(result).toBeUndefined()
   })
   it('valid object, multilevel string path not exist', () => {
-    const object = {
-      a: {
-        b: 'test',
-      }
-    }
-    const result = get(object, 'b.a')
+    const object = { a: { b: 'test' } }
+    const result = resolvePath(object, 'b.a')
     expect(result).toBeUndefined()
   })
   it('valid object, two level string path', () => {
-    const object = {
-      a: {
-        b: 'test',
-      }
-    }
-    const result = get(object, 'a.b')
+    const object = { a: { b: 'test' } }
+    const result = resolvePath(object, 'a.b')
     expect(result).toEqual('test')
   })
   it('valid object, string path not reach end', () => {
-    const object = {
-      a: {
-        b: 'test',
-      }
-    }
-    const result = get(object, 'a')
-    expect(result).toEqual({b: 'test'})
+    const object = { a: { b: 'test' } }
+    const result = resolvePath(object, 'a')
+    expect(result).toEqual({ b: 'test' })
   })
 })

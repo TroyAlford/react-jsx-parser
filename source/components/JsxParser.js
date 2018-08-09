@@ -1,8 +1,8 @@
 import { Parser } from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
-import get from '../helpers/get'
 import parseStyle from '../helpers/parseStyle'
 import { randomHash } from '../helpers/hash'
+import resolvePath from '../helpers/resolvePath'
 
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
@@ -114,7 +114,7 @@ export default class JsxParser extends Component {
     const { attributes = [] } = openingElement
     const name = this.parseName(openingElement.name)
     if (!name) {
-      onError('Error: The tag name is unrecognized, and will not be rendered.')
+      onError(`Error: The <${openingElement.name}> tag could not be parsed, and will not be rendered.`)
       return undefined
     }
 
@@ -125,7 +125,7 @@ export default class JsxParser extends Component {
 
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
     if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
-    if (!get(components, name)) {
+    if (!resolvePath(components, name)) {
       if (componentsOnly) return undefined
       if (!allowUnknownElements && document.createElement(name) instanceof HTMLUnknownElement) {
         onError(`Error: The tag <${name}> is unrecognized in this browser, and will not be rendered.`)
@@ -134,7 +134,7 @@ export default class JsxParser extends Component {
     }
 
     let children
-    const component = get(components, name)
+    const component = resolvePath(components, name)
     if (component || canHaveChildren(name)) {
       children = childNodes.map(this.parseExpression)
       if (!component && !canHaveWhitespace(name)) {

