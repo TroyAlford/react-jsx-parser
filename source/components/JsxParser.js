@@ -1,6 +1,6 @@
 import { Parser } from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
-import { get } from 'lodash'
+import get from '../helpers/get'
 import parseStyle from '../helpers/parseStyle'
 import { randomHash } from '../helpers/hash'
 
