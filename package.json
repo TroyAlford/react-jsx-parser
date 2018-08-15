@@ -1,14 +1,13 @@
 {
-  "name": "react-jsx-parser",
-  "version": "1.5.0",
-  "description": "A React component which can parse JSX and output rendered React Components",
-  "main": "lib/react-jsx-parser.min.js",
   "author": "Troy Alford",
+  "bugs": "https://github.com/TroyAlford/react-jsx-parser/issues",
+  "description": "A React component which can parse JSX and output rendered React Components",
+  "keywords": ["react", "jsx"],
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:TroyAlford/react-jsx-parser.git"
-  },
+  "main": "lib/react-jsx-parser.min.js",
+  "name": "react-jsx-parser",
+  "repository": "TroyAlford/react-jsx-parser",
+  "version": "1.5.0",
   "dependencies": {
     "acorn-jsx": "^4.1.1",
     "react": "^16.4.0"
