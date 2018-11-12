@@ -698,6 +698,16 @@ describe('JsxParser Component', () => {
       const { rendered } = render(<JsxParser jsx={'<span>{ 1 + 2 * 4 / 8 }</span>'} />)
       expect(rendered.childNodes[0].textContent).toEqual('2')
     })
+    it('can execute unary plus operations', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={+60}>{ +75 }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('75')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(60)
+    })
+    it('can execute unary negation operations', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={-60}>{ -75 }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('-75')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(-60)
+    })
   })
   describe('React.Children.only()', () => {
     // eslint-disable-next-line react/prop-types
