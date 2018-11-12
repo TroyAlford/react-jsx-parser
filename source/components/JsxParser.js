@@ -89,6 +89,15 @@ export default class JsxParser extends Component {
           default:
             return undefined
         }
+      case 'UnaryExpression':
+        switch (expression.operator) {
+          case '+':
+            return expression.argument.value
+          case '-':
+            return -1 * expression.argument.value
+          default:
+            return undefined
+        }
       default:
         return undefined
     }
