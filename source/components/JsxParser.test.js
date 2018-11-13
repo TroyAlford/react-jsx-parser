@@ -708,6 +708,11 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent).toEqual('-75')
       expect(component.ParsedChildren[0].props.testProp).toEqual(-60)
     })
+    it('can execute unary NOT operations', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={!60}>{ !false }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('true')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(false)
+    })
   })
   describe('React.Children.only()', () => {
     // eslint-disable-next-line react/prop-types
