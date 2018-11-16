@@ -89,6 +89,17 @@ export default class JsxParser extends Component {
           default:
             return undefined
         }
+      case 'UnaryExpression':
+        switch (expression.operator) {
+          case '+':
+            return expression.argument.value
+          case '-':
+            return -1 * expression.argument.value
+          case '!':
+            return (!expression.argument.value).toString()
+          default:
+            return undefined
+        }
       default:
         return undefined
     }
@@ -158,7 +169,13 @@ export default class JsxParser extends Component {
       const value = this.parseExpression(expr)
 
       const matches = blacklistedAttrs.filter(re => re.test(attributeName))
-      if (matches.length === 0) props[attributeName] = value
+      if (matches.length === 0) {
+        if (value === 'true' || value === 'false') {
+          props[attributeName] = (value === 'true')
+        } else {
+          props[attributeName] = value
+        }
+      }
     })
 
     if (typeof props.style === 'string') {
