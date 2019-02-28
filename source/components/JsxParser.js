@@ -1,5 +1,5 @@
 import { Parser } from 'acorn-jsx'
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import parseStyle from '../helpers/parseStyle'
 import { randomHash } from '../helpers/hash'
 import resolvePath from '../helpers/resolvePath'
@@ -47,7 +47,7 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression)
       case 'JSXText':
-        return <Fragment key={randomHash()}>{expression.value || ''}</Fragment>
+        return <div key={randomHash()}>{expression.value || ''}</div>
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
