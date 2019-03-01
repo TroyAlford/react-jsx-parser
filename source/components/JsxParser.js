@@ -47,7 +47,7 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression)
       case 'JSXText':
-        return <div key={randomHash()}>{expression.value || ''}</div>
+        return (expression.value || '')
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
