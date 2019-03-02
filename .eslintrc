@@ -8,12 +8,34 @@
   },
   "parser": "babel-eslint",
   "rules": {
-    "comma-dangle": [1, "always-multiline"],
-    "key-spacing": ["error", { "align": "value" }],
-    "semi": ["error", "never"],
-
+    "comma-dangle": [
+      1,
+      "always-multiline"
+    ],
+    "key-spacing": [
+      "error",
+      {
+        "align": "value"
+      }
+    ],
+    "semi": [
+      "error",
+      "never"
+    ],
     "import/no-unresolved": "off",
-    "react/jsx-filename-extension": [1, { "extensions": [".js"] }],
-    "react/no-unused-prop-types": [1, { "skipShapeProps": true }]
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [
+          ".js"
+        ]
+      }
+    ],
+    "react/no-unused-prop-types": [
+      1,
+      {
+        "skipShapeProps": true
+      }
+    ]
   }
 }
