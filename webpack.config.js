@@ -14,7 +14,7 @@ const plugins = []
 if (PRODUCTION) {
   plugins.push(
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify(ENVIRONMENT) }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
+    new webpack.optimize.ModuleConcatenationPlugin()
   )
 }
 
