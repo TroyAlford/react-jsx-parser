@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import TestUtils from 'react-dom/test-utils'
 import { mount, shallow } from 'enzyme'
 import JsxParser from './JsxParser'
@@ -42,13 +41,12 @@ describe('JsxParser Component', () => {
   })
 
   function render(element) {
-    // eslint-disable-next-line react/no-render-return-value
-    const component = ReactDOM.render(element, parent)
+    const wrapper = mount(element, { attachTo: parent })
     return {
+      component: wrapper.instance(),
+      html: wrapper.html(),
       parent,
-      component,
-      // eslint-disable-next-line react/no-find-dom-node
-      rendered: ReactDOM.findDOMNode(component),
+      rendered: wrapper.getDOMNode(),
     }
   }
 
@@ -601,6 +599,12 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[3].props).toEqual({ doTheyWork: true })
       expect(component.ParsedChildren[4].props).toEqual({ unresolvable: undefined })
     })
+    it('parses array values', () => {
+      const { html } = render(
+        <JsxParser jsx={'<div>{[1,2,3]}</div>'} renderInWrapper={false} />
+      )
+      expect(html).toEqual('<div>123</div>')
+    })
 
     it('honors conditional rendering based on bound values', () => {
       const logFn = () => { console.log('Foo!') }
@@ -695,8 +699,8 @@ describe('JsxParser Component', () => {
       expect(wrapper.html()).toMatchSnapshot()
     })
     it('can execute binary mathematical operations', () => {
-      const { rendered } = render(<JsxParser jsx={'<span>{ 1 + 2 * 4 / 8 }</span>'} />)
-      expect(rendered.childNodes[0].textContent).toEqual('2')
+      const { rendered } = render(<JsxParser jsx={'<span>{ 1 + 2 * 4 / 8 - 1 }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('1')
     })
     it('can execute unary plus operations', () => {
       const { rendered, component } = render(<JsxParser jsx={'<span testProp={+60}>{ +75 }</span>'} />)
