@@ -4,7 +4,6 @@ const webpack = require('webpack')
 
 const ENVIRONMENT = process.env.NODE_ENV || 'development'
 const PRODUCTION = ENVIRONMENT === 'production'
-const SOURCEMAP = !PRODUCTION || process.env.SOURCEMAP
 
 const library = 'react-jsx-parser'
 const filename = PRODUCTION ? `${library}.min.js` : `${library}.js`
@@ -19,7 +18,7 @@ if (PRODUCTION) {
 }
 
 module.exports = {
-  devtool: SOURCEMAP ? 'source-map' : 'none',
+  devtool: 'source-map',
   entry: `${__dirname}/source/components/JsxParser.js`,
   externals: {
     'react': 'react',
