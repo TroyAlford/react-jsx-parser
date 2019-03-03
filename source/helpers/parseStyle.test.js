@@ -26,4 +26,10 @@ describe('parseStyle', () => {
       textDecoration: 'underline',
     })
   })
+  it('returns undefined for invalid input', () => {
+    expect(parseStyle(false)).toBe(undefined)
+    expect(parseStyle(NaN)).toBe(undefined)
+    expect(parseStyle(0)).toBe(undefined)
+    expect(parseStyle()).toBe(undefined)
+  })
 })
