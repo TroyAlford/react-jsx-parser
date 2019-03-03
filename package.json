@@ -45,6 +45,10 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3"
   },
+  "resolutions": {
+    "extend": "^3.0.2",
+    "merge": "^1.2.1"
+  },
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
     "postversion": "git push origin HEAD && git push origin HEAD --tags",
