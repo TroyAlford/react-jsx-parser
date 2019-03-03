@@ -1,0 +1,47 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/react-jsx-parser
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+  test:
+    working_directory: ~/react-jsx-parser
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: yarn test --coverage
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+
+    # deployment:
+    #   npm:
+    #     branch: master
+    #     commands:
+    #       # login using environment variables
+    #       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
+    #       - echo -e "git config --global user.email \""
+    #       - npm version patch -m "Version bump for NPM release"
+    #       - npm publish

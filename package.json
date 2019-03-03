@@ -51,7 +51,7 @@
     "prebuild": "mkdirp ./lib && rm -rf ./lib/*",
     "preversion": "yarn test",
     "sourcemap": "yarn build && source-map-explorer ./lib/react-jsx-parser.min.js",
-    "test": "jest",
+    "test": "yarn jest",
     "version": "yarn build && git add -A ./lib"
   },
   "jest": {
