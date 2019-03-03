@@ -86,8 +86,6 @@ export default class JsxParser extends Component {
             return this.parseExpression(expression.left) * this.parseExpression(expression.right)
           case '/':
             return this.parseExpression(expression.left) / this.parseExpression(expression.right)
-          default:
-            return undefined
         }
       case 'UnaryExpression':
         switch (expression.operator) {
@@ -97,11 +95,7 @@ export default class JsxParser extends Component {
             return -1 * expression.argument.value
           case '!':
             return (!expression.argument.value).toString()
-          default:
-            return undefined
         }
-      default:
-        return undefined
     }
   }
 
@@ -112,8 +106,6 @@ export default class JsxParser extends Component {
         return element.name
       case 'JSXMemberExpression':
         return `${this.parseName(element.object)}.${this.parseName(element.property)}`
-      default:
-        return undefined
     }
   }
 
