@@ -155,17 +155,32 @@ export default class JsxParser extends Component {
 
     const props = { key: randomHash() }
     attributes.forEach((expr) => {
-      const rawName = expr.name.name
-      const attributeName = ATTRIBUTES[rawName] || rawName
-      // if the value is null, this is an implicitly "true" prop, such as readOnly
-      const value = this.parseExpression(expr)
+      if(expr.type === 'JSXAttribute') {
+        const rawName = expr.name.name
+        const attributeName = ATTRIBUTES[rawName] || rawName
+        // if the value is null, this is an implicitly "true" prop, such as readOnly
+        const value = this.parseExpression(expr)
 
-      const matches = blacklistedAttrs.filter(re => re.test(attributeName))
-      if (matches.length === 0) {
-        if (value === 'true' || value === 'false') {
-          props[attributeName] = (value === 'true')
-        } else {
-          props[attributeName] = value
+        const matches = blacklistedAttrs.filter(re => re.test(attributeName))
+        if (matches.length === 0) {
+          if (value === 'true' || value === 'false') {
+            props[attributeName] = (value === 'true')
+          } else {
+            props[attributeName] = value
+          }
+        }
+      } 
+      else if(expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier' || expr.argument.type === "MemberExpression") {
+        let val = this.parseExpression(expr.argument);
+        if(typeof val === "object") {
+          for(const rawName in val) {
+            const attributeName = ATTRIBUTES[rawName] || rawName;
+            const value = val[rawName];
+            const matches = blacklistedAttrs.filter(re => re.test(attributeName))
+            if (matches.length === 0) {
+              props[attributeName] = value;
+            }
+          }
         }
       }
     })

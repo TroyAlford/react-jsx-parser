@@ -134,6 +134,44 @@ describe('JsxParser Component', () => {
       expect(customHTML.nodeName).toEqual('DIV')
       expect(customHTML.textContent).toEqual('Test Text')
     })
+    it('renders custom components with spread operator', () => {
+      const props = {
+          className:"blah",
+          text:"First bad text"
+      };
+      const props2 = {
+        innerProps: {
+          text: "Test Text"
+        }
+      };
+      const { component, rendered } = render(
+        <JsxParser
+          components={{ Custom }}
+          bindings={{props, props2}}
+          jsx={
+            '<h1>Header</h1>' +
+            '<Custom {...props} {...props2.innerProps} {...{text:"More bad text"}} />'
+          }
+        />
+      )
+
+      expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
+
+      expect(component.ParsedChildren).toHaveLength(2)
+      expect(rendered.childNodes).toHaveLength(2)
+
+      expect(rendered.childNodes[0].nodeName).toEqual('H1')
+      expect(rendered.childNodes[0].textContent).toEqual('Header')
+
+      const custom = component.ParsedChildren[1]
+      expect(custom instanceof Custom)
+      expect(custom.props.className).toEqual('blah')
+      expect(custom.props.text).toEqual('Test Text')
+
+      const customHTML = rendered.childNodes[1]
+      expect(customHTML.nodeName).toEqual('DIV')
+      expect(customHTML.textContent).toEqual('Test Text')
+    })
     it('renders custom components with nesting', () => {
       const { component, rendered } = render(
         <JsxParser
