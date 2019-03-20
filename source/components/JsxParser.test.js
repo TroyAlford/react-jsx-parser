@@ -44,9 +44,9 @@ describe('JsxParser Component', () => {
     const wrapper = mount(element, { attachTo: parent })
     return {
       component: wrapper.instance(),
-      html: wrapper.html(),
+      html:      wrapper.html(),
       parent,
-      rendered: wrapper.getDOMNode(),
+      rendered:  wrapper.getDOMNode(),
     }
   }
 
@@ -55,9 +55,9 @@ describe('JsxParser Component', () => {
       const { component, rendered } = render(
         <JsxParser
           jsx={
-            '<h1>Header</h1>' +
-            '<div class="foo">Foo</div>' +
-            '<span class="bar">Bar</span>'
+            '<h1>Header</h1>'
+            + '<div class="foo">Foo</div>'
+            + '<span class="bar">Bar</span>'
           }
         />
       )
@@ -82,10 +82,10 @@ describe('JsxParser Component', () => {
       const { component, rendered } = render(
         <JsxParser
           jsx={
-            '<div>' +
-            'Outer' +
-            '<div>Inner</div>' +
-            '</div>'
+            '<div>'
+            + 'Outer'
+            + '<div>Inner</div>'
+            + '</div>'
           }
         />
       )
@@ -112,8 +112,8 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ Custom }}
           jsx={
-            '<h1>Header</h1>' +
-            '<Custom className="blah" text="Test Text" />'
+            '<h1>Header</h1>'
+            + '<Custom className="blah" text="Test Text" />'
           }
         />
       )
@@ -134,16 +134,51 @@ describe('JsxParser Component', () => {
       expect(customHTML.nodeName).toEqual('DIV')
       expect(customHTML.textContent).toEqual('Test Text')
     })
+    it('renders custom components with spread operator', () => {
+      const first = {
+        className: 'blah',
+        text:      'Will Be Overwritten',
+      }
+      const second = {
+        innerProps: {
+          text: 'Test Text',
+        },
+      }
+      const { component, rendered } = render(
+        <JsxParser
+          components={{ Custom }}
+          bindings={{ first, second }}
+          jsx="<Custom {...first} {...second.innerProps} {...{ text: 'Will Not Spread' }} />"
+        />
+      )
+
+      expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
+
+      expect(component.ParsedChildren).toHaveLength(1)
+      expect(rendered.childNodes).toHaveLength(1)
+
+      const custom = component.ParsedChildren[0]
+      expect(custom instanceof Custom)
+      expect(custom.props.className).toEqual('blah')
+      expect(custom.props.text).toEqual('Test Text')
+
+      const customNode = rendered.childNodes[0]
+      expect(customNode.nodeName).toEqual('DIV')
+      expect(customNode.textContent).toEqual('Test Text')
+      const customHTML = rendered.childNodes[0].innerHTML
+      expect(customHTML).not.toMatch(/Will Be Overwritten/)
+      expect(customHTML).not.toMatch(/Will Not Spread/)
+    })
     it('renders custom components with nesting', () => {
       const { component, rendered } = render(
         <JsxParser
           components={{ Custom }}
           jsx={
-            '<Custom className="outer" text="outerText">' +
-            '<Custom className="inner" text="innerText">' +
-            '<div>Non-Custom</div>' +
-            '</Custom>' +
-            '</Custom>'
+            '<Custom className="outer" text="outerText">'
+            + '<Custom className="inner" text="innerText">'
+            + '<div>Non-Custom</div>'
+            + '</Custom>'
+            + '</Custom>'
           }
         />
       )
@@ -175,11 +210,11 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={[/* No Components Passed In */]}
           jsx={
-            '<Unrecognized class="outer" foo="Foo">' +
-            '<Unrecognized class="inner" bar="Bar">' +
-            '<div>Non-Custom</div>' +
-            '</Unrecognized>' +
-            '</Unrecognized>'
+            '<Unrecognized class="outer" foo="Foo">'
+            + '<Unrecognized class="inner" bar="Bar">'
+            + '<div>Non-Custom</div>'
+            + '</Unrecognized>'
+            + '</Unrecognized>'
           }
         />
       )
@@ -250,8 +285,8 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ Lib }}
           jsx={
-            '<h1>Header</h1>' +
-            '<Lib.Custom className="blah" text="Test Text" />'
+            '<h1>Header</h1>'
+            + '<Lib.Custom className="blah" text="Test Text" />'
           }
         />
       )
@@ -279,8 +314,8 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ Lib }}
           jsx={
-            '<h1>Header</h1>' +
-            '<Lib.SubLib.Custom className="blah" text="Test Text" />'
+            '<h1>Header</h1>'
+            + '<Lib.SubLib.Custom className="blah" text="Test Text" />'
           }
         />
       )
@@ -331,9 +366,9 @@ describe('JsxParser Component', () => {
       const { component, rendered } = render(
         <JsxParser
           jsx={
-            '<div>Before</div>' +
-            '<script src="http://example.com/test.js"></script>' +
-            '<div>After</div>'
+            '<div>Before</div>'
+            + '<script src="http://example.com/test.js"></script>'
+            + '<div>After</div>'
           }
         />
       )
@@ -347,11 +382,11 @@ describe('JsxParser Component', () => {
       const { component, rendered } = render(
         <JsxParser
           jsx={
-            '<div>Before</div>' +
-            '<script>' +
-            'window.alert("This shouldn\'t happen!");' +
-            '</script>' +
-            '<div>After</div>'
+            '<div>Before</div>'
+            + '<script>'
+            + 'window.alert("This shouldn\'t happen!");'
+            + '</script>'
+            + '<div>After</div>'
           }
         />
       )
@@ -365,8 +400,8 @@ describe('JsxParser Component', () => {
       const { component, rendered } = render(
         <JsxParser
           jsx={
-            '<div onClick="handleClick()">first</div>' +
-            '<div onChange="handleChange()">second</div>'
+            '<div onClick="handleClick()">first</div>'
+            + '<div onChange="handleChange()">second</div>'
           }
         />
       )
@@ -384,8 +419,8 @@ describe('JsxParser Component', () => {
           blacklistedTags={['Foo']}
           blacklistedAttrs={['foo', 'prefixed[a-z]*']}
           jsx={
-            '<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>' +
-            '<Foo>second</Foo>'
+            '<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>'
+            + '<Foo>second</Foo>'
           }
         />
       )
@@ -478,13 +513,13 @@ describe('JsxParser Component', () => {
       const { rendered } = render(
         <JsxParser
           jsx={
-            '<p>Contains a&nbsp;non-breaking space (html named entity)</p>' +
-            '<p>Contains a&#160;non-breaking space (html numbered entity)</p>' +
-            '<p>Contains a\u00a0non-breaking space (utf sequence)</p>' +
-            '<p>Contains a non-breaking space (hard coded, using alt+space)</p>' +
-            '<p>Contains a&#8239;narrow non-breaking space (html numbered entity)</p>' +
-            '<p>Contains a\u202Fnarrow non-breaking space (utf sequence)</p>' +
-            '<p>This is a test with regular spaces only</p>'
+            '<p>Contains a&nbsp;non-breaking space (html named entity)</p>'
+            + '<p>Contains a&#160;non-breaking space (html numbered entity)</p>'
+            + '<p>Contains a\u00a0non-breaking space (utf sequence)</p>'
+            + '<p>Contains a non-breaking space (hard coded, using alt+space)</p>'
+            + '<p>Contains a&#8239;narrow non-breaking space (html numbered entity)</p>'
+            + '<p>Contains a\u202Fnarrow non-breaking space (utf sequence)</p>'
+            + '<p>This is a test with regular spaces only</p>'
           }
         />
       )
@@ -516,9 +551,9 @@ describe('JsxParser Component', () => {
       const { rendered } = render(
         <JsxParser
           jsx={
-            '<img src="/foo.png">' +
-            '<div class="invalidChild"></div>' +
-            '</img>'
+            '<img src="/foo.png">'
+            + '<div class="invalidChild"></div>'
+            + '</img>'
           }
         />
       )
@@ -558,8 +593,8 @@ describe('JsxParser Component', () => {
       const { rendered } = render(
         <JsxParser
           jsx={
-            '<div style="margin: 0 1px 2px 3px;"></div>' +
-            '<div style="padding-left: 45px; padding-right: 1em;"></div>'
+            '<div style="margin: 0 1px 2px 3px;"></div>'
+            + '<div style="padding-left: 45px; padding-right: 1em;"></div>'
           }
         />
       )
@@ -583,11 +618,11 @@ describe('JsxParser Component', () => {
           blacklistedAttrs={[]}
           components={{ Custom }}
           jsx={
-            '<Custom foo={foo} bar={bar}></Custom>' +
-            '<div foo={foo} />' +
-            '<span onClick={logFn}>Click Me!</span>' +
-            '<div doTheyWork={nested.objects.work} />' +
-            '<div unresolvable={a.bad.binding} />'
+            '<Custom foo={foo} bar={bar}></Custom>'
+            + '<div foo={foo} />'
+            + '<span onClick={logFn}>Click Me!</span>'
+            + '<div doTheyWork={nested.objects.work} />'
+            + '<div unresolvable={a.bad.binding} />'
           }
         />
       )
@@ -623,10 +658,10 @@ describe('JsxParser Component', () => {
           blacklistedAttrs={[]}
           components={{ Custom }}
           jsx={
-            '<div foo={foo} />' +
-            '<span onClick={logFn}>Click Me!</span>' +
-            '{nested.objects.work && <div doTheyWork={nested.objects.work} />}' +
-            '<div unresolvable={a.bad.binding} />'
+            '<div foo={foo} />'
+            + '<span onClick={logFn}>Click Me!</span>'
+            + '{nested.objects.work && <div doTheyWork={nested.objects.work} />}'
+            + '<div unresolvable={a.bad.binding} />'
           }
         />
       )
@@ -655,10 +690,10 @@ describe('JsxParser Component', () => {
           blacklistedAttrs={[]}
           components={{ Custom }}
           jsx={
-            '<div foo={foo} />' +
-            '<span onClick={logFn}>Click Me!</span>' +
-            '{( nested.objects.work || nested.objects.noWork()) && <div doTheyWork={nested.objects.work} />}' +
-            '<div unresolvable={a.bad.binding} />'
+            '<div foo={foo} />'
+            + '<span onClick={logFn}>Click Me!</span>'
+            + '{( nested.objects.work || nested.objects.noWork()) && <div doTheyWork={nested.objects.work} />}'
+            + '<div unresolvable={a.bad.binding} />'
           }
         />
       )
@@ -688,8 +723,8 @@ describe('JsxParser Component', () => {
       const wrapper = mount(
         <JsxParser
           jsx={
-            '<div>Before {window.foo() && <span>Foo!</span>}</div>' +
-            '<div>{Number.isNaN(NaN) && <span>Foo!</span>} After</div>'
+            '<div>Before {window.foo() && <span>Foo!</span>}</div>'
+            + '<div>{Number.isNaN(NaN) && <span>Foo!</span>} After</div>'
           }
         />
       )
