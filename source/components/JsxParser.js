@@ -9,6 +9,7 @@ import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 
 const parserOptions = { plugins: { jsx: true } }
 
+/* eslint-disable consistent-return */
 export default class JsxParser extends Component {
   static displayName = 'JsxParser'
 
@@ -42,7 +43,6 @@ export default class JsxParser extends Component {
   }
 
   parseExpression = (expression) => {
-    /* eslint-disable no-case-declarations */
     switch (expression.type) {
       case 'JSXElement':
         return this.parseElement(expression)
@@ -86,7 +86,7 @@ export default class JsxParser extends Component {
             return this.parseExpression(expression.left) * this.parseExpression(expression.right)
           case '/':
             return this.parseExpression(expression.left) / this.parseExpression(expression.right)
-        }
+        } break
       case 'UnaryExpression':
         switch (expression.operator) {
           case '+':
@@ -100,7 +100,6 @@ export default class JsxParser extends Component {
   }
 
   parseName = (element) => {
-    /* eslint-disable no-case-declarations */
     switch (element.type) {
       case 'JSXIdentifier':
         return element.name
@@ -155,7 +154,7 @@ export default class JsxParser extends Component {
 
     const props = { key: randomHash() }
     attributes.forEach((expr) => {
-      if(expr.type === 'JSXAttribute') {
+      if (expr.type === 'JSXAttribute') {
         const rawName = expr.name.name
         const attributeName = ATTRIBUTES[rawName] || rawName
         // if the value is null, this is an implicitly "true" prop, such as readOnly
@@ -169,18 +168,19 @@ export default class JsxParser extends Component {
             props[attributeName] = value
           }
         }
-      } 
-      else if(expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier' || expr.argument.type === "MemberExpression") {
-        let val = this.parseExpression(expr.argument);
-        if(typeof val === "object") {
-          for(const rawName in val) {
-            const attributeName = ATTRIBUTES[rawName] || rawName;
-            const value = val[rawName];
+      } else if (
+        (expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier')
+        || expr.argument.type === 'MemberExpression'
+      ) {
+        const value = this.parseExpression(expr.argument)
+        if (typeof value === 'object') {
+          Object.keys(value).forEach((rawName) => {
+            const attributeName = ATTRIBUTES[rawName] || rawName
             const matches = blacklistedAttrs.filter(re => re.test(attributeName))
             if (matches.length === 0) {
-              props[attributeName] = value;
+              props[attributeName] = value[rawName]
             }
-          }
+          })
         }
       }
     })
@@ -205,6 +205,7 @@ export default class JsxParser extends Component {
     )
   }
 }
+/* eslint-enable consistent-return */
 
 if (process.env.NODE_ENV !== 'production') {
   /* eslint-disable react/no-unused-prop-types */

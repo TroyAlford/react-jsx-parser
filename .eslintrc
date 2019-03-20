@@ -8,34 +8,15 @@
   },
   "parser": "babel-eslint",
   "rules": {
-    "comma-dangle": [
-      1,
-      "always-multiline"
-    ],
-    "key-spacing": [
-      "error",
-      {
-        "align": "value"
-      }
-    ],
-    "semi": [
-      "error",
-      "never"
-    ],
+    "comma-dangle": ["error", "always-multiline"],
+    "default-case": "off",
+    "key-spacing": ["error", { "align": "value" }],
+    "semi": ["error", "never"],
     "import/no-unresolved": "off",
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [
-          ".js"
-        ]
-      }
-    ],
-    "react/no-unused-prop-types": [
-      1,
-      {
-        "skipShapeProps": true
-      }
-    ]
+    "no-case-declarations": "off",
+    "react/destructuring-assignment": "off",
+    "react/jsx-filename-extension": ["error", { "extensions": [".js"] }],
+    "react/jsx-one-expression-per-line": "off",
+    "react/no-unused-prop-types": ["error", { "skipShapeProps": true }]
   }
 }
