@@ -238,6 +238,11 @@ describe('JsxParser Component', () => {
       expect(console.error).toHaveBeenCalledTimes(1)
       expect(console.error.mock.calls[0][0]).toMatch(/unrecognized in this browser/)
     })
+    it('renders falsy expressions correctly', () => {
+      const jsx = '<b>{false}{undefined}{0}{null}{[]}</b>'
+      const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)
+      expect(wrapper.html()).toBe('<b>0</b>')
+    })
     it('skips over DOCTYPE, html, head, and div if found', () => {
       const { rendered } = render(
         <JsxParser jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'} />
