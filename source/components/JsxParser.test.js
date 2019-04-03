@@ -53,10 +53,11 @@ describe('JsxParser Component', () => {
   describe('using ternaries', () => {
     it('should handle boolean test value ', () => {
       const { component, rendered } = render(<JsxParser jsx={
-      '<p falsyProp={false ? 1 : 0} truthyProp={true ? 1 : 0}>' +
-        '(display 1: {true ? 1 : 0}); (display 0: {false ? 1 : 0})' +
-      '</p>'
-      } />)
+      '<p falsyProp={false ? 1 : 0} truthyProp={true ? 1 : 0}>'
+        + '(display 1: {true ? 1 : 0}); (display 0: {false ? 1 : 0})'
+        + '</p>'
+      }
+      />)
 
       expect(rendered.childNodes[0].textContent)
         .toEqual('(display 1: 1); (display 0: 0)')

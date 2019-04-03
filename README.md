@@ -106,6 +106,10 @@ JsxParser.defaultProps = {
 
   componentsOnly: false, // non-component HTML tags are allowed by default, omitted if true
 
+  disableFragments: false, // if enabled, React <Fragment />s will not be used.
+  // Note: This introduces subtle errors with regard to white-space, and is provided only for
+  // backward compatibility with React 15.x
+
   jsx: '', // the jsx string to be parsed & rendered
 
   onError: () => {}, // if specified, any rendering errors are reported via this method

@@ -1,5 +1,5 @@
 import { Parser } from 'acorn-jsx'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import parseStyle from '../helpers/parseStyle'
 import { randomHash } from '../helpers/hash'
 import resolvePath from '../helpers/resolvePath'
@@ -20,6 +20,7 @@ export default class JsxParser extends Component {
     blacklistedTags:      ['script'],
     components:           [],
     componentsOnly:       false,
+    disableFragments:     false,
     jsx:                  '',
     onError:              () => { },
     showWarnings:         false,
@@ -47,7 +48,9 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression)
       case 'JSXText':
-        return expression.value
+        return this.props.disableFragments
+          ? expression.value
+          : <Fragment key={randomHash()}>{expression.value}</Fragment>
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
@@ -222,12 +225,13 @@ if (process.env.NODE_ENV !== 'production') {
       PropTypes.string,
       PropTypes.instanceOf(RegExp),
     ])),
-    blacklistedTags: PropTypes.arrayOf(PropTypes.string),
-    components:      PropTypes.shape({}),
-    componentsOnly:  PropTypes.bool,
-    jsx:             PropTypes.string,
-    onError:         PropTypes.func,
-    showWarnings:    PropTypes.bool,
-    renderInWrapper: PropTypes.bool,
+    blacklistedTags:  PropTypes.arrayOf(PropTypes.string),
+    components:       PropTypes.shape({}),
+    componentsOnly:   PropTypes.bool,
+    disableFragments: PropTypes.bool,
+    jsx:              PropTypes.string,
+    onError:          PropTypes.func,
+    showWarnings:     PropTypes.bool,
+    renderInWrapper:  PropTypes.bool,
   }
 }
