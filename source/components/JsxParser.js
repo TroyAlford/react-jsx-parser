@@ -51,6 +51,10 @@ export default class JsxParser extends Component {
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
+      case 'ConditionalExpression':
+        return this.parseExpression(expression.test)
+          ? this.parseExpression(expression.consequent)
+          : this.parseExpression(expression.alternate)
       case 'ArrayExpression':
         return expression.elements.map(this.parseExpression)
       case 'ObjectExpression':

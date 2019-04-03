@@ -50,6 +50,33 @@ describe('JsxParser Component', () => {
     }
   }
 
+  describe('using ternaries', () => {
+    it('should handle boolean test value ', () => {
+      const { component, rendered } = render(<JsxParser jsx={
+      '<p falsyProp={false ? 1 : 0} truthyProp={true ? 1 : 0}>' +
+        '(display 1: {true ? 1 : 0}); (display 0: {false ? 1 : 0})' +
+      '</p>'
+      } />)
+
+      expect(rendered.childNodes[0].textContent)
+        .toEqual('(display 1: 1); (display 0: 0)')
+
+      expect(component.ParsedChildren[0].props.truthyProp).toBe(1)
+      expect(component.ParsedChildren[0].props.falsyProp).toBe(0)
+    })
+
+    it('should handle test predicate retruned value ', () => {
+      const { rendered } = render(
+        <JsxParser
+          jsx={'<p>{true && false ? "a" : "b"}</p><p>{false || true ? "a" : "b"}</p>'}
+        />
+      )
+
+      expect(rendered.childNodes[0].textContent).toEqual('b')
+      expect(rendered.childNodes[1].textContent).toEqual('a')
+    })
+  })
+
   describe('basic rendering', () => {
     it('renders non-React components', () => {
       const { component, rendered } = render(
