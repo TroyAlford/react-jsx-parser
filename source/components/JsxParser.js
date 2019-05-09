@@ -123,7 +123,7 @@ export default class JsxParser extends Component {
     const { attributes = [] } = openingElement
     const name = this.parseName(openingElement.name)
     if (!name) {
-      onError(`Error: The <${openingElement.name}> tag could not be parsed, and will not be rendered.`)
+      onError(new Error(`The <${openingElement.name}> tag could not be parsed, and will not be rendered.`))
       return undefined
     }
 
@@ -133,11 +133,20 @@ export default class JsxParser extends Component {
       .map(tag => tag.trim().toLowerCase()).filter(Boolean)
 
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
-    if (blacklistedTags.indexOf(name.trim().toLowerCase()) !== -1) return undefined
+		const tagName = name.trim().toLowerCase()
+    if (blacklistedTags.indexOf(tagName) !== -1) {
+      onError(new Error(`The tag <${name}> is blocked, and will not be rendered.`));
+			return undefined
+		}
+
     if (!resolvePath(components, name)) {
-      if (componentsOnly) return undefined
+			if (componentsOnly) {
+        onError(new Error(`The componenet <${name}> is unrecognized, and will not be rendered.`));
+				return undefined
+			}
+
       if (!allowUnknownElements && document.createElement(name) instanceof HTMLUnknownElement) {
-        onError(`Error: The tag <${name}> is unrecognized in this browser, and will not be rendered.`)
+        onError(new Error(`The tag <${name}> is unrecognized in this browser, and will not be rendered.`))
         return undefined
       }
     }
