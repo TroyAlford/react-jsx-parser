@@ -75,7 +75,9 @@ export default class JsxParser extends Component {
       case 'MemberExpression':
         return (this.parseExpression(expression.object) || {})[expression.property.name]
       case 'CallExpression':
-        return this.parseExpression(expression.callee)(...expression.arguments.map(this.parseExpression))
+        const parsedCallee = this.parseExpression(expression.callee);
+        if (parsedCallee === undefined) return undefined;
+        return parsedCallee(...expression.arguments.map(this.parseExpression))
       case 'LogicalExpression':
         const left = this.parseExpression(expression.left)
         if (expression.operator === '||' && left) return true
