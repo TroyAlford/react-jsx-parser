@@ -135,7 +135,7 @@ export default class JsxParser extends Component {
     if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
     const tagName = name.trim().toLowerCase()
     if (blacklistedTags.indexOf(tagName) !== -1) {
-      onError(new Error(`The tag <${name}> is blocked, and will not be rendered.`))
+      onError(new Error(`The tag <${name}> is blacklisted, and will not be rendered.`))
       return undefined
     }
 
