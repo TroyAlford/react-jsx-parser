@@ -389,8 +389,16 @@ describe('JsxParser Component', () => {
         />
       )
       expect(onError).toHaveBeenCalledTimes(2)
-      expect(onError).toHaveBeenCalledWith(expect.stringContaining('<foo> is unrecognized'))
-      expect(onError).toHaveBeenCalledWith(expect.stringContaining('<bar> is unrecognized'))
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('<foo> is unrecognized'),
+        })
+      )
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('<bar> is unrecognized'),
+        })
+      )
       expect(wrapper.html()).toMatchSnapshot()
     })
   })
