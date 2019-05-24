@@ -778,6 +778,16 @@ describe('JsxParser Component', () => {
       const { rendered } = render(<JsxParser jsx={'<span>{ 1 + 2 * 4 / 8 - 1 }</span>'} />)
       expect(rendered.childNodes[0].textContent).toEqual('1')
     })
+    it('can evaluate equality comparison', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 == 2}>{ 1 == "1" }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('true')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(false)
+    })
+    it('can evaluate strict equality comparison', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 === 1}>{ 1 === "1" }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('false')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(true)
+    })
     it('can execute unary plus operations', () => {
       const { rendered, component } = render(<JsxParser jsx={'<span testProp={+60}>{ +75 }</span>'} />)
       expect(rendered.childNodes[0].textContent).toEqual('75')
