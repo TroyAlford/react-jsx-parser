@@ -175,7 +175,7 @@ export default class JsxParser extends Component {
       }
     }
 
-    let props = {}
+    const props = {}
     if(!this.props.disableRandomKeys) {
       props.key = randomHash()
     }
