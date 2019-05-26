@@ -25,6 +25,7 @@ export default class JsxParser extends Component {
     onError:              () => { },
     showWarnings:         false,
     renderInWrapper:      true,
+    disableRandomKeys:    false
   }
 
   parseJSX = (rawJSX) => {
@@ -174,7 +175,11 @@ export default class JsxParser extends Component {
       }
     }
 
-    const props = { key: randomHash() }
+    let props = {}
+    if(!this.props.disableRandomKeys) {
+      props.key = randomHash()
+    }
+
     attributes.forEach((expr) => {
       if (expr.type === 'JSXAttribute') {
         const rawName = expr.name.name
@@ -248,5 +253,6 @@ if (process.env.NODE_ENV !== 'production') {
     onError:          PropTypes.func,
     showWarnings:     PropTypes.bool,
     renderInWrapper:  PropTypes.bool,
+    disableRandomKeys: PropTypes.bool
   }
 }

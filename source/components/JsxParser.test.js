@@ -401,6 +401,33 @@ describe('JsxParser Component', () => {
       )
       expect(wrapper.html()).toMatchSnapshot()
     })
+    it('disableRandomKeys should update child elements rather than unmount and remount them', () => {
+      const updates = jest.fn()
+      const unmounts = jest.fn()
+      const components = {
+        Custom: class Custom extends React.Component {
+          componentDidUpdate() {
+            updates()
+          }
+          componentWillUnmount() {
+            unmounts()
+          }
+          render() {
+            return 'Custom element!'
+          }
+        }
+      }
+      const wrapper = mount(
+        <JsxParser
+          components={components}
+          jsx={'<div><p>Hello</p><hr /><Custom /></div>'}
+          disableRandomKeys
+        />
+      )
+      wrapper.setProps({ someProp: true })
+      expect(updates).toHaveBeenCalled()
+      expect(unmounts).not.toHaveBeenCalled()
+    })
   })
   describe('blacklisting & whitelisting', () => {
     it('strips <script src="..."> tags by default', () => {
