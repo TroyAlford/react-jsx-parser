@@ -783,9 +783,19 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent).toEqual('true')
       expect(component.ParsedChildren[0].props.testProp).toEqual(false)
     })
+    it('can evaluate inequality comparison', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 != "1"}>{ 1 != "1" }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('false')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(false)
+    })
     it('can evaluate strict equality comparison', () => {
       const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 === 1}>{ 1 === "1" }</span>'} />)
       expect(rendered.childNodes[0].textContent).toEqual('false')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(true)
+    })
+    it('can evaluate strict inequality comparison', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 !== "1"}>{ 1 !== "1" }</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('true')
       expect(component.ParsedChildren[0].props.testProp).toEqual(true)
     })
     it('can execute unary plus operations', () => {

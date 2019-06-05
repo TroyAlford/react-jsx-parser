@@ -85,6 +85,7 @@ export default class JsxParser extends Component {
         }
         return false
       case 'BinaryExpression':
+        /* eslint-disable eqeqeq,max-len */
         switch (expression.operator) {
           case '+':
             return this.parseExpression(expression.left) + this.parseExpression(expression.right)
@@ -96,8 +97,13 @@ export default class JsxParser extends Component {
             return this.parseExpression(expression.left) / this.parseExpression(expression.right)
           case '==':
             return (this.parseExpression(expression.left) == this.parseExpression(expression.right)).toString()
+          case '!=':
+            return (this.parseExpression(expression.left) != this.parseExpression(expression.right)).toString()
           case '===':
             return (this.parseExpression(expression.left) === this.parseExpression(expression.right)).toString()
+          case '!==':
+            return (this.parseExpression(expression.left) !== this.parseExpression(expression.right)).toString()
+        /* eslint-enable eqeqeq,max-len */
         } break
       case 'UnaryExpression':
         switch (expression.operator) {
