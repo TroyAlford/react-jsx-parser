@@ -14,16 +14,16 @@ export default class JsxParser extends Component {
 
   static defaultProps = {
     allowUnknownElements: true,
-    bindings:             {},
-    blacklistedAttrs:     [/^on.+/i],
-    blacklistedTags:      ['script'],
-    components:           [],
-    componentsOnly:       false,
-    disableFragments:     false,
-    jsx:                  '',
-    onError:              () => { },
-    showWarnings:         false,
-    renderInWrapper:      true,
+    bindings: {},
+    blacklistedAttrs: [/^on.+/i],
+    blacklistedTags: ['script'],
+    components: [],
+    componentsOnly: false,
+    disableFragments: false,
+    jsx: '',
+    onError: () => { },
+    showWarnings: false,
+    renderInWrapper: true,
   }
 
   parseJSX = (rawJSX) => {
@@ -234,18 +234,18 @@ if (process.env.NODE_ENV !== 'production') {
   const PropTypes = require('prop-types')
   JsxParser.propTypes = {
     allowUnknownElements: PropTypes.bool,
-    bindings:             PropTypes.shape({}),
-    blacklistedAttrs:     PropTypes.arrayOf(PropTypes.oneOfType([
+    bindings: PropTypes.shape({}),
+    blacklistedAttrs: PropTypes.arrayOf(PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.instanceOf(RegExp),
     ])),
-    blacklistedTags:  PropTypes.arrayOf(PropTypes.string),
-    components:       PropTypes.shape({}),
-    componentsOnly:   PropTypes.bool,
+    blacklistedTags: PropTypes.arrayOf(PropTypes.string),
+    components: PropTypes.shape({}),
+    componentsOnly: PropTypes.bool,
     disableFragments: PropTypes.bool,
-    jsx:              PropTypes.string,
-    onError:          PropTypes.func,
-    showWarnings:     PropTypes.bool,
-    renderInWrapper:  PropTypes.bool,
+    jsx: PropTypes.string,
+    onError: PropTypes.func,
+    showWarnings: PropTypes.bool,
+    renderInWrapper: PropTypes.bool,
   }
 }

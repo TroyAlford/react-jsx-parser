@@ -44,9 +44,9 @@ describe('JsxParser Component', () => {
     const wrapper = mount(element, { attachTo: parent })
     return {
       component: wrapper.instance(),
-      html:      wrapper.html(),
+      html: wrapper.html(),
       parent,
-      rendered:  wrapper.getDOMNode(),
+      rendered: wrapper.getDOMNode(),
     }
   }
 
@@ -165,7 +165,7 @@ describe('JsxParser Component', () => {
     it('renders custom components with spread operator', () => {
       const first = {
         className: 'blah',
-        text:      'Will Be Overwritten',
+        text: 'Will Be Overwritten',
       }
       const second = {
         innerProps: {
@@ -647,8 +647,8 @@ describe('JsxParser Component', () => {
       const { component } = render(
         <JsxParser
           bindings={{
-            foo:    'Foo',
-            bar:    'Bar',
+            foo: 'Foo',
+            bar: 'Bar',
             logFn,
             nested: {
               objects: {
@@ -687,8 +687,8 @@ describe('JsxParser Component', () => {
       const { component } = render(
         <JsxParser
           bindings={{
-            foo:    'Foo',
-            bar:    'Bar',
+            foo: 'Foo',
+            bar: 'Bar',
             logFn,
             nested: {
               objects: {
@@ -718,12 +718,12 @@ describe('JsxParser Component', () => {
       const { component } = render(
         <JsxParser
           bindings={{
-            foo:    'Foo',
-            bar:    'Bar',
+            foo: 'Foo',
+            bar: 'Bar',
             logFn,
             nested: {
               objects: {
-                work:   false,
+                work: false,
                 noWork: () => true,
               },
             },
