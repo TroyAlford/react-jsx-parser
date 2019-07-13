@@ -106,9 +106,12 @@ JsxParser.defaultProps = {
 
   componentsOnly: false, // non-component HTML tags are allowed by default, omitted if true
 
-  disableFragments: false, // if enabled, React <Fragment />s will not be used.
+  disableFragments: false, // if true, React <Fragment />s will not be used.
   // Note: This introduces subtle errors with regard to white-space, and is provided only for
   // backward compatibility with React 15.x
+
+  disableKeyGeneration: false, // if true, rendering will not automatically generate `key` props.
+  // Note: This may result in the "Child elements should have a unique 'key' prop " React error.
 
   jsx: '', // the jsx string to be parsed & rendered
 

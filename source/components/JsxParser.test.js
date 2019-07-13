@@ -66,7 +66,23 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[0].props.falsyProp).toBe(0)
     })
 
-    it('should handle test predicate retruned value ', () => {
+    it('should handle evaluative ternaries', () => {
+      const { component, rendered } = render(
+        <JsxParser
+          bindings={{ foo: 1 }}
+          jsx={`
+            <div className={foo === 1 ? 'yes' : 'no'}>
+              {foo !== 1 ? 'bar' : 'foo'}
+            </div>
+          `}
+        />
+      )
+
+      expect(rendered.childNodes[0].classList).toContain('yes')
+      expect(rendered.childNodes[0].textContent.trim()).toEqual('bar')
+    })
+
+    it('should handle test predicate returned value ', () => {
       const { rendered } = render(
         <JsxParser
           jsx={'<p>{true && false ? "a" : "b"}</p><p>{false || true ? "a" : "b"}</p>'}
@@ -414,6 +430,7 @@ describe('JsxParser Component', () => {
       const wrapper = mount(
         <JsxParser
           components={components}
+          disableKeyGeneration
           jsx={'<div><p>Hello</p><hr /><Custom /></div>'}
         />
       )

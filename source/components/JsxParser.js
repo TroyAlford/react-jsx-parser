@@ -1,10 +1,10 @@
 import { Parser } from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
-import parseStyle from '../helpers/parseStyle'
-import resolvePath from '../helpers/resolvePath'
-
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
+import { randomHash } from '../helpers/hash'
+import parseStyle from '../helpers/parseStyle'
+import resolvePath from '../helpers/resolvePath'
 
 const parserOptions = { plugins: { jsx: true } }
 
@@ -20,6 +20,7 @@ export default class JsxParser extends Component {
     components: [],
     componentsOnly: false,
     disableFragments: false,
+    disableKeyGeneration: false,
     jsx: '',
     onError: () => { },
     showWarnings: false,
@@ -47,9 +48,10 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression)
       case 'JSXText':
+        const key = this.props.disableKeyGeneration ? undefined : randomHash()
         return this.props.disableFragments
           ? expression.value
-          : <Fragment>{expression.value}</Fragment>
+          : <Fragment key={key}>{expression.value}</Fragment>
       case 'JSXAttribute':
         if (expression.value === null) return true
         return this.parseExpression(expression.value)
@@ -75,7 +77,10 @@ export default class JsxParser extends Component {
         return (this.parseExpression(expression.object) || {})[expression.property.name]
       case 'CallExpression':
         const parsedCallee = this.parseExpression(expression.callee)
-        if (parsedCallee === undefined) return undefined
+        if (parsedCallee === undefined) {
+          this.props.onError(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
+          return undefined
+        }
         return parsedCallee(...expression.arguments.map(this.parseExpression))
       case 'LogicalExpression':
         const left = this.parseExpression(expression.left)
@@ -127,9 +132,7 @@ export default class JsxParser extends Component {
   }
 
   parseElement = (element) => {
-    const {
-      allowUnknownElements, components = {}, componentsOnly, onError,
-    } = this.props
+    const { allowUnknownElements, components = {}, componentsOnly, onError } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [] } = openingElement
     const name = this.parseName(openingElement.name)
@@ -179,7 +182,9 @@ export default class JsxParser extends Component {
       }
     }
 
-    const props = {}
+    const props = {
+      key: this.props.disableKeyGeneration ? undefined : randomHash(),
+    }
     attributes.forEach((expr) => {
       if (expr.type === 'JSXAttribute') {
         const rawName = expr.name.name
@@ -249,6 +254,7 @@ if (process.env.NODE_ENV !== 'production') {
     components: PropTypes.shape({}),
     componentsOnly: PropTypes.bool,
     disableFragments: PropTypes.bool,
+    disableKeyGeneration: PropTypes.bool,
     jsx: PropTypes.string,
     onError: PropTypes.func,
     showWarnings: PropTypes.bool,
