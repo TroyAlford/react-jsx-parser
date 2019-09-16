@@ -417,6 +417,35 @@ describe('JsxParser Component', () => {
       )
       expect(wrapper.html()).toMatchSnapshot()
     })
+    fit('It presents using a fallback element on error', () => {
+      const onError = jest.fn()
+      const Simple = ({ children, text }) => <div>{text}{children}</div>
+
+      const ErrorBox = p => (<div><h4>ERROR: {p.error.message}</h4><p>Lets try again</p></div>)
+
+      const { rendered, html } = render(
+        <JsxParser
+          components={{ Simple }}
+          onError={onError}
+          fallback={ErrorBox}
+          jsx={`
+            <h1>Ignored</h1>
+            <Simple text="Parent">
+              <Simple text="Child">
+                <h2>Error
+              </Simple>
+            </Simple>
+          `}
+        />
+      )
+
+      expect(onError).toHaveBeenCalledTimes(1)
+
+      expect(rendered.getElementsByTagName('h4')).toHaveLength(1)
+      expect(rendered.getElementsByTagName('p')).toHaveLength(1)
+      expect(rendered.textContent.replace(/\s/g, '')).toEqual('ERROR:ExpectedcorrespondingJSXclosingtagfor<h2>(5:14)Letstryagain')
+    })
+
     it('re-rendering should update child elements rather than unmount and remount them', () => {
       const updates = jest.fn()
       const unmounts = jest.fn()

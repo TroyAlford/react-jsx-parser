@@ -22,6 +22,7 @@ export default class JsxParser extends Component {
     disableFragments: false,
     disableKeyGeneration: false,
     jsx: '',
+    fallback: null,
     onError: () => { },
     showWarnings: false,
     renderInWrapper: true,
@@ -37,7 +38,9 @@ export default class JsxParser extends Component {
       // eslint-disable-next-line no-console
       if (this.props.showWarnings) console.warn(error)
       if (this.props.onError) this.props.onError(error)
-      return []
+      const Fallback = this.props.fallback
+      const FallbackWithError = () => (<Fallback error={error} />)
+      return <FallbackWithError />
     }
 
     return parsed.map(this.parseExpression).filter(Boolean)
@@ -132,7 +135,9 @@ export default class JsxParser extends Component {
   }
 
   parseElement = (element) => {
-    const { allowUnknownElements, components = {}, componentsOnly, onError } = this.props
+    const {
+      allowUnknownElements, components = {}, componentsOnly, onError,
+    } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [] } = openingElement
     const name = this.parseName(openingElement.name)
@@ -256,6 +261,7 @@ if (process.env.NODE_ENV !== 'production') {
     disableFragments: PropTypes.bool,
     disableKeyGeneration: PropTypes.bool,
     jsx: PropTypes.string,
+    fallback: PropTypes.element,
     onError: PropTypes.func,
     showWarnings: PropTypes.bool,
     renderInWrapper: PropTypes.bool,
