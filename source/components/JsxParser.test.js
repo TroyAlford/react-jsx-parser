@@ -71,26 +71,99 @@ describe('JsxParser Component', () => {
         <JsxParser
           bindings={{ foo: 1 }}
           jsx={`
-            <div className={foo === 1 ? 'yes' : 'no'}>
-              {foo !== 1 ? 'bar' : 'foo'}
+            <div className={foo === 1 ? 'isOne' : 'isNotOne'}>
+              {foo !== 1 ? 'isNotOne' : 'isOne'}
             </div>
           `}
         />
       )
 
-      expect(rendered.childNodes[0].classList).toContain('yes')
-      expect(rendered.childNodes[0].textContent.trim()).toEqual('bar')
+      expect(rendered.childNodes[0].classList).toContain('isOne')
+      expect(rendered.childNodes[0].textContent.trim()).toEqual('isOne')
     })
 
     it('should handle test predicate returned value ', () => {
       const { rendered } = render(
         <JsxParser
-          jsx={'<p>{true && false ? "a" : "b"}</p><p>{false || true ? "a" : "b"}</p>'}
+          jsx={
+            '<p>{true && true ? "a" : "b"}</p>' +
+            '<p>{true && false ? "a" : "b"}</p>' +
+            '<p>{true || false ? "a" : "b"}</p>' +
+            '<p>{false || false ? "a" : "b"}</p>'
+          }
         />
       )
 
-      expect(rendered.childNodes[0].textContent).toEqual('b')
-      expect(rendered.childNodes[1].textContent).toEqual('a')
+      expect(rendered.childNodes[0].textContent).toEqual('a')
+      expect(rendered.childNodes[1].textContent).toEqual('b')
+      expect(rendered.childNodes[2].textContent).toEqual('a')
+      expect(rendered.childNodes[3].textContent).toEqual('b')
+    })
+  })
+
+  describe('conditional || rendering', () => {
+    it('should handle boolean test value ', () => {
+      const { component, rendered } = render(<JsxParser jsx={
+      '<p falsyProp={false || "fallback"} truthyProp={true || "fallback"}>'
+        + '(display "good": {"good" || "fallback"}); (display "fallback": {"" || "fallback"})'
+        + '</p>'
+      }
+      />)
+
+      expect(rendered.childNodes[0].textContent)
+        .toEqual('(display "good": good); (display "fallback": fallback)')
+
+      expect(component.ParsedChildren[0].props.falsyProp).toBe("fallback")
+      expect(component.ParsedChildren[0].props.truthyProp).toBe(true)
+    })
+
+    it('should handle evaluative', () => {
+      const { component, rendered } = render(
+        <JsxParser
+          bindings={{ foo: 1 }}
+          jsx={`
+            <div truthyProp={foo === 1 || 'fallback'} falseyProp={foo !== 1 || 'fallback'}>
+              {foo === 1 || 'trueFallback'}{foo !== 1 || 'falseFallback'}
+            </div>
+          `}
+        />
+      )
+      expect(component.ParsedChildren[0].props.truthyProp).toBe(true)
+      expect(component.ParsedChildren[0].props.falseyProp).toBe("fallback")
+      expect(rendered.childNodes[0].textContent.trim()).toEqual('falseFallback')
+    })
+  })
+
+  describe('conditional && rendering', () => {
+    it('should handle boolean test value ', () => {
+      const { component, rendered } = render(<JsxParser jsx={
+      '<p falsyProp={false && "fallback"} truthyProp={true && "fallback"}>'
+        + '(display "fallback": {"good" && "fallback"}); (display "": {"" && "fallback"})'
+        + '</p>'
+      }
+      />)
+
+      expect(rendered.childNodes[0].textContent)
+        .toEqual('(display "fallback": fallback); (display "": )')
+
+      expect(component.ParsedChildren[0].props.falsyProp).toBe(false)
+      expect(component.ParsedChildren[0].props.truthyProp).toBe("fallback")
+    })
+
+    it('should handle evaluative', () => {
+      const { component, rendered } = render(
+        <JsxParser
+          bindings={{ foo: 1 }}
+          jsx={`
+            <div truthyProp={foo === 1 && 'fallback'} falseyProp={foo !== 1 && 'fallback'}>
+              {foo === 1 && 'trueFallback'}{foo !== 1 && 'falseFallback'}
+            </div>
+          `}
+        />
+      )
+      expect(component.ParsedChildren[0].props.truthyProp).toBe("fallback")
+      expect(component.ParsedChildren[0].props.falseyProp).toBe(false)
+      expect(rendered.childNodes[0].textContent.trim()).toEqual('trueFallback')
     })
   })
 
@@ -739,6 +812,7 @@ describe('JsxParser Component', () => {
             '<div foo={foo} />'
             + '<span onClick={logFn}>Click Me!</span>'
             + '{nested.objects.work && <div doTheyWork={nested.objects.work} />}'
+            + '{nested.objects.work === "nope" && <div>Do not show me</div>}'
             + '<div unresolvable={a.bad.binding} />'
           }
         />
@@ -816,23 +890,19 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent).toEqual('1')
     })
     it('can evaluate equality comparison', () => {
-      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 == 2}>{ 1 == "1" }</span>'} />)
-      expect(rendered.childNodes[0].textContent).toEqual('true')
+      const { component } = render(<JsxParser jsx={'<span testProp={1 == 2} />'} />)
       expect(component.ParsedChildren[0].props.testProp).toEqual(false)
     })
     it('can evaluate inequality comparison', () => {
-      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 != "1"}>{ 1 != "1" }</span>'} />)
-      expect(rendered.childNodes[0].textContent).toEqual('false')
+      const { component } = render(<JsxParser jsx={'<span testProp={1 != "1"} />'} />)
       expect(component.ParsedChildren[0].props.testProp).toEqual(false)
     })
     it('can evaluate strict equality comparison', () => {
-      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 === 1}>{ 1 === "1" }</span>'} />)
-      expect(rendered.childNodes[0].textContent).toEqual('false')
+      const { component } = render(<JsxParser jsx={'<span testProp={1 === 1} />'} />)
       expect(component.ParsedChildren[0].props.testProp).toEqual(true)
     })
     it('can evaluate strict inequality comparison', () => {
-      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 !== "1"}>{ 1 !== "1" }</span>'} />)
-      expect(rendered.childNodes[0].textContent).toEqual('true')
+      const { component } = render(<JsxParser jsx={'<span testProp={1 !== "1"} />'} />)
       expect(component.ParsedChildren[0].props.testProp).toEqual(true)
     })
     it('can execute unary plus operations', () => {

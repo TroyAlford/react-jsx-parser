@@ -84,7 +84,7 @@ export default class JsxParser extends Component {
         return parsedCallee(...expression.arguments.map(this.parseExpression))
       case 'LogicalExpression':
         const left = this.parseExpression(expression.left)
-        if (expression.operator === '||' && left) return true
+        if (expression.operator === '||' && left) return left
         if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
           return this.parseExpression(expression.right)
         }
@@ -101,13 +101,13 @@ export default class JsxParser extends Component {
           case '/':
             return this.parseExpression(expression.left) / this.parseExpression(expression.right)
           case '==':
-            return (this.parseExpression(expression.left) == this.parseExpression(expression.right)).toString()
+            return this.parseExpression(expression.left) == this.parseExpression(expression.right)
           case '!=':
-            return (this.parseExpression(expression.left) != this.parseExpression(expression.right)).toString()
+            return this.parseExpression(expression.left) != this.parseExpression(expression.right)
           case '===':
-            return (this.parseExpression(expression.left) === this.parseExpression(expression.right)).toString()
+            return this.parseExpression(expression.left) === this.parseExpression(expression.right)
           case '!==':
-            return (this.parseExpression(expression.left) !== this.parseExpression(expression.right)).toString()
+            return this.parseExpression(expression.left) !== this.parseExpression(expression.right)
         /* eslint-enable eqeqeq,max-len */
         } break
       case 'UnaryExpression':
