@@ -79,7 +79,10 @@ export default class JsxParser extends Component {
       case 'Literal':
         return expression.value
       case 'MemberExpression':
-        return (this.parseExpression(expression.object) || {})[expression.property.name]
+        const thisObj = this.parseExpression(expression.object) || {}
+        const member = (thisObj)[expression.property.name]
+        if (typeof member === 'function') return member.bind(thisObj)
+        return member
       case 'CallExpression':
         const parsedCallee = this.parseExpression(expression.callee)
         if (parsedCallee === undefined) {
@@ -122,7 +125,7 @@ export default class JsxParser extends Component {
           case '-':
             return -1 * expression.argument.value
           case '!':
-            return (!expression.argument.value).toString()
+            return !expression.argument.value
         }
     }
   }
