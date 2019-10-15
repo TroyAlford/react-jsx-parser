@@ -25,6 +25,7 @@ export default class JsxParser extends Component {
     jsx: '',
     onError: () => { },
     showWarnings: false,
+    renderError: undefined,
     renderInWrapper: true,
   }
 
@@ -38,6 +39,9 @@ export default class JsxParser extends Component {
       // eslint-disable-next-line no-console
       if (this.props.showWarnings) console.warn(error)
       if (this.props.onError) this.props.onError(error)
+      if (this.props.renderError) {
+        return this.props.renderError({ error: String(error) })
+      }
       return []
     }
 
@@ -259,6 +263,7 @@ if (process.env.NODE_ENV !== 'production') {
     jsx: PropTypes.string,
     onError: PropTypes.func,
     showWarnings: PropTypes.bool,
+    renderError: PropTypes.func,
     renderInWrapper: PropTypes.bool,
   }
 }

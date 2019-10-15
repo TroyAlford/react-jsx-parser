@@ -489,6 +489,19 @@ describe('JsxParser Component', () => {
       )
       expect(wrapper.html()).toMatchSnapshot()
     })
+    it('renders errors with renderError prop, if supplied', () => {
+      const onError = jest.fn()
+      // eslint-disable-next-line
+      const renderError = ({ error }) => <div className="error">{error}</div>
+      const { rendered } = render(
+        <JsxParser {...{ onError, renderError }} jsx={'<h2>No closing tag '} />
+      )
+
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(rendered.querySelectorAll('h2')).toHaveLength(0)
+      expect(rendered.querySelectorAll('div')).toHaveLength(1)
+      expect(rendered.textContent).toMatch(/SyntaxError: Expected corresponding JSX closing tag for <h2>/)
+    })
     it('re-rendering should update child elements rather than unmount and remount them', () => {
       const updates = jest.fn()
       const unmounts = jest.fn()

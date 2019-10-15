@@ -20,6 +20,7 @@
     "react/destructuring-assignment": "off",
     "react/jsx-filename-extension": ["error", { "extensions": [".js"] }],
     "react/jsx-one-expression-per-line": "off",
+    "react/jsx-props-no-spreading": "off",
     "react/no-unused-prop-types": ["error", { "skipShapeProps": true }],
     "react/static-property-placement": "off"
   }

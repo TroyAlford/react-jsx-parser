@@ -119,6 +119,8 @@ JsxParser.defaultProps = {
 
   showWarnings: false, // if true showWarnings, rendering errors are output with console.warn
 
+  renderError: undefined, // if specified, this function can be used to render errors as a fallback
+
   renderInWrapper: true, // if false, the HTML output will have no <div> wrapper
 }
 ```
