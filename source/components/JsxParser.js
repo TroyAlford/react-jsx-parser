@@ -1,4 +1,5 @@
-import { Parser } from 'acorn-jsx'
+import * as acorn from 'acorn'
+import acornJsx from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
@@ -6,7 +7,7 @@ import { randomHash } from '../helpers/hash'
 import parseStyle from '../helpers/parseStyle'
 import resolvePath from '../helpers/resolvePath'
 
-const parserOptions = { plugins: { jsx: true } }
+const parser = acorn.Parser.extend(acornJsx())
 
 /* eslint-disable consistent-return */
 export default class JsxParser extends Component {
@@ -27,11 +28,11 @@ export default class JsxParser extends Component {
     renderInWrapper: true,
   }
 
-  parseJSX = (rawJSX) => {
+  parseJSX = rawJSX => {
     const wrappedJsx = `<root>${rawJSX}</root>`
     let parsed = []
     try {
-      parsed = (new Parser(parserOptions, wrappedJsx)).parse()
+      parsed = parser.parse(wrappedJsx)
       parsed = parsed.body[0].expression.children || []
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -43,7 +44,7 @@ export default class JsxParser extends Component {
     return parsed.map(this.parseExpression).filter(Boolean)
   }
 
-  parseExpression = (expression) => {
+  parseExpression = expression => {
     switch (expression.type) {
       case 'JSXElement':
         return this.parseElement(expression)
@@ -63,7 +64,7 @@ export default class JsxParser extends Component {
         return expression.elements.map(this.parseExpression)
       case 'ObjectExpression':
         const object = {}
-        expression.properties.forEach((prop) => {
+        expression.properties.forEach(prop => {
           object[prop.key.name || prop.key.value] = this.parseExpression(prop.value)
         })
         return object
@@ -122,7 +123,7 @@ export default class JsxParser extends Component {
     }
   }
 
-  parseName = (element) => {
+  parseName = element => {
     switch (element.type) {
       case 'JSXIdentifier':
         return element.name
@@ -131,7 +132,7 @@ export default class JsxParser extends Component {
     }
   }
 
-  parseElement = (element) => {
+  parseElement = element => {
     const { allowUnknownElements, components = {}, componentsOnly, onError } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [] } = openingElement
@@ -185,7 +186,7 @@ export default class JsxParser extends Component {
     const props = {
       key: this.props.disableKeyGeneration ? undefined : randomHash(),
     }
-    attributes.forEach((expr) => {
+    attributes.forEach(expr => {
       if (expr.type === 'JSXAttribute') {
         const rawName = expr.name.name
         const attributeName = ATTRIBUTES[rawName] || rawName
@@ -206,7 +207,7 @@ export default class JsxParser extends Component {
       ) {
         const value = this.parseExpression(expr.argument)
         if (typeof value === 'object') {
-          Object.keys(value).forEach((rawName) => {
+          Object.keys(value).forEach(rawName => {
             const attributeName = ATTRIBUTES[rawName] || rawName
             const matches = blacklistedAttrs.filter(re => re.test(attributeName))
             if (matches.length === 0) {

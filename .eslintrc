@@ -8,15 +8,19 @@
   },
   "parser": "babel-eslint",
   "rules": {
+    "arrow-parens": ["error", "as-needed"],
     "comma-dangle": ["error", "always-multiline"],
     "default-case": "off",
     "semi": ["error", "never"],
     "import/no-unresolved": "off",
     "lines-between-class-members": "off",
     "no-case-declarations": "off",
+    "object-curly-newline": ["error", { "ObjectPattern": { "multiline": true } }],
+    "operator-linebreak": "off",
     "react/destructuring-assignment": "off",
     "react/jsx-filename-extension": ["error", { "extensions": [".js"] }],
     "react/jsx-one-expression-per-line": "off",
-    "react/no-unused-prop-types": ["error", { "skipShapeProps": true }]
+    "react/no-unused-prop-types": ["error", { "skipShapeProps": true }],
+    "react/static-property-placement": "off"
   }
 }

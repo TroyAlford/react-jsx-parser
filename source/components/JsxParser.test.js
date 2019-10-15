@@ -52,14 +52,13 @@ describe('JsxParser Component', () => {
 
   describe('using ternaries', () => {
     it('should handle boolean test value ', () => {
-      const { component, rendered } = render(<JsxParser jsx={
-      '<p falsyProp={false ? 1 : 0} truthyProp={true ? 1 : 0}>'
-        + '(display 1: {true ? 1 : 0}); (display 0: {false ? 1 : 0})'
-        + '</p>'
-      }
+      const { component, rendered } = render(<JsxParser jsx={`
+        <p falsyProp={false ? 1 : 0} truthyProp={true ? 1 : 0}>
+          (display 1: {true ? 1 : 0}); (display 0: {false ? 1 : 0})
+        </p>`}
       />)
 
-      expect(rendered.childNodes[0].textContent)
+      expect(rendered.childNodes[0].textContent.trim())
         .toEqual('(display 1: 1); (display 0: 0)')
 
       expect(component.ParsedChildren[0].props.truthyProp).toBe(1)
@@ -67,7 +66,7 @@ describe('JsxParser Component', () => {
     })
 
     it('should handle evaluative ternaries', () => {
-      const { component, rendered } = render(
+      const { rendered } = render(
         <JsxParser
           bindings={{ foo: 1 }}
           jsx={`
@@ -113,7 +112,7 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent)
         .toEqual('(display "good": good); (display "fallback": fallback)')
 
-      expect(component.ParsedChildren[0].props.falsyProp).toBe("fallback")
+      expect(component.ParsedChildren[0].props.falsyProp).toBe('fallback')
       expect(component.ParsedChildren[0].props.truthyProp).toBe(true)
     })
 
@@ -129,25 +128,25 @@ describe('JsxParser Component', () => {
         />
       )
       expect(component.ParsedChildren[0].props.truthyProp).toBe(true)
-      expect(component.ParsedChildren[0].props.falseyProp).toBe("fallback")
+      expect(component.ParsedChildren[0].props.falseyProp).toBe('fallback')
       expect(rendered.childNodes[0].textContent.trim()).toEqual('falseFallback')
     })
   })
 
   describe('conditional && rendering', () => {
     it('should handle boolean test value ', () => {
-      const { component, rendered } = render(<JsxParser jsx={
-      '<p falsyProp={false && "fallback"} truthyProp={true && "fallback"}>'
-        + '(display "fallback": {"good" && "fallback"}); (display "": {"" && "fallback"})'
-        + '</p>'
-      }
+      const { component, rendered } = render(<JsxParser jsx={`
+        <p falsyProp={false && "fallback"} truthyProp={true && "fallback"}>
+          (display "fallback": {"good" && "fallback"}); (display "": {"" && "fallback"})
+        </p>
+      `}
       />)
 
-      expect(rendered.childNodes[0].textContent)
+      expect(rendered.childNodes[0].textContent.trim())
         .toEqual('(display "fallback": fallback); (display "": )')
 
       expect(component.ParsedChildren[0].props.falsyProp).toBe(false)
-      expect(component.ParsedChildren[0].props.truthyProp).toBe("fallback")
+      expect(component.ParsedChildren[0].props.truthyProp).toBe('fallback')
     })
 
     it('should handle evaluative', () => {
@@ -161,7 +160,7 @@ describe('JsxParser Component', () => {
           `}
         />
       )
-      expect(component.ParsedChildren[0].props.truthyProp).toBe("fallback")
+      expect(component.ParsedChildren[0].props.truthyProp).toBe('fallback')
       expect(component.ParsedChildren[0].props.falseyProp).toBe(false)
       expect(rendered.childNodes[0].textContent.trim()).toEqual('trueFallback')
     })
