@@ -67,14 +67,16 @@ export default class JsxParser extends Component {
       case 'BinaryExpression':
         /* eslint-disable eqeqeq,max-len */
         switch (expression.operator) {
-          case '+': return this.parseExpression(expression.left) + this.parseExpression(expression.right)
           case '-': return this.parseExpression(expression.left) - this.parseExpression(expression.right)
-          case '*': return this.parseExpression(expression.left) * this.parseExpression(expression.right)
-          case '/': return this.parseExpression(expression.left) / this.parseExpression(expression.right)
-          case '==': return this.parseExpression(expression.left) == this.parseExpression(expression.right)
           case '!=': return this.parseExpression(expression.left) != this.parseExpression(expression.right)
-          case '===': return this.parseExpression(expression.left) === this.parseExpression(expression.right)
           case '!==': return this.parseExpression(expression.left) !== this.parseExpression(expression.right)
+          case '*': return this.parseExpression(expression.left) * this.parseExpression(expression.right)
+          case '**': return this.parseExpression(expression.left) ** this.parseExpression(expression.right)
+          case '/': return this.parseExpression(expression.left) / this.parseExpression(expression.right)
+          case '%': return this.parseExpression(expression.left) % this.parseExpression(expression.right)
+          case '+': return this.parseExpression(expression.left) + this.parseExpression(expression.right)
+          case '==': return this.parseExpression(expression.left) == this.parseExpression(expression.right)
+          case '===': return this.parseExpression(expression.left) === this.parseExpression(expression.right)
         /* eslint-enable eqeqeq,max-len */
         }
         return undefined

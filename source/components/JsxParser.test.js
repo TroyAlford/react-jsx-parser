@@ -901,6 +901,14 @@ describe('JsxParser Component', () => {
       const { rendered } = render(<JsxParser jsx={'<span>{ 1 + 2 * 4 / 8 - 1 }</span>'} />)
       expect(rendered.childNodes[0].textContent).toEqual('1')
     })
+    it('can evaluate binary exponent operations', () => {
+      const { component } = render(<JsxParser jsx={'<span testProp={2 ** 4} />'} />)
+      expect(component.ParsedChildren[0].props.testProp).toEqual(16)
+    })
+    it('can evaluate binary modulo operations', () => {
+      const { component } = render(<JsxParser jsx={'<span testProp={27 % 14} />'} />)
+      expect(component.ParsedChildren[0].props.testProp).toEqual(13)
+    })
     it('can evaluate equality comparison', () => {
       const { component } = render(<JsxParser jsx={'<span testProp={1 == 2} />'} />)
       expect(component.ParsedChildren[0].props.testProp).toEqual(false)
