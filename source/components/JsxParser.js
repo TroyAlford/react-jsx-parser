@@ -56,7 +56,7 @@ export default class JsxParser extends Component {
       case 'JSXElement':
         return this.parseElement(expression)
       case 'JSXExpressionContainer':
-          return this.parseExpression(expression.expression)
+        return this.parseExpression(expression.expression)
       case 'JSXText':
         const key = this.props.disableKeyGeneration ? undefined : randomHash()
         return this.props.disableFragments
