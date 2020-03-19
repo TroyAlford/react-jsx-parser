@@ -120,6 +120,15 @@ export default class JsxParser extends Component {
           case '!': return !expression.argument.value
         }
         return undefined
+      case 'ArrowFunctionExpression':
+        if (expression.async || expression.generator) {
+          this.props.onError(new Error('Async and generator arrow functions are not supported.'))
+        }
+        const params = expression.params.map(this.parseExpression)
+        const body = // Not quite sure how to parse the body... it would need contextual values of local vars
+        // Not sure if we can use new Function since it only takes strings
+        // eslint-disable-next-line no-new-func
+        return new Function(...params, body)
     }
   }
 

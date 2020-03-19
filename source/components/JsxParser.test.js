@@ -1015,4 +1015,22 @@ describe('JsxParser Component', () => {
     expect(() => render(<JsxParser jsx={'{ [1, 2, 3].reduce((a, b) => a + b) }'} />)).toThrow()
     expect(() => render(<JsxParser jsx={'{ [1, 2, 3].find(num => num === 2) }'} />)).toThrow()
   })
+
+  it('supports simple functions that directly return simple values', () => {
+    const { component } = render(
+      <JsxParser jsx={
+        '<span ' +
+        'filterFn={ [1, 2, 3].filter(num => num === 2) }' +
+        'mapFn={ [1, 2, 3].map(num => num * 2) }' +
+        'reduceFn={ [1, 2, 3].reduce((a, b) => a + b) }' +
+        'findFn={ [1, 2, 3].find(num => num === 2) }' +
+        ' />'
+      }
+      />
+    )
+    expect(component.ParsedChildren[0].props.filterFn).toEqual([2])
+    expect(component.ParsedChildren[0].props.mapFn).toEqual([2, 4, 6])
+    expect(component.ParsedChildren[0].props.reduceFn).toEqual(6)
+    expect(component.ParsedChildren[0].props.findFn).toEqual(2)
+  })
 })
