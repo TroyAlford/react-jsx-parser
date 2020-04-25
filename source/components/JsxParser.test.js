@@ -940,6 +940,26 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent).toEqual('Yes')
       expect(component.ParsedChildren[0].props.testProp).toEqual(false)
     })
+    it('can evaluate > operator', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 > 2}>{1 > 2 || "Nope"}</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('Nope')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(false)
+    })
+    it('can evaluate >= operator', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 >= 2}>{1 >= 2 || "Nope"}</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('Nope')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(false)
+    })
+    it('can evaluate < operator', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 < 2}>{2 < 1 || "Nope"}</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('Nope')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(true)
+    })
+    it('can evaluate <= operator', () => {
+      const { rendered, component } = render(<JsxParser jsx={'<span testProp={1 <= 2}>{2 <= 1 || "Nope"}</span>'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('Nope')
+      expect(component.ParsedChildren[0].props.testProp).toEqual(true)
+    })
   })
   describe('React.Children.only()', () => {
     // eslint-disable-next-line react/prop-types

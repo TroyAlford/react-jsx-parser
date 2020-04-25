@@ -75,8 +75,12 @@ export default class JsxParser extends Component {
           case '/': return this.parseExpression(expression.left) / this.parseExpression(expression.right)
           case '%': return this.parseExpression(expression.left) % this.parseExpression(expression.right)
           case '+': return this.parseExpression(expression.left) + this.parseExpression(expression.right)
+          case '<': return this.parseExpression(expression.left) < this.parseExpression(expression.right)
+          case '<=': return this.parseExpression(expression.left) <= this.parseExpression(expression.right)
           case '==': return this.parseExpression(expression.left) == this.parseExpression(expression.right)
           case '===': return this.parseExpression(expression.left) === this.parseExpression(expression.right)
+          case '>': return this.parseExpression(expression.left) > this.parseExpression(expression.right)
+          case '>=': return this.parseExpression(expression.left) >= this.parseExpression(expression.right)
         /* eslint-enable eqeqeq,max-len */
         }
         return undefined
@@ -116,7 +120,7 @@ export default class JsxParser extends Component {
       case 'UnaryExpression':
         switch (expression.operator) {
           case '+': return expression.argument.value
-          case '-': return -1 * expression.argument.value
+          case '-': return -expression.argument.value
           case '!': return !expression.argument.value
         }
         return undefined
