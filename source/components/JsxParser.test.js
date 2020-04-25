@@ -961,6 +961,18 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[0].props.testProp).toEqual(true)
     })
   })
+  describe('template strings', () => {
+    it('correctly parse/bind bindings', () => {
+      const { rendered } = render(
+        <JsxParser
+          bindings={{ foo: 2, bar: 3 }}
+          // eslint-disable-next-line no-template-curly-in-string
+          jsx={'<span>{`foo: ${foo}, bar: ${bar}, baz: ${foo * bar}`}</span>'}
+        />
+      )
+      expect(rendered.childNodes[0].textContent).toEqual('foo: 2, bar: 3, baz: 6')
+    })
+  })
   describe('React.Children.only()', () => {
     // eslint-disable-next-line react/prop-types
     const OnlyOne = ({ children }) => (

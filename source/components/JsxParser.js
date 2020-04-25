@@ -95,6 +95,8 @@ export default class JsxParser extends Component {
         return this.parseExpression(expression.test)
           ? this.parseExpression(expression.consequent)
           : this.parseExpression(expression.alternate)
+      case 'ExpressionStatement':
+        return this.parseExpression(expression.expression)
       case 'Identifier':
         return (this.props.bindings || {})[expression.name]
       case 'Literal':
@@ -117,6 +119,13 @@ export default class JsxParser extends Component {
           object[prop.key.name || prop.key.value] = this.parseExpression(prop.value)
         })
         return object
+      case 'TemplateElement':
+        return expression.value.cooked
+      case 'TemplateLiteral':
+        return [...expression.expressions, ...expression.quasis]
+          .sort((a, b) => a.start > b.start)
+          .map(this.parseExpression)
+          .join('')
       case 'UnaryExpression':
         switch (expression.operator) {
           case '+': return expression.argument.value
