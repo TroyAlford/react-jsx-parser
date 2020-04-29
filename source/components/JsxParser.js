@@ -123,7 +123,10 @@ export default class JsxParser extends Component {
         return expression.value.cooked
       case 'TemplateLiteral':
         return [...expression.expressions, ...expression.quasis]
-          .sort((a, b) => a.start > b.start)
+          .sort((a, b) => {
+            if (a.start < b.start) return -1
+            return 1
+          })
           .map(this.parseExpression)
           .join('')
       case 'UnaryExpression':
@@ -193,6 +196,9 @@ export default class JsxParser extends Component {
         children = undefined
       } else if (children.length === 1) {
         [children] = children
+      } else if (children.length > 1) {
+        // Add `key` to any child that is a react element (by checking if it has `.type`)
+        children = children.map((child, i) => (child && child.type) ? { ...child, key: i } : child)
       }
     }
 
@@ -235,9 +241,7 @@ export default class JsxParser extends Component {
       props.style = parseStyle(props.style)
     }
 
-    if (children) props.children = children
-
-    return React.createElement(component || name.toLowerCase(), props)
+    return React.createElement(component || name.toLowerCase(), props, children)
   }
 
   render = () => {
