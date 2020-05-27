@@ -10,7 +10,7 @@
   "main": "lib/cjs/react-jsx-parser.min.js",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "dependencies": {
     "acorn": "^7.1.1",
     "acorn-jsx": "^5.2.0"
