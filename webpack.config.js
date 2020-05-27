@@ -16,7 +16,7 @@ if (PRODUCTION) {
   )
 }
 
-module.exports = {
+const buildTarget = {
   devtool: 'source-map',
   entry: `${__dirname}/source/components/JsxParser.js`,
   externals: {
@@ -45,3 +45,16 @@ module.exports = {
   },
   plugins,
 }
+
+const TYPES = {
+  cjs: 'commonjs2',
+  umd: 'umd',
+}
+module.exports = Object.entries(TYPES).map(([typeName, libraryTarget]) => ({
+  ...buildTarget,
+  output: {
+    ...buildTarget.output,
+    libraryTarget,
+    path: `${__dirname}/lib/${typeName}`,
+  },
+}))

@@ -7,7 +7,7 @@
     "jsx"
   ],
   "license": "MIT",
-  "main": "lib/react-jsx-parser.min.js",
+  "main": "lib/cjs/react-jsx-parser.min.js",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
   "version": "1.23.0",
