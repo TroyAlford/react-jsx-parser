@@ -12,7 +12,7 @@ const plugins = []
 if (PRODUCTION) {
   plugins.push(
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify(ENVIRONMENT) }),
-    new webpack.optimize.ModuleConcatenationPlugin()
+    new webpack.optimize.ModuleConcatenationPlugin(),
   )
 }
 
@@ -20,7 +20,7 @@ module.exports = {
   devtool: 'source-map',
   entry: `${__dirname}/source/components/JsxParser.js`,
   externals: {
-    'react': 'react',
+    react: 'react',
     'react-dom': 'react-dom',
   },
   mode: ENVIRONMENT,
@@ -37,11 +37,11 @@ module.exports = {
   },
   output: {
     filename,
+    globalObject: 'this',
     library,
+    libraryTarget: 'commonjs2',
     path: `${__dirname}/lib`,
-    libraryTarget: 'umd',
     umdNamedDefine: true,
-    globalObject: 'this'
   },
   plugins,
 }
