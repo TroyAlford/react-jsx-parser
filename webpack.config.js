@@ -1,5 +1,4 @@
-/* eslint-disable */
-const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 const webpack = require('webpack')
 
 const ENVIRONMENT = process.env.NODE_ENV || 'development'
@@ -13,15 +12,15 @@ const plugins = []
 if (PRODUCTION) {
   plugins.push(
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify(ENVIRONMENT) }),
-    new webpack.optimize.ModuleConcatenationPlugin()
+    new webpack.optimize.ModuleConcatenationPlugin(),
   )
 }
 
-module.exports = {
+const buildTarget = {
   devtool: 'source-map',
   entry: `${__dirname}/source/components/JsxParser.js`,
   externals: {
-    'react': 'react',
+    react: 'react',
     'react-dom': 'react-dom',
   },
   mode: ENVIRONMENT,
@@ -34,14 +33,28 @@ module.exports = {
   },
   optimization: {
     minimize: PRODUCTION,
+    minimizer: [new TerserPlugin()],
   },
   output: {
     filename,
+    globalObject: 'this',
     library,
+    libraryTarget: 'commonjs2',
     path: `${__dirname}/lib`,
-    libraryTarget: 'umd',
     umdNamedDefine: true,
-    globalObject: 'this'
   },
   plugins,
 }
+
+const TYPES = {
+  cjs: 'commonjs2',
+  umd: 'umd',
+}
+module.exports = Object.entries(TYPES).map(([typeName, libraryTarget]) => ({
+  ...buildTarget,
+  output: {
+    ...buildTarget.output,
+    libraryTarget,
+    path: `${__dirname}/lib/${typeName}`,
+  },
+}))
