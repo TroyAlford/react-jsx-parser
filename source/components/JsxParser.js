@@ -222,7 +222,7 @@ export default class JsxParser extends Component {
         [children] = children
       } else if (children.length > 1) {
         // Add `key` to any child that is a react element (by checking if it has `.type`)
-        children = children.map((child, i) => (child && child.type) ? { ...child, key: i } : child)
+        children = children.map((child, key) => ((child && child.type) ? { ...child, key } : child))
       }
     }
 

@@ -74,7 +74,7 @@ describe('JsxParser Component', () => {
               {foo !== 1 ? 'isNotOne' : 'isOne'}
             </div>
           `}
-        />
+        />,
       )
 
       expect(rendered.childNodes[0].classList).toContain('isOne')
@@ -90,7 +90,7 @@ describe('JsxParser Component', () => {
             '<p>{true || false ? "a" : "b"}</p>' +
             '<p>{false || false ? "a" : "b"}</p>'
           }
-        />
+        />,
       )
 
       expect(rendered.childNodes[0].textContent).toEqual('a')
@@ -125,7 +125,7 @@ describe('JsxParser Component', () => {
               {foo === 1 || 'trueFallback'}{foo !== 1 || 'falseFallback'}
             </div>
           `}
-        />
+        />,
       )
       expect(component.ParsedChildren[0].props.truthyProp).toBe(true)
       expect(component.ParsedChildren[0].props.falseyProp).toBe('fallback')
@@ -158,7 +158,7 @@ describe('JsxParser Component', () => {
               {foo === 1 && 'trueFallback'}{foo !== 1 && 'falseFallback'}
             </div>
           `}
-        />
+        />,
       )
       expect(component.ParsedChildren[0].props.truthyProp).toBe('fallback')
       expect(component.ParsedChildren[0].props.falseyProp).toBe(false)
@@ -175,7 +175,7 @@ describe('JsxParser Component', () => {
             + '<div class="foo">Foo</div>'
             + '<span class="bar">Bar</span>'
           }
-        />
+        />,
       )
 
       expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -203,7 +203,7 @@ describe('JsxParser Component', () => {
             + '<div>Inner</div>'
             + '</div>'
           }
-        />
+        />,
       )
 
       expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -231,7 +231,7 @@ describe('JsxParser Component', () => {
             '<h1>Header</h1>'
             + '<Custom className="blah" text="Test Text" />'
           }
-        />
+        />,
       )
 
       expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -265,7 +265,7 @@ describe('JsxParser Component', () => {
           components={{ Custom }}
           bindings={{ first, second }}
           jsx="<Custom {...first} {...second.innerProps} {...{ text: 'Will Not Spread' }} />"
-        />
+        />,
       )
 
       expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -296,7 +296,7 @@ describe('JsxParser Component', () => {
             + '</Custom>'
             + '</Custom>'
           }
-        />
+        />,
       )
       expect(component.ParsedChildren).toHaveLength(1)
       expect(rendered.childNodes).toHaveLength(1)
@@ -332,7 +332,7 @@ describe('JsxParser Component', () => {
             + '</Unrecognized>'
             + '</Unrecognized>'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren[0].props.foo).toEqual('Foo')
@@ -361,7 +361,7 @@ describe('JsxParser Component', () => {
     })
     it('skips over DOCTYPE, html, head, and div if found', () => {
       const { rendered } = render(
-        <JsxParser jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'} />
+        <JsxParser jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'} />,
       )
 
       expect(rendered.childNodes).toHaveLength(2)
@@ -374,7 +374,7 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ CustomContent }}
           jsx="<CustomContent /><p>Text</p>"
-        />
+        />,
       )
 
       expect(rendered.childNodes).toHaveLength(2)
@@ -392,7 +392,7 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ CustomContent, CuStomContent }}
           jsx="<CustomContent /><CuStomContent />"
-        />
+        />,
       )
 
       expect(rendered.childNodes).toHaveLength(2)
@@ -409,7 +409,7 @@ describe('JsxParser Component', () => {
             '<h1>Header</h1>'
             + '<Lib.Custom className="blah" text="Test Text" />'
           }
-        />
+        />,
       )
 
       expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -438,7 +438,7 @@ describe('JsxParser Component', () => {
             '<h1>Header</h1>'
             + '<Lib.SubLib.Custom className="blah" text="Test Text" />'
           }
-        />
+        />,
       )
 
       expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
@@ -474,18 +474,18 @@ describe('JsxParser Component', () => {
           jsx={'<foo>Foo</foo><div>div</div><bar>Bar</bar>'}
           onError={onError}
           renderInWrapper={false}
-        />
+        />,
       )
       expect(onError).toHaveBeenCalledTimes(2)
       expect(onError).toHaveBeenCalledWith(
         expect.objectContaining({
           message: expect.stringContaining('<foo> is unrecognized'),
-        })
+        }),
       )
       expect(onError).toHaveBeenCalledWith(
         expect.objectContaining({
           message: expect.stringContaining('<bar> is unrecognized'),
-        })
+        }),
       )
       expect(wrapper.html()).toMatchSnapshot()
     })
@@ -494,7 +494,7 @@ describe('JsxParser Component', () => {
       // eslint-disable-next-line
       const renderError = ({ error }) => <div className="error">{error}</div>
       const { rendered } = render(
-        <JsxParser {...{ onError, renderError }} jsx={'<h2>No closing tag '} />
+        <JsxParser {...{ onError, renderError }} jsx={'<h2>No closing tag '} />,
       )
 
       expect(onError).toHaveBeenCalledTimes(1)
@@ -517,7 +517,7 @@ describe('JsxParser Component', () => {
           components={components}
           disableKeyGeneration
           jsx={'<div><p>Hello</p><hr /><Custom /></div>'}
-        />
+        />,
       )
       wrapper.setProps({ someProp: true })
       expect(updates).toHaveBeenCalled()
@@ -533,7 +533,7 @@ describe('JsxParser Component', () => {
             + '<script src="http://example.com/test.js"></script>'
             + '<div>After</div>'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(2)
@@ -551,7 +551,7 @@ describe('JsxParser Component', () => {
             + '</script>'
             + '<div>After</div>'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(2)
@@ -566,7 +566,7 @@ describe('JsxParser Component', () => {
             '<div onClick="handleClick()">first</div>'
             + '<div onChange="handleChange()">second</div>'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(2)
@@ -585,7 +585,7 @@ describe('JsxParser Component', () => {
             '<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>'
             + '<Foo>second</Foo>'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(1)
@@ -612,7 +612,7 @@ describe('JsxParser Component', () => {
               </Simple>
             </Simple>
           `}
-        />
+        />,
       )
       expect(rendered.getElementsByTagName('h1')).toHaveLength(0)
       expect(rendered.getElementsByTagName('h2')).toHaveLength(0)
@@ -652,7 +652,7 @@ describe('JsxParser Component', () => {
             <h1>Title</h1>\
             <div class="foo">Bar</div>\
           '}
-        />
+        />,
       )
 
       // H1
@@ -684,7 +684,7 @@ describe('JsxParser Component', () => {
             + '<p>Contains a\u202Fnarrow non-breaking space (utf sequence)</p>'
             + '<p>This is a test with regular spaces only</p>'
           }
-        />
+        />,
       )
 
       // Entites are converted to utf sequences
@@ -718,7 +718,7 @@ describe('JsxParser Component', () => {
             + '<div class="invalidChild"></div>'
             + '</img>'
           }
-        />
+        />,
       )
 
       expect(rendered.childNodes).toHaveLength(1)
@@ -739,7 +739,7 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ Custom }}
           jsx="<Custom shouldBeTrue shouldBeFalse={false} />"
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(1)
@@ -759,7 +759,7 @@ describe('JsxParser Component', () => {
             '<div style="margin: 0 1px 2px 3px;"></div>'
             + '<div style="padding-left: 45px; padding-right: 1em;"></div>'
           }
-        />
+        />,
       )
 
       expect(rendered.childNodes).toHaveLength(2)
@@ -787,7 +787,7 @@ describe('JsxParser Component', () => {
             + '<div doTheyWork={nested.objects.work} />'
             + '<div unresolvable={a.bad.binding} />'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(5)
@@ -799,11 +799,10 @@ describe('JsxParser Component', () => {
     })
     it('parses array values', () => {
       const { html } = render(
-        <JsxParser jsx={'<div>{[1,2,3]}</div>'} renderInWrapper={false} />
+        <JsxParser jsx={'<div>{[1,2,3]}</div>'} renderInWrapper={false} />,
       )
       expect(html).toEqual('<div>123</div>')
     })
-
     it('honors conditional rendering based on bound values', () => {
       const logFn = () => { console.log('Foo!') }
       const { component } = render(
@@ -827,7 +826,7 @@ describe('JsxParser Component', () => {
             + '{nested.objects.work === "nope" && <div>Do not show me</div>}'
             + '<div unresolvable={a.bad.binding} />'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(4)
@@ -859,7 +858,7 @@ describe('JsxParser Component', () => {
             + '{( nested.objects.work || nested.objects.noWork()) && <div doTheyWork={nested.objects.work} />}'
             + '<div unresolvable={a.bad.binding} />'
           }
-        />
+        />,
       )
 
       expect(component.ParsedChildren).toHaveLength(4)
@@ -873,7 +872,7 @@ describe('JsxParser Component', () => {
         <JsxParser
           bindings={{ isChecked: true }}
           jsx={'<input type="checkbox" checked={isChecked} />'}
-        />
+        />,
       )
 
       expect(wrapper.find('input')).toHaveLength(1)
@@ -890,7 +889,7 @@ describe('JsxParser Component', () => {
             '<div>Before {window.foo() && <span>Foo!</span>}</div>'
             + '<div>{Number.isNaN(NaN) && <span>Foo!</span>} After</div>'
           }
-        />
+        />,
       )
 
       expect(window.foo).toHaveBeenCalledTimes(0)
@@ -1026,7 +1025,7 @@ describe('JsxParser Component', () => {
           bindings={{ foo: 2, bar: 3 }}
           // eslint-disable-next-line no-template-curly-in-string
           jsx={'<span>{`foo: ${foo}, bar: ${bar}, baz: ${foo * bar}`}</span>'}
-        />
+        />,
       )
       expect(rendered.childNodes[0].textContent).toEqual('foo: 2, bar: 3, baz: 6')
     })
@@ -1041,7 +1040,7 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ OnlyOne }}
           jsx={'<OnlyOne><h1>Ipsum</h1></OnlyOne>'}
-        />
+        />,
       )).not.toThrow()
     })
     it('fails with multiple children', () => {
@@ -1050,7 +1049,7 @@ describe('JsxParser Component', () => {
         <JsxParser
           components={{ OnlyOne }}
           jsx={'<OnlyOne><h1>Ipsum</h1><h2>Foo</h2></OnlyOne>'}
-        />
+        />,
       )).toThrow()
     })
   })
@@ -1075,7 +1074,7 @@ describe('JsxParser Component', () => {
         'Array_slice={ [1, 2, 3].slice(1, 2) }' +
         ' />'
       }
-      />
+      />,
     )
     expect(component.ParsedChildren[0].props.String_startsWith).toEqual(true)
     expect(component.ParsedChildren[0].props.String_endsWith).toEqual(true)
