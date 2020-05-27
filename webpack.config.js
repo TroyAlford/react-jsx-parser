@@ -1,5 +1,4 @@
-/* eslint-disable */
-const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 const webpack = require('webpack')
 
 const ENVIRONMENT = process.env.NODE_ENV || 'development'
@@ -34,6 +33,7 @@ module.exports = {
   },
   optimization: {
     minimize: PRODUCTION,
+    minimizer: [new TerserPlugin()],
   },
   output: {
     filename,
