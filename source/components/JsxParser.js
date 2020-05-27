@@ -109,10 +109,7 @@ export default class JsxParser extends Component {
         }
         return false
       case 'MemberExpression':
-        const thisObj = this.parseExpression(expression.object) || {}
-        const member = (thisObj)[expression.property.name]
-        if (typeof member === 'function') return member.bind(thisObj)
-        return member
+        return this.parseMemberExpression(expression)
       case 'ObjectExpression':
         const object = {}
         expression.properties.forEach(prop => {
@@ -136,6 +133,33 @@ export default class JsxParser extends Component {
           case '!': return !expression.argument.value
         }
         return undefined
+    }
+  }
+
+  parseMemberExpression = expression => {
+    let { object } = expression
+    const path = [expression.property?.name ?? JSON.parse(expression.property?.raw ?? '""')]
+
+    if (expression.object.type !== 'Literal') {
+      while (object && ['MemberExpression', 'Literal'].includes(object?.type)) {
+        if (object.computed) {
+          path.unshift(this.parseExpression(object.property))
+        } else {
+          path.unshift(object.property?.name ?? JSON.parse(object.property?.raw ?? '""'))
+        }
+
+        object = object.object
+      }
+    }
+
+    const target = this.parseExpression(object)
+    try {
+      const member = path.reduce((value, next) => value[next], target)
+      if (typeof member === 'function') return member.bind(target)
+
+      return member
+    } catch {
+      this.props.onError(new Error(`Unable to parse ${object.name}["${path.join('"]["')}"]}`))
     }
   }
 

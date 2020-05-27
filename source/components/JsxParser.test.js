@@ -960,6 +960,64 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent).toEqual('Nope')
       expect(component.ParsedChildren[0].props.testProp).toEqual(true)
     })
+    describe('can evaluate multi-level property accessors', () => {
+      /* eslint-disable dot-notation,no-useless-concat */
+      const bindings = {
+        array: [{ of: 'objects' }],
+        index: 0,
+        object: { with: { child: 'objects' } },
+      }
+
+      it('can evaluate a.b.c', () => {
+        const expression = 'object.with.child'
+        const jsx = `<span foo={${expression}}>{${expression}}</span>`
+        const { rendered, component } = render(<JsxParser {...{ bindings, jsx }} />)
+
+        expect(rendered.childNodes[0].textContent).toEqual(bindings.object.with.child)
+        expect(component.ParsedChildren[0].props.foo).toEqual(bindings.object.with.child)
+      })
+      it('can evaluate a["b"].c', () => {
+        const expression = 'object["with"].child'
+        const jsx = `<span foo={${expression}}>{${expression}}</span>`
+        const { rendered, component } = render(<JsxParser {...{ bindings, jsx }} />)
+
+        expect(rendered.childNodes[0].textContent).toEqual(bindings.object['with'].child)
+        expect(component.ParsedChildren[0].props.foo).toEqual(bindings.object['with'].child)
+      })
+      it('can evaluate a["b" + 1].c', () => {
+        const expression = 'object["wi" + "th"].child'
+        const jsx = `<span foo={${expression}}>{${expression}}</span>`
+        const { rendered, component } = render(<JsxParser {...{ bindings, jsx }} />)
+
+        expect(rendered.childNodes[0].textContent).toEqual(bindings.object['wi' + 'th'].child)
+        expect(component.ParsedChildren[0].props.foo).toEqual(bindings.object['wi' + 'th'].child)
+      })
+      it('can evaluate a[0].b', () => {
+        const expression = 'array[0].of'
+        const jsx = `<span foo={${expression}}>{${expression}}</span>`
+        const { rendered, component } = render(<JsxParser {...{ bindings, jsx }} />)
+
+        expect(rendered.childNodes[0].textContent).toEqual(bindings.array[0].of)
+        expect(component.ParsedChildren[0].props.foo).toEqual(bindings.array[0].of)
+      })
+      it('can evaluate a[1 - 1].b', () => {
+        const expression = 'array[1 - 1].of'
+        const jsx = `<span foo={${expression}}>{${expression}}</span>`
+        const { rendered, component } = render(<JsxParser {...{ bindings, jsx }} />)
+
+        expect(rendered.childNodes[0].textContent).toEqual(bindings.array[1 - 1].of)
+        expect(component.ParsedChildren[0].props.foo).toEqual(bindings.array[1 - 1].of)
+      })
+      it('can evaluate a[b].c', () => {
+        const expression = 'array[index].of'
+        const jsx = `<span foo={${expression}}>{${expression}}</span>`
+        const { rendered, component } = render(<JsxParser {...{ bindings, jsx }} />)
+
+        expect(rendered.childNodes[0].textContent).toEqual(bindings.array[bindings.index].of)
+        expect(component.ParsedChildren[0].props.foo).toEqual(bindings.array[bindings.index].of)
+      })
+      /* eslint-enable dot-notation,no-useless-concat */
+    })
   })
   describe('template strings', () => {
     it('correctly parse/bind bindings', () => {
