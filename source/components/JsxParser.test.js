@@ -1053,44 +1053,55 @@ describe('JsxParser Component', () => {
       )).toThrow()
     })
   })
-  it('supports simple literal instance methods', () => {
-    const { component } = render(
-      <JsxParser jsx={
-        '<span ' +
-        'String_startsWith={ "foobar".startsWith("fo") }' +
-        'String_endsWith={ "foobar".endsWith("ar") }' +
-        'String_includes={ "foobar".includes("ooba") }' +
-        'String_substr={ "foobar".substr(1, 2) }' +
-        'String_replace={ "foobar".replace("oo", "uu") }' +
-        'String_search={ "foobar".search("bar") }' +
-        'String_toUpperCase={ "foobar".toUpperCase() }' +
-        'String_toLowerCase={ "FOOBAR".toLowerCase() }' +
-        'String_trim={ "    foobar     ".trim() }' +
-        'Number_toFixed={ 100.12345.toFixed(2) }' +
-        'Number_toPrecision={ 123.456.toPrecision(4) }' +
-        'Array_includes={ [1, 2, 3].includes(2) }' +
-        'Array_join={ [1, 2, 3].join("+") }' +
-        'Array_sort={ [3, 1, 2].sort() }' +
-        'Array_slice={ [1, 2, 3].slice(1, 2) }' +
-        ' />'
-      }
-      />,
-    )
-    expect(component.ParsedChildren[0].props.String_startsWith).toEqual(true)
-    expect(component.ParsedChildren[0].props.String_endsWith).toEqual(true)
-    expect(component.ParsedChildren[0].props.String_includes).toEqual(true)
-    expect(component.ParsedChildren[0].props.String_substr).toEqual('oo')
-    expect(component.ParsedChildren[0].props.String_replace).toEqual('fuubar')
-    expect(component.ParsedChildren[0].props.String_search).toEqual(3)
-    expect(component.ParsedChildren[0].props.String_toUpperCase).toEqual('FOOBAR')
-    expect(component.ParsedChildren[0].props.String_toLowerCase).toEqual('foobar')
-    expect(component.ParsedChildren[0].props.String_trim).toEqual('foobar')
-    expect(component.ParsedChildren[0].props.Number_toFixed).toEqual('100.12')
-    expect(component.ParsedChildren[0].props.Number_toPrecision).toEqual('123.5')
-    expect(component.ParsedChildren[0].props.Array_includes).toEqual(true)
-    expect(component.ParsedChildren[0].props.Array_join).toEqual('1+2+3')
-    expect(component.ParsedChildren[0].props.Array_sort).toEqual([1, 2, 3])
-    expect(component.ParsedChildren[0].props.Array_slice).toEqual([2])
+  describe('instance methods', () => {
+    test('literal value instance methods', () => {
+      const { component } = render(
+        <JsxParser jsx={
+          '<span ' +
+          'String_startsWith={ "foobar".startsWith("fo") }' +
+          'String_endsWith={ "foobar".endsWith("ar") }' +
+          'String_includes={ "foobar".includes("ooba") }' +
+          'String_substr={ "foobar".substr(1, 2) }' +
+          'String_replace={ "foobar".replace("oo", "uu") }' +
+          'String_search={ "foobar".search("bar") }' +
+          'String_toUpperCase={ "foobar".toUpperCase() }' +
+          'String_toLowerCase={ "FOOBAR".toLowerCase() }' +
+          'String_trim={ "    foobar     ".trim() }' +
+          'Number_toFixed={ 100.12345.toFixed(2) }' +
+          'Number_toPrecision={ 123.456.toPrecision(4) }' +
+          'Array_includes={ [1, 2, 3].includes(2) }' +
+          'Array_join={ [1, 2, 3].join("+") }' +
+          'Array_sort={ [3, 1, 2].sort() }' +
+          'Array_slice={ [1, 2, 3].slice(1, 2) }' +
+          ' />'
+        }
+        />,
+      )
+      expect(component.ParsedChildren[0].props.String_startsWith).toEqual(true)
+      expect(component.ParsedChildren[0].props.String_endsWith).toEqual(true)
+      expect(component.ParsedChildren[0].props.String_includes).toEqual(true)
+      expect(component.ParsedChildren[0].props.String_substr).toEqual('oo')
+      expect(component.ParsedChildren[0].props.String_replace).toEqual('fuubar')
+      expect(component.ParsedChildren[0].props.String_search).toEqual(3)
+      expect(component.ParsedChildren[0].props.String_toUpperCase).toEqual('FOOBAR')
+      expect(component.ParsedChildren[0].props.String_toLowerCase).toEqual('foobar')
+      expect(component.ParsedChildren[0].props.String_trim).toEqual('foobar')
+      expect(component.ParsedChildren[0].props.Number_toFixed).toEqual('100.12')
+      expect(component.ParsedChildren[0].props.Number_toPrecision).toEqual('123.5')
+      expect(component.ParsedChildren[0].props.Array_includes).toEqual(true)
+      expect(component.ParsedChildren[0].props.Array_join).toEqual('1+2+3')
+      expect(component.ParsedChildren[0].props.Array_sort).toEqual([1, 2, 3])
+      expect(component.ParsedChildren[0].props.Array_slice).toEqual([2])
+    })
+    test('bound property instance methods', () => {
+      const { rendered } = render(
+        <JsxParser
+          bindings={{ foo: { bar: { baz: 'quux' } } }}
+          jsx="<div>{foo.bar.baz.toUpperCase()}</div>"
+        />,
+      )
+      expect(rendered.textContent).toEqual('QUUX')
+    })
   })
 
   it('throws on non-simple literal and global object instance methods', () => {

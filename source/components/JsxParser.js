@@ -154,8 +154,12 @@ export default class JsxParser extends Component {
 
     const target = this.parseExpression(object)
     try {
-      const member = path.reduce((value, next) => value[next], target)
-      if (typeof member === 'function') return member.bind(target)
+      let parent = target
+      const member = path.reduce((value, next) => {
+        parent = value
+        return value[next]
+      }, target)
+      if (typeof member === 'function') return member.bind(parent)
 
       return member
     } catch {
