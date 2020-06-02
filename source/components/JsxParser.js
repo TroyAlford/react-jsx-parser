@@ -18,6 +18,7 @@ export default class JsxParser extends Component {
     bindings: {},
     blacklistedAttrs: [/^on.+/i],
     blacklistedTags: ['script'],
+    className: '',
     components: [],
     componentsOnly: false,
     disableFragments: false,
@@ -275,36 +276,15 @@ export default class JsxParser extends Component {
   render = () => {
     const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
     this.ParsedChildren = this.parseJSX(jsx)
+    const className = [...new Set(['jsx-parser', ...String(this.props.className).split(' ')])]
+      .filter(Boolean)
+      .join(' ')
 
     return (
       this.props.renderInWrapper
-        ? <div className="jsx-parser">{this.ParsedChildren}</div>
+        ? <div className={className}>{this.ParsedChildren}</div>
         : <>{this.ParsedChildren}</>
     )
   }
 }
 /* eslint-enable consistent-return */
-
-if (process.env.NODE_ENV !== 'production') {
-  /* eslint-disable react/no-unused-prop-types */
-  // eslint-disable-next-line global-require,import/no-extraneous-dependencies
-  const PropTypes = require('prop-types')
-  JsxParser.propTypes = {
-    allowUnknownElements: PropTypes.bool,
-    bindings: PropTypes.shape({}),
-    blacklistedAttrs: PropTypes.arrayOf(PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.instanceOf(RegExp),
-    ])),
-    blacklistedTags: PropTypes.arrayOf(PropTypes.string),
-    components: PropTypes.shape({}),
-    componentsOnly: PropTypes.bool,
-    disableFragments: PropTypes.bool,
-    disableKeyGeneration: PropTypes.bool,
-    jsx: PropTypes.string,
-    onError: PropTypes.func,
-    showWarnings: PropTypes.bool,
-    renderError: PropTypes.func,
-    renderInWrapper: PropTypes.bool,
-  }
-}

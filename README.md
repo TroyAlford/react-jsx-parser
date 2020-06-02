@@ -100,6 +100,10 @@ JsxParser.defaultProps = {
   // by default, removes all <script> tags
   blacklistedTags:  ['script'],
 
+  // a string, containing space-delimited classes to add to the wrapper div
+  // Note: this prop is ignored, completely, if renderInWrapper=false
+  className: '',
+
   // an object map of component tag-names to their definitions - see above for examples
   // components must extend React.Component, React.PureComponent, or be a Function
   components: {},

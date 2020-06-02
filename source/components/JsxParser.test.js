@@ -1115,4 +1115,8 @@ describe('JsxParser Component', () => {
     expect(() => render(<JsxParser jsx={'{ [1, 2, 3].reduce((a, b) => a + b) }'} />)).toThrow()
     expect(() => render(<JsxParser jsx={'{ [1, 2, 3].find(num => num === 2) }'} />)).toThrow()
   })
+  it('supports className prop', () => {
+    const { html } = render(<JsxParser className="foo" jsx="Text" />)
+    expect(html).toMatch('<div class="jsx-parser foo">Text</div>')
+  })
 })
