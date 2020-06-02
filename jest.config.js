@@ -2,15 +2,14 @@ const path = require('path')
 
 module.exports = {
   collectCoverageFrom: [
-    '**/apps/**/*.{ts,tsx,js}',
-    '**/libs/**/*.{ts,tsx,js}',
+    '**/source/**/*.{ts,tsx,js}',
     '!**/node_modules/**',
-    '!**/dist/**',
+    '!**/lib/**',
   ],
   coverageDirectory: path.resolve(__dirname, 'test-coverage'),
   coverageReporters: ['html', 'lcov'],
   coverageThreshold: {
-    global: { branches: 90, functions: 90, lines: 90, statements: 90 },
+    global: { branches: 85, functions: 95, lines: 95, statements: 95 },
   },
   globals: {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],

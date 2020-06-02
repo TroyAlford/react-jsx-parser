@@ -222,10 +222,6 @@ export default class JsxParser extends Component<Props> {
     const { children: childNodes = [], openingElement } = element
     const { attributes = [] } = openingElement
     const name = this.parseName(openingElement.name)
-    if (!name) {
-      onError(new Error(`The <${openingElement.name}> tag could not be parsed, and will not be rendered.`))
-      return undefined
-    }
 
     const blacklistedAttrs = (this.props.blacklistedAttrs || [])
       .map(attr => (attr instanceof RegExp ? attr : new RegExp(attr, 'i')))
@@ -285,11 +281,7 @@ export default class JsxParser extends Component<Props> {
 
         const matches = blacklistedAttrs.filter(re => re.test(attributeName))
         if (matches.length === 0) {
-          if (value === 'true' || value === 'false') {
-            props[attributeName] = (value === 'true')
-          } else {
-            props[attributeName] = value
-          }
+          props[attributeName] = value
         }
       } else if (
         (expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier')
