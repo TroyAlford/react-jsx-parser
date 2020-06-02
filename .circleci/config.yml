@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/react-jsx-parser
     docker:
-      - image: circleci/node:11.10.1
+      - image: circleci/node:12.9.1
     steps:
       - checkout
       - restore_cache:
@@ -17,7 +17,7 @@ jobs:
   test:
     working_directory: ~/react-jsx-parser
     docker:
-      - image: circleci/node:11.10.1
+      - image: circleci/node:12.9.1
     steps:
       - checkout
       - restore_cache:
