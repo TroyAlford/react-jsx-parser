@@ -99,7 +99,6 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[3].textContent).toEqual('b')
     })
   })
-
   describe('conditional || rendering', () => {
     test('should handle boolean test value ', () => {
       const { component, rendered } = render(<JsxParser jsx={
@@ -132,7 +131,6 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent.trim()).toEqual('falseFallback')
     })
   })
-
   describe('conditional && rendering', () => {
     test('should handle boolean test value ', () => {
       const { component, rendered } = render(<JsxParser jsx={`
@@ -165,7 +163,6 @@ describe('JsxParser Component', () => {
       expect(rendered.childNodes[0].textContent.trim()).toEqual('trueFallback')
     })
   })
-
   describe('basic rendering', () => {
     test('renders non-React components', () => {
       const { component, rendered } = render(
@@ -743,8 +740,20 @@ describe('JsxParser Component', () => {
       )
 
       expect(component.ParsedChildren).toHaveLength(1)
-      expect(component.ParsedChildren[0].props.shouldBeTrue).toBeTruthy()
-      expect(component.ParsedChildren[0].props.shouldBeFalse).not.toBeTruthy()
+      expect(component.ParsedChildren[0].props.shouldBeTrue).toBe(true)
+      expect(component.ParsedChildren[0].props.shouldBeFalse).toBe(false)
+    })
+    test('parses explicit boolean props', () => {
+      const { component } = render(
+        <JsxParser
+          components={{ Custom }}
+          jsx="<Custom shouldBeTrue={true} shouldBeFalse={false} />"
+        />,
+      )
+
+      expect(component.ParsedChildren).toHaveLength(1)
+      expect(component.ParsedChildren[0].props.shouldBeTrue).toBe(true)
+      expect(component.ParsedChildren[0].props.shouldBeFalse).toBe(false)
     })
     test('parses bound object values', () => {
       const { component } = render(<JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar", bar: "foo" }} />'} />)
@@ -1115,7 +1124,6 @@ describe('JsxParser Component', () => {
     )
     expect(html).toEqual('<div class="foo">foo</div>')
   })
-
   test('throws on non-simple literal and global object instance methods', () => {
     // Some of these would normally fail silently, set `onError` forces throw for assertion purposes
     expect(() => render(<JsxParser jsx={'{ window.scrollTo() }'} onError={e => { throw e }} />)).toThrow()

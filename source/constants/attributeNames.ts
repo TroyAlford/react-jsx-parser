@@ -1,6 +1,6 @@
 export default {
-  class:     'className',
-  for:       'htmlFor',
+  class: 'className',
+  for: 'htmlFor',
   maxlength: 'maxLength',
 
   colspan: 'colSpan',

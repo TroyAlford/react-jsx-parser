@@ -1,4 +1,4 @@
-import parseStyle from './parseStyle'
+import { parseStyle } from './parseStyle'
 
 jest.unmock('./parseStyle')
 

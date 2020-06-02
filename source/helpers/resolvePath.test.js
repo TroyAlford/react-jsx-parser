@@ -1,4 +1,4 @@
-import resolvePath from './resolvePath'
+import { resolvePath } from './resolvePath'
 
 jest.unmock('./resolvePath')
 

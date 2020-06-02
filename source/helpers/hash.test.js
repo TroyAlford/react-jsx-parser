@@ -1,4 +1,4 @@
-import hash, { randomHash } from './hash'
+import { hash, randomHash } from './hash'
 
 describe('helpers/hash', () => {
   it('hashes correctly/consistently', () => {

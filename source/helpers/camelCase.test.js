@@ -1,4 +1,4 @@
-import camelCase from './camelCase'
+import { camelCase } from './camelCase'
 
 jest.unmock('./camelCase')
 
