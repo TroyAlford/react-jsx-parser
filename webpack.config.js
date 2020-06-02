@@ -18,7 +18,7 @@ if (PRODUCTION) {
 
 const buildTarget = {
   devtool: 'source-map',
-  entry: `${__dirname}/source/components/JsxParser.js`,
+  entry: `${__dirname}/source/components/JsxParser.tsx`,
   externals: {
     react: 'react',
     'react-dom': 'react-dom',
@@ -26,7 +26,7 @@ const buildTarget = {
   mode: ENVIRONMENT,
   module: {
     rules: [{
-      test: /\.js$/,
+      test: /\.tsx?$/,
       loader: 'babel-loader',
       exclude: /node_modules/,
     }],
@@ -44,6 +44,9 @@ const buildTarget = {
     umdNamedDefine: true,
   },
   plugins,
+  resolve: {
+    extensions: ['.js', '.scss', '.ts', '.tsx'], // .js is required in order to load node_modules
+  },
 }
 
 const TYPES = {

@@ -1,16 +1,48 @@
-import * as acorn from 'acorn'
+import * as Acorn from 'acorn'
 import acornJsx from 'acorn-jsx'
 import React, { Component, Fragment } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 import { randomHash } from '../helpers/hash'
-import parseStyle from '../helpers/parseStyle'
-import resolvePath from '../helpers/resolvePath'
+import { parseStyle } from '../helpers/parseStyle'
+import { resolvePath } from '../helpers/resolvePath'
+import type {
+  Expression,
+  JSXAttribute,
+  JSXAttributeExpression,
+  JSXElement,
+  JSXIdentifier,
+  JSXMemberExpression,
+  JSXSpreadAttribute,
+  MemberExpression,
+} from '../types/acorn-jsx'
 
-const parser = acorn.Parser.extend(acornJsx())
+const parser = Acorn.Parser.extend(acornJsx())
+
+type BlacklistedAttr = string | RegExp
+type Props = {
+  allowUnknownElements?: boolean,
+  bindings?: { [key: string]: any },
+  blacklistedAttrs?: BlacklistedAttr[],
+  blacklistedTags?: string[],
+  className?: string,
+  components?: React.JSXElementConstructor<any>[],
+  componentsOnly?: boolean,
+  disableFragments?: boolean,
+  disableKeyGeneration?: boolean,
+  jsx?: string,
+  onError?: (error: Error) => void,
+  showWarnings?: boolean,
+  renderError?: ({ error: string }) => JSX.Element,
+  renderInWrapper?: boolean,
+  renderUnrecognized?: (tagName: string) => JSX.Element,
+}
+
+export type ParsedJSX = JSX.Element | boolean | string
+export type ParsedTree = ParsedJSX | ParsedJSX[]
 
 /* eslint-disable consistent-return */
-export default class JsxParser extends Component {
+export default class JsxParser extends Component<Props> {
   static displayName = 'JsxParser'
 
   static defaultProps = {
@@ -31,11 +63,15 @@ export default class JsxParser extends Component {
     renderUnrecognized: () => null,
   }
 
-  parseJSX = rawJSX => {
-    const wrappedJsx = `<root>${rawJSX}</root>`
-    let parsed = []
+  ParsedChildren: ParsedTree = null
+
+  parseJSX = (jsx: string): JSX.Element | JSX.Element[] => {
+    const wrappedJsx = `<root>${jsx}</root>`
+    let parsed: Expression[] = []
     try {
+      // @ts-ignore - AcornJsx doesn't have typescript typings
       parsed = parser.parse(wrappedJsx)
+      // @ts-ignore - AcornJsx doesn't have typescript typings
       parsed = parsed.body[0].expression.children || []
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -50,7 +86,7 @@ export default class JsxParser extends Component {
     return parsed.map(this.parseExpression).filter(Boolean)
   }
 
-  parseExpression = expression => {
+  parseExpression = (expression: Expression): any => {
     switch (expression.type) {
       case 'JSXAttribute':
         if (expression.value === null) return true
@@ -65,7 +101,7 @@ export default class JsxParser extends Component {
           ? expression.value
           : <Fragment key={key}>{expression.value}</Fragment>
       case 'ArrayExpression':
-        return expression.elements.map(this.parseExpression)
+        return expression.elements.map(this.parseExpression) as ParsedTree
       case 'BinaryExpression':
         /* eslint-disable eqeqeq,max-len */
         switch (expression.operator) {
@@ -138,19 +174,21 @@ export default class JsxParser extends Component {
     }
   }
 
-  parseMemberExpression = expression => {
+  parseMemberExpression = (expression: MemberExpression): any => {
+    // eslint-disable-next-line prefer-destructuring
     let { object } = expression
     const path = [expression.property?.name ?? JSON.parse(expression.property?.raw ?? '""')]
 
     if (expression.object.type !== 'Literal') {
       while (object && ['MemberExpression', 'Literal'].includes(object?.type)) {
-        if (object.computed) {
-          path.unshift(this.parseExpression(object.property))
+        const { property } = (object as MemberExpression)
+        if ((object as MemberExpression).computed) {
+          path.unshift(this.parseExpression(property))
         } else {
-          path.unshift(object.property?.name ?? JSON.parse(object.property?.raw ?? '""'))
+          path.unshift(property?.name ?? JSON.parse(property?.raw ?? '""'))
         }
 
-        object = object.object
+        object = (object as MemberExpression).object
       }
     }
 
@@ -165,11 +203,12 @@ export default class JsxParser extends Component {
 
       return member
     } catch {
-      this.props.onError(new Error(`Unable to parse ${object.name}["${path.join('"]["')}"]}`))
+      const name = (object as MemberExpression)?.name || 'unknown'
+      this.props.onError(new Error(`Unable to parse ${name}["${path.join('"]["')}"]}`))
     }
   }
 
-  parseName = element => {
+  parseName = (element: JSXIdentifier | JSXMemberExpression): string => {
     switch (element.type) {
       case 'JSXIdentifier':
         return element.name
@@ -178,7 +217,7 @@ export default class JsxParser extends Component {
     }
   }
 
-  parseElement = element => {
+  parseElement = (element: JSXElement): JSX.Element | JSX.Element[] => {
     const { allowUnknownElements, components = {}, componentsOnly, onError } = this.props
     const { children: childNodes = [], openingElement } = element
     const { attributes = [] } = openingElement
@@ -193,7 +232,9 @@ export default class JsxParser extends Component {
     const blacklistedTags = (this.props.blacklistedTags || [])
       .map(tag => tag.trim().toLowerCase()).filter(Boolean)
 
-    if (/^(html|head|body)$/i.test(name)) return childNodes.map(c => this.parseElement(c))
+    if (/^(html|head|body)$/i.test(name)) {
+      return childNodes.map(c => this.parseElement(c)) as JSX.Element[]
+    }
     const tagName = name.trim().toLowerCase()
     if (blacklistedTags.indexOf(tagName) !== -1) {
       onError(new Error(`The tag <${name}> is blacklisted, and will not be rendered.`))
@@ -232,10 +273,10 @@ export default class JsxParser extends Component {
       }
     }
 
-    const props = {
+    const props: { [key: string]: any } = {
       key: this.props.disableKeyGeneration ? undefined : randomHash(),
     }
-    attributes.forEach(expr => {
+    attributes.forEach((expr: JSXAttribute | JSXAttributeExpression | JSXSpreadAttribute) => {
       if (expr.type === 'JSXAttribute') {
         const rawName = expr.name.name
         const attributeName = ATTRIBUTES[rawName] || rawName
@@ -274,7 +315,7 @@ export default class JsxParser extends Component {
     return React.createElement(component || name.toLowerCase(), props, children)
   }
 
-  render = () => {
+  render = (): JSX.Element => {
     const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
     this.ParsedChildren = this.parseJSX(jsx)
     const className = [...new Set(['jsx-parser', ...String(this.props.className).split(' ')])]
