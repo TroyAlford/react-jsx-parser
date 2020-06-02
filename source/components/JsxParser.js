@@ -28,6 +28,7 @@ export default class JsxParser extends Component {
     showWarnings: false,
     renderError: undefined,
     renderInWrapper: true,
+    renderUnrecognized: () => null,
   }
 
   parseJSX = rawJSX => {
@@ -201,13 +202,13 @@ export default class JsxParser extends Component {
 
     if (!resolvePath(components, name)) {
       if (componentsOnly) {
-        onError(new Error(`The componenet <${name}> is unrecognized, and will not be rendered.`))
-        return undefined
+        onError(new Error(`The component <${name}> is unrecognized, and will not be rendered.`))
+        return this.props.renderUnrecognized(name)
       }
 
       if (!allowUnknownElements && document.createElement(name) instanceof HTMLUnknownElement) {
         onError(new Error(`The tag <${name}> is unrecognized in this browser, and will not be rendered.`))
-        return undefined
+        return this.props.renderUnrecognized(name)
       }
     }
 

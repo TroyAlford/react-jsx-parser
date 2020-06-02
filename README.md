@@ -97,16 +97,12 @@ JsxParser.defaultProps = {
   // values are used as a regex to match property names
   blacklistedAttrs: [/^on.+/i],
 
-  // by default, removes all <script> tags
-  blacklistedTags:  ['script'],
+  blacklistedTags:  ['script'], // by default, removes all <script> tags
 
-  // a string, containing space-delimited classes to add to the wrapper div
-  // Note: this prop is ignored, completely, if renderInWrapper=false
-  className: '',
+  className: '', // space-delimited classes to add to wrapper (ignored if renderInWrapper=false)
 
-  // an object map of component tag-names to their definitions - see above for examples
+  components: {}, // an object map of component tag-names to their definitions - see above
   // components must extend React.Component, React.PureComponent, or be a Function
-  components: {},
 
   componentsOnly: false, // non-component HTML tags are allowed by default, omitted if true
 
@@ -126,5 +122,7 @@ JsxParser.defaultProps = {
   renderError: undefined, // if specified, this function can be used to render errors as a fallback
 
   renderInWrapper: true, // if false, the HTML output will have no <div> wrapper
+
+  renderUnrecognized: tagName => null, // unrecognized tags are rendered via this method
 }
 ```
