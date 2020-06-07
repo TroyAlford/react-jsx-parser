@@ -14,7 +14,8 @@
   "version": "1.25.0",
   "dependencies": {
     "acorn": "^7.2.0",
-    "acorn-jsx": "^5.2.0"
+    "acorn-jsx": "^5.2.0",
+    "core-js": "^3.6.5"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

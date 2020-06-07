@@ -24,13 +24,6 @@ const buildTarget = {
     'react-dom': 'react-dom',
   },
   mode: ENVIRONMENT,
-  module: {
-    rules: [{
-      test: /\.tsx?$/,
-      loader: 'babel-loader',
-      exclude: /node_modules/,
-    }],
-  },
   optimization: {
     minimize: PRODUCTION,
     minimizer: [new TerserPlugin()],
@@ -51,10 +44,41 @@ const buildTarget = {
 
 const TYPES = {
   cjs: 'commonjs2',
+  es5: 'commonjs2',
   umd: 'umd',
 }
+
+const babelEnvEs5 = ['@babel/preset-env', {
+  corejs: '3.6.5',
+  modules: 'commonjs',
+  targets: { chrome: '58', ie: '11' },
+  useBuiltIns: 'usage',
+}]
+
 module.exports = Object.entries(TYPES).map(([typeName, libraryTarget]) => ({
   ...buildTarget,
+  module: {
+    rules: [{
+      exclude: (
+        typeName === 'es5'
+          ? /node_modules\/(?!(acorn-jsx)\/).*/
+          : /node_modules/
+      ),
+      test: /\.[jt]sx?$/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          plugins: ['@babel/plugin-proposal-class-properties'],
+          presets: [
+            typeName === 'es5' ? babelEnvEs5 : '@babel/preset-env',
+            '@babel/preset-react',
+            '@babel/preset-typescript',
+          ],
+          highlightCode: true,
+        },
+      },
+    }],
+  },
   output: {
     ...buildTarget.output,
     libraryTarget,
