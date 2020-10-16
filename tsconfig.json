@@ -14,8 +14,9 @@
 		"rootDir": "./source",
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
-		"target": "es2015",
-		"typeRoots": ["types", "node_modules/@types"]
+		"target": "ESNext",
+		"typeRoots": ["types", "node_modules/@types"],
+		"types": ["jest", "jsdom"]
 	},
 	"exclude": ["./node_modules", "./jest", "**/*.js"],
 	"include": ["**/*.ts", "**/*.d.ts"]

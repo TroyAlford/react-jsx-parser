@@ -1,14 +1,13 @@
+// @ts-nocheck
+/* eslint-disable function-paren-newline, no-console, no-underscore-dangle */
 import React from 'react'
 import TestUtils from 'react-dom/test-utils'
-import { mount, shallow } from 'enzyme'
-import JsxParser from './JsxParser'
+import { mount, shallow } from 'enzyme' // eslint-disable-line import/no-extraneous-dependencies
+import { JsxParser } from './JsxParser'
 
 jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
 
-/* eslint-disable function-paren-newline, no-console, no-underscore-dangle */
-
-// eslint-disable-next-line react/prop-types
 const Custom = ({ children = [], className, text }) => (
 	<div className={className}>
 		{text}
