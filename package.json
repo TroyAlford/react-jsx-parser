@@ -2,6 +2,9 @@
   "author": "Troy Alford",
   "bugs": "https://github.com/TroyAlford/react-jsx-parser/issues",
   "description": "A React component which can parse JSX and output rendered React Components",
+  "files": [
+    "lib/"
+  ],
   "keywords": [
     "react",
     "jsx"
@@ -10,7 +13,7 @@
   "main": "lib/cjs/react-jsx-parser.min.js",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
-  "typings": "lib/types/index.d.ts",
+  "typings": "lib/react-jsx-parser.d.ts",
   "version": "1.25.1",
   "dependencies": {
     "acorn": "^7.2.0",
@@ -20,6 +23,7 @@
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/plugin-proposal-class-properties": "^7.10.1",
+    "@babel/plugin-transform-typescript": "^7.11.0",
     "@babel/preset-env": "^7.10.2",
     "@babel/preset-react": "^7.10.1",
     "@babel/preset-typescript": "^7.10.1",
@@ -64,7 +68,7 @@
     "build": "cross-env NODE_ENV=production webpack",
     "postversion": "git push origin HEAD && git push origin HEAD --tags",
     "prebuild": "mkdirp ./lib && rm -rf ./lib/*",
-    "postbuild": "yarn tsc --project ./tsconfig.json",
+    "postbuild": "cp ./source/types/react-jsx-parser.d.ts ./lib/react-jsx-parser.d.ts",
     "preversion": "yarn test",
     "sourcemap": "yarn build && source-map-explorer ./lib/react-jsx-parser.min.js",
     "test": "yarn jest",
