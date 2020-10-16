@@ -8,22 +8,22 @@ type Style = string | Partial<CSSStyleDeclaration>
  * @returns {Partial<CSSStyleDeclaration>} a partial CSSStyleDeclaration
  */
 export const parseStyle = (style: Style): Partial<CSSStyleDeclaration> => {
-  switch (typeof style) {
-    case 'string':
-      return style.split(';').filter(r => r)
-        .reduce((map, rule) => {
-          const name = rule.slice(0, rule.indexOf(':')).trim()
-          const value = rule.slice(rule.indexOf(':') + 1).trim()
+	switch (typeof style) {
+	case 'string':
+		return style.split(';').filter(r => r)
+			.reduce((map, rule) => {
+				const name = rule.slice(0, rule.indexOf(':')).trim()
+				const value = rule.slice(rule.indexOf(':') + 1).trim()
 
-          return {
-            ...map,
-            [camelCase(name)]: value,
-          }
-        }, {})
-    case 'object':
-      return style
+				return {
+					...map,
+					[camelCase(name)]: value,
+				}
+			}, {})
+	case 'object':
+		return style
 
-    default:
-      return undefined
-  }
+	default:
+		return undefined
+	}
 }

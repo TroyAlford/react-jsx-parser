@@ -1,16 +1,16 @@
 const pathToArrayPath = (path: string) => {
-  if (path == null || path === '') return []
-  return path.split('.')
+	if (path == null || path === '') return []
+	return path.split('.')
 }
 
 const resolveArrayPath = (object: any, path: string[]) => {
-  const [property, ...subPath] = path
-  if (object == null || property == null) {
-    return undefined
-  }
-  return subPath.length === 0
-    ? object[property]
-    : resolveArrayPath(object[property], subPath)
+	const [property, ...subPath] = path
+	if (object == null || property == null) {
+		return undefined
+	}
+	return subPath.length === 0
+		? object[property]
+		: resolveArrayPath(object[property], subPath)
 }
 
 /**
@@ -22,5 +22,5 @@ const resolveArrayPath = (object: any, path: string[]) => {
  * resolvePath({ foo: { bar: { baz: 3 } } }, 'foo.bar.baz') // 3
  */
 export const resolvePath = (object: any, path: string): any => (
-  resolveArrayPath(object, pathToArrayPath(path))
+	resolveArrayPath(object, pathToArrayPath(path))
 )
