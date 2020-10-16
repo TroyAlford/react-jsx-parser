@@ -42,12 +42,11 @@ export class JsxParser extends React.Component<TProps> {
 		let parsed: Expression[] = []
 		try {
 			// @ts-ignore - AcornJsx doesn't have typescript typings
-			parsed = parser.parse(wrappedJsx)
+			parsed = parser.parse(wrappedJsx, { ecmaVersion: 'latest' })
 			// @ts-ignore - AcornJsx doesn't have typescript typings
 			parsed = parsed.body[0].expression.children || []
 		} catch (error) {
-			// eslint-disable-next-line no-console
-			if (this.props.showWarnings) console.warn(error)
+			if (this.props.showWarnings) console.warn(error) // eslint-disable-line no-console
 			if (this.props.onError) this.props.onError(error)
 			if (this.props.renderError) {
 				return this.props.renderError({ error: String(error) })

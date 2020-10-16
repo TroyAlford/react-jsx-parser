@@ -5,6 +5,8 @@ module.exports = {
 		'**/source/**/*.{ts,tsx,js}',
 		'!**/node_modules/**',
 		'!**/lib/**',
+		'!**/*.d.ts',
+		'!**/*.test.{ts,tsx,js}',
 	],
 	coverageDirectory: path.resolve(__dirname, 'test-coverage'),
 	coverageReporters: ['html', 'lcov'],
