@@ -14,7 +14,7 @@
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
   "typings": "lib/react-jsx-parser.d.ts",
-  "version": "1.25.1",
+  "version": "1.26.0",
   "dependencies": {
     "@types/jsdom": "^16.2.4",
     "acorn": "^8.0.4",
