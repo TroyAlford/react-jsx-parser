@@ -7,7 +7,7 @@ type Style = string | Partial<CSSStyleDeclaration>
  * @param {string | Partial<CSSStyleDeclaration>} style A string to convert, or object to return
  * @returns {Partial<CSSStyleDeclaration>} a partial CSSStyleDeclaration
  */
-export const parseStyle = (style: Style): Partial<CSSStyleDeclaration> => {
+export const parseStyle = (style: Style): Partial<CSSStyleDeclaration>|undefined => {
 	switch (typeof style) {
 	case 'string':
 		return style.split(';').filter(r => r)

@@ -3,7 +3,7 @@ const pathToArrayPath = (path: string) => {
 	return path.split('.')
 }
 
-const resolveArrayPath = (object: any, path: string[]) => {
+const resolveArrayPath = (object: any, path: string[]): string | undefined => {
 	const [property, ...subPath] = path
 	if (object == null || property == null) {
 		return undefined

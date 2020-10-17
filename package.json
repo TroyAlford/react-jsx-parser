@@ -1,5 +1,8 @@
 {
   "author": "Troy Alford",
+  "contributors": [ {
+	  "name": "Matthias Geisler (BitPogo)"
+  }],
   "bugs": "https://github.com/TroyAlford/react-jsx-parser/issues",
   "description": "A React component which can parse JSX and output rendered React Components",
   "files": [
@@ -11,9 +14,9 @@
   ],
   "license": "MIT",
   "main": "lib/cjs/react-jsx-parser.min.js",
+  "types": "lib/index.d.ts",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
-  "typings": "lib/react-jsx-parser.d.ts",
   "version": "1.26.0",
   "dependencies": {
     "@types/jsdom": "^16.2.4",
@@ -69,10 +72,10 @@
     "merge": "^1.2.1"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack",
+    "build": "yarn types && cross-env NODE_ENV=production webpack",
+    "types": "tsc -p ./tsconfig.json -d --emitDeclarationOnly",
     "postversion": "git push origin HEAD && git push origin HEAD --tags",
     "prebuild": "mkdirp ./lib && rm -rf ./lib/*",
-    "postbuild": "cp ./source/types/react-jsx-parser.d.ts ./lib/react-jsx-parser.d.ts",
     "preversion": "yarn test",
     "sourcemap": "yarn build && source-map-explorer ./lib/es5/react-jsx-parser.min.js",
     "test": "yarn jest",

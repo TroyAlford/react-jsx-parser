@@ -3,7 +3,7 @@
 import React from 'react'
 import TestUtils from 'react-dom/test-utils'
 import { mount, shallow } from 'enzyme' // eslint-disable-line import/no-extraneous-dependencies
-import { JsxParser } from './JsxParser'
+import JsxParser from './JsxParser'
 
 jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
