@@ -11,21 +11,21 @@ import { resolvePath } from '../helpers/resolvePath'
 type ParsedJSX = JSX.Element | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
-	allowUnknownElements?: boolean;
-	bindings?: { [key: string]: unknown; };
-	blacklistedAttrs?: Array<string | RegExp>;
-	blacklistedTags?: string[];
-	className?: string;
-	components?: React.JSXElementConstructor<unknown>[];
-	componentsOnly?: boolean;
-	disableFragments?: boolean;
-	disableKeyGeneration?: boolean;
-	jsx?: string;
-	onError?: (error: Error) => void;
-	showWarnings?: boolean;
-	renderError?: (props: { error: string }) => JSX.Element | null;
-	renderInWrapper?: boolean;
-	renderUnrecognized?: (tagName: string) => JSX.Element | null;
+	allowUnknownElements?: boolean,
+	bindings?: { [key: string]: unknown; },
+	blacklistedAttrs?: Array<string | RegExp>,
+	blacklistedTags?: string[],
+	className?: string,
+	components?: Record<string, React.JSXElementConstructor<unknown>>,
+	componentsOnly?: boolean,
+	disableFragments?: boolean,
+	disableKeyGeneration?: boolean,
+	jsx?: string,
+	onError?: (error: Error) => void,
+	showWarnings?: boolean,
+	renderError?: (props: { error: string }) => JSX.Element | null,
+	renderInWrapper?: boolean,
+	renderUnrecognized?: (tagName: string) => JSX.Element | null,
 }
 
 const parser = Acorn.Parser.extend(AcornJSX.default())
@@ -40,7 +40,7 @@ export class JsxParser extends React.Component<TProps> {
 		blacklistedAttrs: [/^on.+/i],
 		blacklistedTags: ['script'],
 		className: '',
-		components: [],
+		components: {},
 		componentsOnly: false,
 		disableFragments: false,
 		disableKeyGeneration: false,
@@ -202,7 +202,7 @@ export class JsxParser extends React.Component<TProps> {
 	}
 
 	#parseElement = (element: AcornJSX.JSXElement): JSX.Element | JSX.Element[] | null => {
-		const { allowUnknownElements, components = {}, componentsOnly, onError } = this.props
+		const { allowUnknownElements, components, componentsOnly, onError } = this.props
 		const { children: childNodes = [], openingElement } = element
 		const { attributes = [] } = openingElement
 		const name = this.#parseName(openingElement.name)
