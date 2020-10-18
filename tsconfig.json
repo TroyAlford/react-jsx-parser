@@ -1,23 +1,25 @@
 {
-	"compileOnSave": false,
-	"compilerOptions": {
-		"declaration": false,
-		"esModuleInterop": true,
-		"experimentalDecorators": true,
-		"importHelpers": true,
-		"jsx": "react",
-		"lib": ["es2017", "dom"],
-		"module": "esnext",
-		"moduleResolution": "node",
-		"outDir": "lib/",
-		"resolveJsonModule": true,
-		"rootDir": "./source",
-		"skipDefaultLibCheck": true,
-		"skipLibCheck": true,
-		"target": "ESNext",
-		"typeRoots": ["types", "node_modules/@types"],
-		"types": ["jest", "jsdom"]
-	},
-	"exclude": ["./node_modules", "./jest", "**/*.js"],
-	"include": ["**/*.ts", "**/*.d.ts"]
+  "compileOnSave": false,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "jsx": "react",
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "ScriptHost"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "outDir": "./lib",
+    "rootDir": "./source",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ESNext",
+    "typeRoots": ["./source/types", "node_modules/@types"],
+    "types": ["node", "jest"]
+  },
+  "include": ["source/**/*.ts", "source/**/*.tsx"],
+  "exclude": ["./node_modules", "./jest", "**/*.js", "**/*.test.*"]
 }

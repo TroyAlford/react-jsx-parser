@@ -357,7 +357,7 @@ describe('JsxParser Component', () => {
 		})
 		test('skips over DOCTYPE, html, head, and div if found', () => {
 			const { rendered } = render(
-				<JsxParser jsx={'<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>'} />,
+				<JsxParser jsx="<!DOCTYPE html><html><head></head><body><h1>Test</h1><p>Another Text</p></body></html>" />,
 			)
 
 			expect(rendered.childNodes).toHaveLength(2)
@@ -454,7 +454,7 @@ describe('JsxParser Component', () => {
 			expect(customHTML.textContent).toEqual('Test Text')
 		})
 		test('outputs no wrapper element when renderInWrapper prop is false', () => {
-			render(<JsxParser jsx={'<h1>Foo</h1><hr />'} renderInWrapper={false} />)
+			render(<JsxParser jsx="<h1>Foo</h1><hr />" renderInWrapper={false} />)
 			expect(parent.childNodes).toHaveLength(2)
 
 			const [h1, hr] = Array.from(parent.childNodes)
@@ -467,7 +467,7 @@ describe('JsxParser Component', () => {
 			const wrapper = mount(
 				<JsxParser
 					allowUnknownElements={false}
-					jsx={'<foo>Foo</foo><div>div</div><bar>Bar</bar>'}
+					jsx="<foo>Foo</foo><div>div</div><bar>Bar</bar>"
 					onError={onError}
 					renderInWrapper={false}
 				/>,
@@ -490,7 +490,7 @@ describe('JsxParser Component', () => {
 			// eslint-disable-next-line
 			const renderError = ({ error }) => <div className="error">{error}</div>
 			const { rendered } = render(
-				<JsxParser {...{ onError, renderError }} jsx={'<h2>No closing tag '} />,
+				<JsxParser {...{ onError, renderError }} jsx="<h2>No closing tag " />,
 			)
 
 			expect(onError).toHaveBeenCalledTimes(1)
@@ -512,7 +512,7 @@ describe('JsxParser Component', () => {
 				<JsxParser
 					components={components}
 					disableKeyGeneration
-					jsx={'<div><p>Hello</p><hr /><Custom /></div>'}
+					jsx="<div><p>Hello</p><hr /><Custom /></div>"
 				/>,
 			)
 			wrapper.setProps({ someProp: true })
@@ -725,7 +725,7 @@ describe('JsxParser Component', () => {
 			expect(rendered.getElementsByTagName('div')).toHaveLength(0)
 		})
 		test('parses childless elements with children = undefined', () => {
-			const { component } = render(<JsxParser components={{ Custom }} jsx={'<Custom />'} />)
+			const { component } = render(<JsxParser components={{ Custom }} jsx="<Custom />" />)
 
 			expect(component.ParsedChildren).toHaveLength(1)
 			expect(component.ParsedChildren[0].props.children).toBeUndefined()
@@ -807,7 +807,7 @@ describe('JsxParser Component', () => {
 		})
 		test('parses array values', () => {
 			const { html } = render(
-				<JsxParser jsx={'<div>{[1,2,3]}</div>'} renderInWrapper={false} />,
+				<JsxParser jsx="<div>{[1,2,3]}</div>" renderInWrapper={false} />,
 			)
 			expect(html).toEqual('<div>123</div>')
 		})
@@ -905,19 +905,19 @@ describe('JsxParser Component', () => {
 			expect(wrapper.html()).toMatchSnapshot()
 		})
 		test('can execute binary mathematical operations', () => {
-			const { rendered } = render(<JsxParser jsx={'<span>{ 1 + 2 * 4 / 8 - 1 }</span>'} />)
+			const { rendered } = render(<JsxParser jsx="<span>{ 1 + 2 * 4 / 8 - 1 }</span>" />)
 			expect(rendered.childNodes[0].textContent).toEqual('1')
 		})
 		test('can evaluate binary exponent operations', () => {
-			const { component } = render(<JsxParser jsx={'<span testProp={2 ** 4} />'} />)
+			const { component } = render(<JsxParser jsx="<span testProp={2 ** 4} />" />)
 			expect(component.ParsedChildren[0].props.testProp).toEqual(16)
 		})
 		test('can evaluate binary modulo operations', () => {
-			const { component } = render(<JsxParser jsx={'<span testProp={27 % 14} />'} />)
+			const { component } = render(<JsxParser jsx="<span testProp={27 % 14} />" />)
 			expect(component.ParsedChildren[0].props.testProp).toEqual(13)
 		})
 		test('can evaluate equality comparison', () => {
-			const { component } = render(<JsxParser jsx={'<span testProp={1 == 2} />'} />)
+			const { component } = render(<JsxParser jsx="<span testProp={1 == 2} />" />)
 			expect(component.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate inequality comparison', () => {
@@ -925,7 +925,7 @@ describe('JsxParser Component', () => {
 			expect(component.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate strict equality comparison', () => {
-			const { component } = render(<JsxParser jsx={'<span testProp={1 === 1} />'} />)
+			const { component } = render(<JsxParser jsx="<span testProp={1 === 1} />" />)
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
 		test('can evaluate strict inequality comparison', () => {
@@ -933,12 +933,12 @@ describe('JsxParser Component', () => {
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
 		test('can execute unary plus operations', () => {
-			const { rendered, component } = render(<JsxParser jsx={'<span testProp={+60}>{ +75 }</span>'} />)
+			const { rendered, component } = render(<JsxParser jsx="<span testProp={+60}>{ +75 }</span>" />)
 			expect(rendered.childNodes[0].textContent).toEqual('75')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(60)
 		})
 		test('can execute unary negation operations', () => {
-			const { rendered, component } = render(<JsxParser jsx={'<span testProp={-60}>{ -75 }</span>'} />)
+			const { rendered, component } = render(<JsxParser jsx="<span testProp={-60}>{ -75 }</span>" />)
 			expect(rendered.childNodes[0].textContent).toEqual('-75')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(-60)
 		})
@@ -1032,7 +1032,7 @@ describe('JsxParser Component', () => {
 				<JsxParser
 					bindings={{ foo: 2, bar: 3 }}
 					// eslint-disable-next-line no-template-curly-in-string
-					jsx={'<span>{`foo: ${foo}, bar: ${bar}, baz: ${foo * bar}`}</span>'}
+					jsx="<span>{`foo: ${foo}, bar: ${bar}, baz: ${foo * bar}`}</span>"
 				/>,
 			)
 			expect(rendered.childNodes[0].textContent).toEqual('foo: 2, bar: 3, baz: 6')
@@ -1047,7 +1047,7 @@ describe('JsxParser Component', () => {
 			expect(() => render(
 				<JsxParser
 					components={{ OnlyOne }}
-					jsx={'<OnlyOne><h1>Ipsum</h1></OnlyOne>'}
+					jsx="<OnlyOne><h1>Ipsum</h1></OnlyOne>"
 				/>,
 			)).not.toThrow()
 		})
@@ -1056,7 +1056,7 @@ describe('JsxParser Component', () => {
 			expect(() => render(
 				<JsxParser
 					components={{ OnlyOne }}
-					jsx={'<OnlyOne><h1>Ipsum</h1><h2>Foo</h2></OnlyOne>'}
+					jsx="<OnlyOne><h1>Ipsum</h1><h2>Foo</h2></OnlyOne>"
 				/>,
 			)).toThrow()
 		})
@@ -1125,14 +1125,14 @@ describe('JsxParser Component', () => {
 	})
 	test('throws on non-simple literal and global object instance methods', () => {
 		// Some of these would normally fail silently, set `onError` forces throw for assertion purposes
-		expect(() => render(<JsxParser jsx={'{ window.scrollTo() }'} onError={e => { throw e }} />)).toThrow()
+		expect(() => render(<JsxParser jsx="{ window.scrollTo() }" onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx={'{ (() => { window.location = "badsite" })() }'} onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx={'{ document.querySelector("body") }'} onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx={'{ document.createElement("script") }'} onError={e => { throw e }} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ [1, 2, 3].filter(num => num === 2) }'} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ [1, 2, 3].map(num => num * 2) }'} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ [1, 2, 3].reduce((a, b) => a + b) }'} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ [1, 2, 3].find(num => num === 2) }'} />)).toThrow()
+		expect(() => render(<JsxParser jsx="{ [1, 2, 3].filter(num => num === 2) }" />)).toThrow()
+		expect(() => render(<JsxParser jsx="{ [1, 2, 3].map(num => num * 2) }" />)).toThrow()
+		expect(() => render(<JsxParser jsx="{ [1, 2, 3].reduce((a, b) => a + b) }" />)).toThrow()
+		expect(() => render(<JsxParser jsx="{ [1, 2, 3].find(num => num === 2) }" />)).toThrow()
 	})
 	test('supports className prop', () => {
 		const { html } = render(<JsxParser className="foo" jsx="Text" />)
