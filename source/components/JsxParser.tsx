@@ -202,7 +202,7 @@ export class JsxParser extends React.Component<TProps> {
 	}
 
 	#parseElement = (element: AcornJSX.JSXElement): JSX.Element | JSX.Element[] | null => {
-		const { allowUnknownElements, components = {}, componentsOnly, onError } = this.props
+		const { allowUnknownElements, components, componentsOnly, onError } = this.props
 		const { children: childNodes = [], openingElement } = element
 		const { attributes = [] } = openingElement
 		const name = this.#parseName(openingElement.name)
