@@ -9,6 +9,7 @@
 	"parser": "@typescript-eslint/parser",
 	"plugins": ["@typescript-eslint"],
 	"rules": {
+		"@typescript-eslint/no-use-before-define": "error",
 		"@typescript-eslint/no-unused-vars": "error",
 		"arrow-parens": ["error", "as-needed"],
 		"comma-dangle": ["error", "always-multiline"],
@@ -21,6 +22,7 @@
 		"lines-between-class-members": "off",
 		"no-case-declarations": "off",
 		"no-tabs": "off",
+		"no-use-before-define": "off",
 		"no-unused-vars": "off",
 		"object-curly-newline": ["error", { "ObjectPattern": { "multiline": true } }],
 		"operator-linebreak": "off",

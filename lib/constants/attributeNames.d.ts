@@ -1,4 +1,2 @@
-declare const _default: {
-    [key: string]: string;
-};
+declare const _default: Record<string, string>;
 export default _default;

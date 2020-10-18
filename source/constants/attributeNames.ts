@@ -4,4 +4,4 @@ export default {
 	maxlength: 'maxLength',
 	colspan: 'colSpan',
 	rowspan: 'rowSpan',
-} as {[key:string]:string}
+} as Record<string, string>

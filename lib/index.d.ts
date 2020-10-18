@@ -1,3 +1,3 @@
-import JSXParser from './components/JsxParser';
-export { TProps } from './components/JsxParser';
-export default JSXParser;
+import { JsxParser } from './components/JsxParser';
+export { JsxParser, TProps } from './components/JsxParser';
+export default JsxParser;

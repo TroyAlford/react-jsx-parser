@@ -16,18 +16,14 @@ export declare type TProps = {
     showWarnings?: boolean;
     renderError?: (props: {
         error: string;
-    }) => JSX.Element;
+    }) => JSX.Element | null;
     renderInWrapper?: boolean;
-    renderUnrecognized?: (tagName: string) => JSX.Element;
+    renderUnrecognized?: (tagName: string) => JSX.Element | null;
 };
-export default class JsxParser extends React.Component<TProps> {
+export declare class JsxParser extends React.Component<TProps> {
+    #private;
     static displayName: string;
     static defaultProps: TProps;
     private ParsedChildren;
-    private parseJSX;
-    private parseExpression;
-    private parseMemberExpression;
-    private parseName;
-    private parseElement;
     render: () => JSX.Element;
 }
