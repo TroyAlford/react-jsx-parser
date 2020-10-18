@@ -7,7 +7,7 @@ export declare type TProps = {
     blacklistedAttrs?: Array<string | RegExp>;
     blacklistedTags?: string[];
     className?: string;
-    components?: React.JSXElementConstructor<unknown>[];
+    components?: Record<string, React.JSXElementConstructor<unknown>>;
     componentsOnly?: boolean;
     disableFragments?: boolean;
     disableKeyGeneration?: boolean;

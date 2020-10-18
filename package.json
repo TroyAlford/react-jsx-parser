@@ -40,7 +40,7 @@
   "types": "lib/index.d.ts",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
-  "version": "1.26.1",
+  "version": "1.26.2",
   "dependencies": {
     "@types/jsdom": "^16.2.4",
     "acorn": "^8.0.4",
