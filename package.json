@@ -65,6 +65,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.5.2",
     "babel-loader": "^8.1.0",
+    "concurrently": "^5.3.0",
     "cross-env": "^7.0.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.5",
@@ -98,6 +99,7 @@
   },
   "scripts": {
     "build": "yarn types && cross-env NODE_ENV=production webpack",
+    "develop": "NODE_ENV=production concurrently -n build,demo -c green,yellow \"yarn webpack --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
     "types": "tsc -p ./tsconfig.json -d --emitDeclarationOnly",
     "postversion": "git push origin HEAD && git push origin HEAD --tags",
     "prebuild": "mkdirp ./lib && rm -rf ./lib/*",
