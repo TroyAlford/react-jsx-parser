@@ -129,7 +129,7 @@ JsxParser.defaultProps = {
 
 ## Older Browser Support
 
-If your application needs to support older browsers, like `IE11`, import from `react-jsx-parser/lib/es5/react-jsx-parser.min.js`,
+If your application needs to support older browsers, like `IE11`, import from `react-jsx-parser/dist/es5/react-jsx-parser.min.js`,
 which transpiles the `acorn-jsx` dependency down to ES5, and also adds additional polyfill support for code used in this package.
 
 **Note**: <u>not</u> recommended for implementations which only support modern browsers, as the ES5 version is roughly 30% larger.

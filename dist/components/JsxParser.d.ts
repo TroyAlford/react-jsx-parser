@@ -20,7 +20,7 @@ export declare type TProps = {
     renderInWrapper?: boolean;
     renderUnrecognized?: (tagName: string) => JSX.Element | null;
 };
-export declare class JsxParser extends React.Component<TProps> {
+export default class JsxParser extends React.Component<TProps> {
     #private;
     static displayName: string;
     static defaultProps: TProps;

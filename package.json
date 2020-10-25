@@ -29,15 +29,15 @@
   "bugs": "https://github.com/TroyAlford/react-jsx-parser/issues",
   "description": "A React component which can parse JSX and output rendered React Components",
   "files": [
-    "lib/"
+    "dist/"
   ],
   "keywords": [
     "react",
     "jsx"
   ],
   "license": "MIT",
-  "main": "lib/umd/react-jsx-parser.min.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/umd/react-jsx-parser.min.js",
+  "types": "dist/index.d.ts",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
   "version": "1.26.2",
@@ -99,14 +99,14 @@
   },
   "scripts": {
     "build": "yarn types && cross-env NODE_ENV=production webpack",
-    "develop": "NODE_ENV=production concurrently -n build,demo -c green,yellow \"yarn webpack --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
+    "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"yarn webpack --watch\" \"yarn types --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
     "types": "tsc -p ./tsconfig.json -d --emitDeclarationOnly",
     "postversion": "git push origin HEAD && git push origin HEAD --tags",
-    "prebuild": "mkdirp ./lib && rm -rf ./lib/*",
+    "prebuild": "mkdirp ./dist && rm -rf ./dist/*",
     "preversion": "yarn test",
-    "sourcemap": "yarn build && source-map-explorer ./lib/es5/react-jsx-parser.min.js",
+    "sourcemap": "yarn build && source-map-explorer ./dist/es5/react-jsx-parser.min.js",
     "test": "yarn jest",
-    "version": "yarn build && git add -A ./lib"
+    "version": "yarn build && git add -A ./dist"
   },
   "jest": {
     "collectCoverageFrom": [

@@ -35,7 +35,7 @@ const buildTarget = {
 		globalObject: 'this',
 		library,
 		libraryTarget: 'commonjs2',
-		path: `${__dirname}/lib`,
+		path: `${__dirname}/dist`,
 		umdNamedDefine: true,
 	},
 	plugins,
@@ -69,6 +69,6 @@ module.exports = Object.entries(TYPES).map(([typeName, libraryTarget]) => ({
 	output: {
 		...buildTarget.output,
 		libraryTarget,
-		path: `${__dirname}/lib/${typeName}`,
+		path: `${__dirname}/dist/${typeName}`,
 	},
 }))
