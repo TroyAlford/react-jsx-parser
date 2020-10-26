@@ -3,8 +3,8 @@ const path = require('path')
 module.exports = {
 	collectCoverageFrom: [
 		'**/source/**/*.{ts,tsx,js}',
+		'!**/dist/**',
 		'!**/node_modules/**',
-		'!**/lib/**',
 		'!**/*.d.ts',
 		'!**/*.test.{ts,tsx,js}',
 	],

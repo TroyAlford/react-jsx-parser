@@ -31,7 +31,7 @@ export type TProps = {
 const parser = Acorn.Parser.extend(AcornJSX.default())
 
 /* eslint-disable consistent-return */
-export class JsxParser extends React.Component<TProps> {
+export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
 
 	static defaultProps: TProps = {
