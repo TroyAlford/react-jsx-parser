@@ -161,8 +161,8 @@
     "webpack-dev-server": "^3.11.0"
   },
   "peerDependencies": {
-    "react": "^16",
-    "react-dom": "^16"
+    "react": ">=16",
+    "react-dom": ">=16"
   },
   "resolutions": {
     "browserslist": "^4.14.5",
