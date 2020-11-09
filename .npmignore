@@ -1,12 +1,11 @@
 **/.circleci
-**/.vscode
-**/test-coverage
-**/jest
-**/node_modules
-**/test-coverage
 **/.eslintrc
 **/.gitignore
+**/.vscode
+**/jest
 **/jest.config.js
+**/node_modules
+**/test-coverage
 **/webpack.*.js
 **/yarn-error.log
 
