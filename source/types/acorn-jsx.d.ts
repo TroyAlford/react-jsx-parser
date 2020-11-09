@@ -17,6 +17,14 @@ declare module 'acorn-jsx' {
 		argument?: Expression;
 	}
 
+	export interface JSXFragment {
+		children: JSXElement[],
+		end: number,
+		openingFragment: OpeningElement,
+		start: number,
+		type: 'JSXFragment',
+	}
+
 	export interface OpeningElement extends JSXElement {
 		attributes: JSXAttribute[];
 	}
@@ -137,7 +145,7 @@ declare module 'acorn-jsx' {
 
 	export type Expression =
 		JSXAttribute | JSXAttributeExpression | JSXElement | JSXExpressionContainer |
-		JSXSpreadAttribute | JSXText |
+		JSXSpreadAttribute | JSXFragment | JSXText |
 		ArrayExpression | BinaryExpression | CallExpression | ConditionalExpression |
 		ExpressionStatement | Identifier | Literal | LogicalExpression | MemberExpression |
 		ObjectExpression | TemplateElement | TemplateLiteral | UnaryExpression

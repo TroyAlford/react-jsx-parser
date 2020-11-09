@@ -350,6 +350,11 @@ describe('JsxParser Component', () => {
 			expect(console.error).toHaveBeenCalledTimes(1)
 			expect(console.error.mock.calls[0][0]).toMatch(/unrecognized in this browser/)
 		})
+		test('handles fragment shorthand syntax (<></>)', () => {
+			const jsx = '<><>Test</> <>Test</></>'
+			const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)
+			expect(wrapper.html()).toBe('Test Test')
+		})
 		test('renders falsy expressions correctly', () => {
 			const jsx = '<b>{false}{undefined}{0}{null}{[]}</b>'
 			const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)

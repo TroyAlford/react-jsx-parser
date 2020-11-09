@@ -80,6 +80,7 @@ export default class JsxParser extends React.Component<TProps> {
 			if (expression.value === null) return true
 			return this.#parseExpression(expression.value)
 		case 'JSXElement':
+		case 'JSXFragment':
 			return this.#parseElement(expression)
 		case 'JSXExpressionContainer':
 			return this.#parseExpression(expression.expression)
@@ -201,11 +202,18 @@ export default class JsxParser extends React.Component<TProps> {
 		return `${this.#parseName(element.object)}.${this.#parseName(element.property)}`
 	}
 
-	#parseElement = (element: AcornJSX.JSXElement): JSX.Element | JSX.Element[] | null => {
+	#parseElement = (
+		element: AcornJSX.JSXElement | AcornJSX.JSXFragment,
+	): JSX.Element | JSX.Element[] | null => {
 		const { allowUnknownElements, components, componentsOnly, onError } = this.props
-		const { children: childNodes = [], openingElement } = element
-		const { attributes = [] } = openingElement
-		const name = this.#parseName(openingElement.name)
+		const { children: childNodes = [] } = element
+		const openingTag = element.type === 'JSXElement'
+			? element.openingElement
+			: element.openingFragment
+		const { attributes = [] } = openingTag
+		const name = element.type === 'JSXElement'
+			? this.#parseName(openingTag.name)
+			: ''
 
 		const blacklistedAttrs = (this.props.blacklistedAttrs || [])
 			.map(attr => (attr instanceof RegExp ? attr : new RegExp(attr, 'i')))
@@ -221,7 +229,7 @@ export default class JsxParser extends React.Component<TProps> {
 			return null
 		}
 
-		if (!resolvePath(components, name)) {
+		if (name !== '' && !resolvePath(components, name)) {
 			if (componentsOnly) {
 				onError!(new Error(`The component <${name}> is unrecognized, and will not be rendered.`))
 				return this.props.renderUnrecognized!(name)
@@ -234,7 +242,10 @@ export default class JsxParser extends React.Component<TProps> {
 		}
 
 		let children
-		const component = resolvePath(components, name)
+		const component = element.type === 'JSXElement'
+			? resolvePath(components, name)
+			: Fragment
+
 		if (component || canHaveChildren(name)) {
 			children = childNodes.map(this.#parseExpression)
 			if (!component && !canHaveWhitespace(name)) {
