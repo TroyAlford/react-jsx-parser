@@ -85,17 +85,41 @@ Any `ComponentA`, `ComponentB`, `ComponentC` or `ComponentD` tags in the dynamic
 
 _Note:_ Non-standard tags may throw errors and warnings, but will typically be rendered in a reasonable way.
 
+## Advanced Usage - HTML & Self-Closing Tags
+When rendering HTML, standards-adherent editors will render `img`, `hr`, `br`, and other
+[void elements](https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-elements) with no trailing `/>`. While this is valid HTML, it is _not_ valid JSX. If you wish to opt-in to a more HTML-like parsing style, set the `autoCloseVoidElements` prop to `true`.
+
+### Example:
+```jsx
+// <hr> has no closing tag, which is valid HTML, but not valid JSX
+<JsxParser jsx="<hr><div className='foo'>Foo</div>" />
+// Renders: null
+
+// <hr></hr> is invalid HTML, but valid JSX
+<JsxParser jsx="<hr></hr><div className='foo'>Foo</div>" />
+// Renders: <hr><div class='foo'>Foo</div>
+
+// This is valid HTML, and the `autoCloseVoidElements` prop allows it to render
+<JsxParser autoCloseVoidElements jsx="<hr><div className='foo'>Foo</div>" />
+// Renders: <hr><div class='foo'>Foo</div>
+
+// This would work in a browser, but will no longer parse with `autoCloseVoidElements`
+<JsxParser autoCloseVoidElements jsx="<hr></hr><div className='foo'>Foo</div>" />
+// Renders: null
+```
+
 ## PropTypes / Settings
 ```javascript
 JsxParser.defaultProps = {
-  // if false, unrecognized elements like <foo> are omitted and reported via onError
   allowUnknownElements: true, // by default, allow unrecognized elements
+  // if false, unrecognized elements like <foo> are omitted and reported via onError
+
+  autoCloseVoidElements: false, // by default, unclosed void elements will not parse. See examples
 
   bindings: {}, // by default, do not add any additional bindings
 
-  // by default, just removes `on*` attributes (onClick, onChange, etc.)
-  // values are used as a regex to match property names
-  blacklistedAttrs: [/^on.+/i],
+  blacklistedAttrs: [/^on.+/i], // default: removes `on*` attributes (onClick, onChange, etc.)
+  // any attribute name which matches any of these RegExps will be omitted entirely
 
   blacklistedTags:  ['script'], // by default, removes all <script> tags
 

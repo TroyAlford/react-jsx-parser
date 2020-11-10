@@ -704,31 +704,6 @@ describe('JsxParser Component', () => {
 		})
 	})
 	describe('prop bindings', () => {
-		test('allows void-element named custom components to take children', () => {
-			// eslint-disable-next-line react/prop-types
-			const link = ({ to, children }) => (<a href={to}>{children}</a>)
-			const { rendered } = render(<JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />)
-			expect(rendered.childNodes[0].nodeName).toEqual('A')
-			expect(rendered.childNodes[0].textContent).toEqual('Text')
-		})
-		test('does not render children for poorly formed void elements', () => {
-			const { rendered } = render(
-				<JsxParser
-					jsx={
-						'<img src="/foo.png">'
-						+ '<div class="invalidChild"></div>'
-						+ '</img>'
-					}
-				/>,
-			)
-
-			expect(rendered.childNodes).toHaveLength(1)
-			expect(rendered.getElementsByTagName('img')).toHaveLength(1)
-			expect(rendered.childNodes[0].innerHTML).toEqual('')
-			expect(rendered.childNodes[0].childNodes).toHaveLength(0)
-
-			expect(rendered.getElementsByTagName('div')).toHaveLength(0)
-		})
 		test('parses childless elements with children = undefined', () => {
 			const { component } = render(<JsxParser components={{ Custom }} jsx="<Custom />" />)
 
@@ -1127,6 +1102,46 @@ describe('JsxParser Component', () => {
 			/>,
 		)
 		expect(html).toEqual('<div class="foo">foo</div>')
+	})
+	describe('void elements', () => {
+		test('void-element named custom components to take children', () => {
+			// eslint-disable-next-line react/prop-types
+			const link = ({ to, children }) => (<a href={to}>{children}</a>)
+			const { rendered } = render(<JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />)
+			expect(rendered.childNodes[0].nodeName).toEqual('A')
+			expect(rendered.childNodes[0].textContent).toEqual('Text')
+		})
+	})
+	describe('self-closing tags', () => {
+		test('by default, renders self-closing tags without their children', () => {
+			const { rendered } = render(
+				<JsxParser showWarnings jsx='<img src="/foo.png"><div class="invalidChild"></div></img>' />,
+			)
+
+			expect(rendered.childNodes).toHaveLength(1)
+			expect(rendered.getElementsByTagName('img')).toHaveLength(1)
+			expect(rendered.childNodes[0].innerHTML).toEqual('')
+			expect(rendered.childNodes[0].childNodes).toHaveLength(0)
+
+			expect(rendered.getElementsByTagName('div')).toHaveLength(0)
+		})
+		test('props.autoCloseVoidElements=true auto-closes self-closing tags', () => {
+			const { rendered } = render(
+				<JsxParser autoCloseVoidElements jsx='<img src="/foo.png"><div>Foo</div>' />,
+			)
+
+			expect(rendered.childNodes).toHaveLength(2)
+			expect(rendered.getElementsByTagName('img')).toHaveLength(1)
+			expect(rendered.childNodes[0].innerHTML).toEqual('')
+			expect(rendered.childNodes[0].childNodes).toHaveLength(0)
+			expect(rendered.getElementsByTagName('div')).toHaveLength(1)
+		})
+		test('props.autoCloseVoidElements=true prevents self-closing tags with closing tags from parsing', () => {
+			const { rendered } = render(
+				<JsxParser autoCloseVoidElements jsx='<img src="/foo.png"></img><div></div>' />,
+			)
+			expect(rendered.childNodes).toHaveLength(0)
+		})
 	})
 	test('throws on non-simple literal and global object instance methods', () => {
 		// Some of these would normally fail silently, set `onError` forces throw for assertion purposes

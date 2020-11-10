@@ -150,6 +150,11 @@ declare module 'acorn-jsx' {
 		ExpressionStatement | Identifier | Literal | LogicalExpression | MemberExpression |
 		ObjectExpression | TemplateElement | TemplateLiteral | UnaryExpression
 
-	export default function(): any
+	interface PluginOptions {
+		allowNamespacedObjects?: boolean,
+		allowNamespaces?: boolean,
+		autoCloseVoidElements?: boolean,
+	}
+	export default function(options?: PluginOptions): any
 }
 /* eslint-enable no-use-before-define */

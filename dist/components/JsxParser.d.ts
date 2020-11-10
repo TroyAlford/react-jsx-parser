@@ -1,6 +1,7 @@
 import React from 'react';
 export declare type TProps = {
     allowUnknownElements?: boolean;
+    autoCloseVoidElements?: boolean;
     bindings?: {
         [key: string]: unknown;
     };

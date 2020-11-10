@@ -1,0 +1,28 @@
+diff --git a/node_modules/acorn-jsx/index.js b/node_modules/acorn-jsx/index.js
+index 004e080..aed0558 100644
+--- a/node_modules/acorn-jsx/index.js
++++ b/node_modules/acorn-jsx/index.js
+@@ -75,7 +75,8 @@ module.exports = function(options) {
+   return function(Parser) {
+     return plugin({
+       allowNamespaces: options.allowNamespaces !== false,
+-      allowNamespacedObjects: !!options.allowNamespacedObjects
++      allowNamespacedObjects: !!options.allowNamespacedObjects,
++      autoCloseVoidElements: !!options.autoCloseVoidElements,
+     }, Parser);
+   };
+ };
+@@ -356,6 +357,13 @@ function plugin(options, Parser) {
+         node.attributes.push(this.jsx_parseAttribute());
+       node.selfClosing = this.eat(tt.slash);
+       this.expect(tok.jsxTagEnd);
++      const VOID_ELEMENTS = [
++        'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen',
++        'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr'
++      ]
++      if (options.autoCloseVoidElements && nodeName && VOID_ELEMENTS.includes(nodeName.name)) {
++        node.selfClosing = true;
++      }
+       return this.finishNode(node, nodeName ? 'JSXOpeningElement' : 'JSXOpeningFragment');
+     }
+ 
