@@ -75,16 +75,12 @@
     "merge": "^1.2.1"
   },
   "scripts": {
-    "build": "yarn types && cross-env NODE_ENV=production webpack",
+    "build": "yarn patch-package && yarn types && cross-env NODE_ENV=production webpack",
     "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"yarn webpack --watch\" \"yarn types --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
     "types": "tsc -p ./tsconfig.json -d --emitDeclarationOnly",
-    "postinstall": "yarn patch-package",
-    "postversion": "git push origin HEAD && git push origin HEAD --tags",
     "prebuild": "mkdirp ./dist && rm -rf ./dist/*",
-    "preversion": "yarn test",
     "sourcemap": "yarn build && source-map-explorer ./dist/es5/react-jsx-parser.min.js",
-    "test": "yarn jest",
-    "version": "yarn build && git add -A ./dist"
+    "test": "yarn patch-package && yarn jest"
   },
   "contributors": [
     {
