@@ -1,7 +1,7 @@
 /* global JSX */
 import * as Acorn from 'acorn'
 import * as AcornJSX from 'acorn-jsx'
-import React, { Fragment } from 'react'
+import React, { Component, FunctionComponent, Fragment } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 import { randomHash } from '../helpers/hash'
@@ -17,7 +17,7 @@ export type TProps = {
 	blacklistedAttrs?: Array<string | RegExp>,
 	blacklistedTags?: string[],
 	className?: string,
-	components?: Record<string, React.JSXElementConstructor<unknown>>,
+	components?: Record<string, Component | FunctionComponent>,
 	componentsOnly?: boolean,
 	disableFragments?: boolean,
 	disableKeyGeneration?: boolean,
@@ -32,7 +32,6 @@ export type TProps = {
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
-
 	static defaultProps: TProps = {
 		allowUnknownElements: true,
 		autoCloseVoidElements: false,

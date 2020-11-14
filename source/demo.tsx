@@ -5,7 +5,13 @@ import JsxParser from '../dist/umd/react-jsx-parser.min'
 
 ReactDOM.render(
 	<JsxParser
-		jsx="<div className='foo'>bar</div>"
+		autoCloseVoidElements
+		jsx={`
+			<img src="http://placekitten.com/300/500">
+			<div className="foo">bar</div>
+		`}
+		onError={console.error}
+		showWarnings
 	/>,
 	document.querySelector('#root'),
 )
