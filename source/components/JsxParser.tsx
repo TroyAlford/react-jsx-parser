@@ -1,7 +1,7 @@
 /* global JSX */
 import * as Acorn from 'acorn'
 import * as AcornJSX from 'acorn-jsx'
-import React, { Fragment } from 'react'
+import React, { Component, FunctionComponent, Fragment } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 import { randomHash } from '../helpers/hash'
@@ -12,11 +12,12 @@ type ParsedJSX = JSX.Element | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
 	allowUnknownElements?: boolean,
+	autoCloseVoidElements?: boolean,
 	bindings?: { [key: string]: unknown; },
 	blacklistedAttrs?: Array<string | RegExp>,
 	blacklistedTags?: string[],
 	className?: string,
-	components?: Record<string, React.JSXElementConstructor<unknown>>,
+	components?: Record<string, Component | FunctionComponent>,
 	componentsOnly?: boolean,
 	disableFragments?: boolean,
 	disableKeyGeneration?: boolean,
@@ -28,14 +29,12 @@ export type TProps = {
 	renderUnrecognized?: (tagName: string) => JSX.Element | null,
 }
 
-const parser = Acorn.Parser.extend(AcornJSX.default())
-
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
-
 	static defaultProps: TProps = {
 		allowUnknownElements: true,
+		autoCloseVoidElements: false,
 		bindings: {},
 		blacklistedAttrs: [/^on.+/i],
 		blacklistedTags: ['script'],
@@ -55,6 +54,9 @@ export default class JsxParser extends React.Component<TProps> {
 	private ParsedChildren: ParsedTree = null
 
 	#parseJSX = (jsx: string): JSX.Element | JSX.Element[] | null => {
+		const parser = Acorn.Parser.extend(AcornJSX.default({
+			autoCloseVoidElements: this.props.autoCloseVoidElements,
+		}))
 		const wrappedJsx = `<root>${jsx}</root>`
 		let parsed: AcornJSX.Expression[] = []
 		try {
@@ -68,7 +70,7 @@ export default class JsxParser extends React.Component<TProps> {
 			if (this.props.renderError) {
 				return this.props.renderError({ error: String(error) })
 			}
-			return []
+			return null
 		}
 
 		return parsed.map(this.#parseExpression).filter(Boolean)
