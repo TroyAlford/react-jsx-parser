@@ -14,7 +14,7 @@
   "types": "dist/index.d.ts",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
-  "version": "1.28.0",
+  "version": "1.28.1",
   "dependencies": {
     "@types/jsdom": "^16.2.4",
     "acorn": "^8.0.4",
@@ -32,8 +32,6 @@
     "@types/acorn": "^4.0.5",
     "@types/enzyme": "^3.10.7",
     "@types/jest": "^26.0.14",
-    "@types/react": "^16.9.53",
-    "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
     "babel-core": "^7.0.0-bridge.0",
@@ -63,16 +61,20 @@
     "webpack-cli": "^4.0.0",
     "webpack-dev-server": "^3.11.0"
   },
+  "optionalDependencies": {
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0"
+  },
   "peerDependencies": {
-    "@types/react": ">=16",
-    "@types/react-dom": ">=16",
     "react": ">=16",
     "react-dom": ">=16"
   },
   "resolutions": {
+		"@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
     "browserslist": "^4.14.5",
     "extend": "^3.0.2",
-    "merge": "^1.2.1"
+		"merge": "^1.2.1"
   },
   "scripts": {
     "build": "yarn patch-package && yarn types && cross-env NODE_ENV=production webpack",
