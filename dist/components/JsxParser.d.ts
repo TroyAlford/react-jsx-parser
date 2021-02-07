@@ -1,4 +1,4 @@
-import React, { Component, FunctionComponent } from 'react';
+import React, { ComponentType, ExoticComponent } from 'react';
 export declare type TProps = {
     allowUnknownElements?: boolean;
     autoCloseVoidElements?: boolean;
@@ -8,7 +8,7 @@ export declare type TProps = {
     blacklistedAttrs?: Array<string | RegExp>;
     blacklistedTags?: string[];
     className?: string;
-    components?: Record<string, Component | FunctionComponent>;
+    components?: Record<string, ComponentType | ExoticComponent>;
     componentsOnly?: boolean;
     disableFragments?: boolean;
     disableKeyGeneration?: boolean;
