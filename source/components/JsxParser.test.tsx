@@ -1136,9 +1136,9 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].childNodes).toHaveLength(0)
 			expect(rendered.getElementsByTagName('div')).toHaveLength(1)
 		})
-		test('props.autoCloseVoidElements=true prevents self-closing tags with closing tags from parsing', () => {
+		test('props.autoCloseVoidElements=false will treats self-closing tags by jsx rules (does not parse)', () => {
 			const { rendered } = render(
-				<JsxParser autoCloseVoidElements jsx='<img src="/foo.png"></img><div></div>' />,
+				<JsxParser autoCloseVoidElements={false} jsx='<img src="/foo.png"><div></div>' />,
 			)
 			expect(rendered.childNodes).toHaveLength(0)
 		})
