@@ -1,7 +1,7 @@
 /* global JSX */
 import * as Acorn from 'acorn'
 import * as AcornJSX from 'acorn-jsx'
-import React, { Component, FunctionComponent, Fragment } from 'react'
+import React, { Fragment, ComponentType, ExoticComponent } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 import { randomHash } from '../helpers/hash'
@@ -17,7 +17,7 @@ export type TProps = {
 	blacklistedAttrs?: Array<string | RegExp>,
 	blacklistedTags?: string[],
 	className?: string,
-	components?: Record<string, Component | FunctionComponent>,
+	components?: Record<string, ComponentType | ExoticComponent>,
 	componentsOnly?: boolean,
 	disableFragments?: boolean,
 	disableKeyGeneration?: boolean,
