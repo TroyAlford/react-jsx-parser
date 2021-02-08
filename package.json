@@ -14,13 +14,12 @@
   "types": "dist/index.d.ts",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
-  "version": "1.28.2",
+  "version": "1.28.3",
   "dependencies": {
     "@types/jsdom": "^16.2.6",
     "acorn": "^8.0.5",
     "acorn-jsx": "^5.3.1",
-    "core-js": "^3.8.3",
-    "patch-package": "^6.2.2"
+    "core-js": "^3.8.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.13",
@@ -77,9 +76,9 @@
     "merge": "^1.2.1"
   },
   "scripts": {
-    "build": "yarn patch-package && yarn types && cross-env NODE_ENV=production webpack",
+    "build": "npx patch-package && yarn types && cross-env NODE_ENV=production webpack",
     "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"yarn webpack --watch\" \"yarn types --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
-    "postinstall": "yarn patch-package",
+    "postinstall": "npx patch-package",
     "prebuild": "mkdirp ./dist && rm -rf ./dist/*",
     "sourcemap": "yarn build && source-map-explorer ./dist/es5/react-jsx-parser.min.js",
     "test": "jest",
