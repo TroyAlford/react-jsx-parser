@@ -1,6 +1,5 @@
 /** This file exists solely to build the index.d.ts file */
-import JsxParserComponent from './components/JsxParser'
+import { JsxParser } from './utils/JsxParser'
 
 export type { TProps } from './components/JsxParser'
-export default JsxParserComponent
-export { JsxParser } from './utils/JsxParser';
+export default JsxParser
