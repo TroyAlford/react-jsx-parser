@@ -20,7 +20,7 @@ if (PRODUCTION) {
 
 const buildTarget = {
 	devtool: 'source-map',
-	entry: `${__dirname}/source/components/JsxParser.tsx`,
+	entry: `${__dirname}/source/utils/JsxParser.tsx`,
 	externals: {
 		react: 'react',
 		'react-dom': 'react-dom',
