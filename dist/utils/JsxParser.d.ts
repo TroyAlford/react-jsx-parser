@@ -1,4 +1,4 @@
-import React, { ComponentType, ExoticComponent } from 'react';
+import { ComponentType, ExoticComponent } from 'react';
 export declare type TProps = {
     allowUnknownElements?: boolean;
     autoCloseVoidElements?: boolean;
@@ -21,10 +21,12 @@ export declare type TProps = {
     renderInWrapper?: boolean;
     renderUnrecognized?: (tagName: string) => JSX.Element | null;
 };
-export default class JsxParser extends React.Component<TProps> {
+export default class JsxParser {
     #private;
     static displayName: string;
     static defaultProps: TProps;
     private ParsedChildren;
-    render: () => JSX.Element;
+    props: TProps;
+    constructor(props: TProps);
+    parseJSX: (jsx: string) => JSX.Element | JSX.Element[] | null;
 }
