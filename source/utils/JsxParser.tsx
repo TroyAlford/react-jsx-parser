@@ -59,7 +59,7 @@ export class JsxParser {
         this.props = { ...JsxParser.defaultProps, ...props };
     }
 
-    #parseJSX = (jsx: string): JSX.Element | JSX.Element[] | null => {
+    parseJSX = (jsx: string): JSX.Element | JSX.Element[] | null => {
 		const parser = Acorn.Parser.extend(AcornJSX.default({
 			autoCloseVoidElements: this.props.autoCloseVoidElements,
 		}))
