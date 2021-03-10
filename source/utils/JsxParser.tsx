@@ -30,7 +30,7 @@ export type TProps = {
 }
 
 /* eslint-disable consistent-return */
-export class JsxParser {
+export default class JsxParser {
 	static displayName = 'JsxParser'
 	static defaultProps: TProps = {
 		allowUnknownElements: true,
