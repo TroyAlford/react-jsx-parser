@@ -8,8 +8,8 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
-type ParsedJSX = JSX.Element | boolean | string
-type ParsedTree = ParsedJSX | ParsedJSX[] | null
+export type ParsedJSX = JSX.Element | boolean | string
+export type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
 	allowUnknownElements?: boolean,
 	autoCloseVoidElements?: boolean,
