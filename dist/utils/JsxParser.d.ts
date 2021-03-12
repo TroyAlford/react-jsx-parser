@@ -1,4 +1,6 @@
 import { ComponentType, ExoticComponent } from 'react';
+export declare type ParsedJSX = JSX.Element | boolean | string;
+export declare type ParsedTree = ParsedJSX | ParsedJSX[] | null;
 export declare type TProps = {
     allowUnknownElements?: boolean;
     autoCloseVoidElements?: boolean;
