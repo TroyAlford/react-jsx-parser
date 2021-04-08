@@ -28,7 +28,7 @@ export type ParserOptions = {
 /* eslint-disable consistent-return */
 export default class JsxParser {
 	static displayName = 'JsxParser'
-	static defaultProps: ParserOptions = {
+	static defaultOptions: ParserOptions = {
 		allowUnknownElements: true,
 		autoCloseVoidElements: false,
 		bindings: {},
@@ -47,7 +47,7 @@ export default class JsxParser {
     options: ParserOptions;
 
     constructor(props: ParserOptions) {
-        this.options = { ...JsxParser.defaultProps, ...props };
+        this.options = { ...JsxParser.defaultOptions, ...props };
     }
 
     parseJSX = (jsx: string): JSX.Element | JSX.Element[] | null => {
