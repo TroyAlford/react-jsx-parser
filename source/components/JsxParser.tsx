@@ -5,6 +5,7 @@ import JsxParserUtil from '../utils/JsxParser'
 
 export declare type TProps = ParserOptions & {
     jsx?: string;
+	className?: string,
     showWarnings?: boolean;
     renderError?: (props: {
         error: string;
@@ -16,6 +17,7 @@ export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
 	static defaultProps: TProps = {
 		...JsxParserUtil.defaultProps,
+		className: '',
 		jsx: '',
 		showWarnings: false,
 		renderError: undefined,

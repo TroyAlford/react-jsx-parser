@@ -2,6 +2,7 @@ import React from 'react';
 import { ParserOptions } from '../utils/JsxParser';
 export declare type TProps = ParserOptions & {
     jsx?: string;
+    className?: string;
     showWarnings?: boolean;
     renderError?: (props: {
         error: string;
