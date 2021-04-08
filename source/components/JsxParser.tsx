@@ -1,34 +1,41 @@
 /* global JSX */
 import React, { ComponentType, ExoticComponent } from 'react'
-import { TProps, ParsedJSX, ParsedTree } from '../utils/JsxParser'
+import { ParserOptions, ParsedJSX, ParsedTree } from '../utils/JsxParser'
 import JsxParserUtil from '../utils/JsxParser'
+
+export declare type TProps = ParserOptions & {
+    jsx?: string;
+    showWarnings?: boolean;
+    renderError?: (props: {
+        error: string;
+    }) => JSX.Element | null;
+    renderInWrapper?: boolean;
+};
 
 export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
 	static defaultProps: TProps = {
-		allowUnknownElements: true,
-		autoCloseVoidElements: false,
-		bindings: {},
-		blacklistedAttrs: [/^on.+/i],
-		blacklistedTags: ['script'],
-		className: '',
-		components: {},
-		componentsOnly: false,
-		disableFragments: false,
-		disableKeyGeneration: false,
+		...JsxParserUtil.defaultProps,
 		jsx: '',
-		onError: () => { },
 		showWarnings: false,
 		renderError: undefined,
 		renderInWrapper: true,
-		renderUnrecognized: () => null,
 	}
 
 	private ParsedChildren: ParsedTree = null
 
 	#parseJSX = (jsx: string): JSX.Element | JSX.Element[] | null => {
 		const parser = new JsxParserUtil(this.props);
-		return parser.parseJSX(jsx);
+		try {
+			return parser.parseJSX(jsx);
+		} catch (error) {
+			if (this.props.showWarnings) console.warn(error) // eslint-disable-line no-console
+			if (this.props.onError) this.props.onError(error)
+			if (this.props.renderError) {
+				return this.props.renderError({ error: String(error) })
+			}
+			return null
+		}
 	}
 
 	render = (): JSX.Element => {
