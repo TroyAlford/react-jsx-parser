@@ -78,10 +78,11 @@
   "scripts": {
     "build": "npx patch-package && yarn types && cross-env NODE_ENV=production webpack",
     "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"yarn webpack --watch\" \"yarn types --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
+		"lint": "yarn eslint --ext .js,.ts,.tsx source/",
     "postinstall": "npx patch-package",
     "prebuild": "mkdirp ./dist && rm -rf ./dist/*",
     "sourcemap": "yarn build && source-map-explorer ./dist/es5/react-jsx-parser.min.js",
-    "test": "jest",
+    "test": "yarn lint && jest",
     "types": "tsc -p ./tsconfig.json -d --emitDeclarationOnly"
   },
   "contributors": [
