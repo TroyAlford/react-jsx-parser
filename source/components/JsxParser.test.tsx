@@ -947,6 +947,18 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].textContent).toEqual('Nope')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
+		test('will render options', () => {
+			window.foo = jest.fn(() => true)
+			const wrapper = mount(
+				<JsxParser
+					jsx={
+						'<select><option>Some value</option></select>'
+					}
+				/>,
+			)
+
+			expect(wrapper.html()).toMatchSnapshot()
+		})
 		describe('can evaluate multi-level property accessors', () => {
 			/* eslint-disable dot-notation,no-useless-concat */
 			const bindings = {
