@@ -951,9 +951,7 @@ describe('JsxParser Component', () => {
 			window.foo = jest.fn(() => true)
 			const wrapper = mount(
 				<JsxParser
-					jsx={
-						'<select><option>Some value</option></select>'
-					}
+					jsx="<select><option>Some value</option></select>"
 				/>,
 			)
 
