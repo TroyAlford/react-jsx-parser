@@ -1158,4 +1158,74 @@ describe('JsxParser Component', () => {
 		const { html } = render(<JsxParser className="foo" jsx="Text" />)
 		expect(html).toMatch('<div class="jsx-parser foo">Text</div>')
 	})
+
+	describe('children', () => {
+		test('keys are preserved if present and generated otherwise', () => {
+			const { component, rendered } = render(
+				<JsxParser
+					components={{ Custom }}
+					jsx={
+						'<Custom className="parent" text="parent">'
+						+ '<Custom className="child-1" text="child-1" key="child-1" />'
+						+ '<Custom className="child-2" text="child-2" />'
+						+ '<Custom className="child-3" text="child-3" key="child-3" />'
+						+ '</Custom>'
+					}
+				/>,
+			)
+
+			expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
+
+			expect(rendered.childNodes).toHaveLength(1)
+			expect(component.ParsedChildren).toHaveLength(1)
+
+			expect(component.ParsedChildren[0].props.className).toEqual('parent')
+			expect(component.ParsedChildren[0].props.text).toEqual('parent')
+			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
+
+			expect(component.ParsedChildren[0].props.children[0].props.className).toEqual('child-1')
+			expect(component.ParsedChildren[0].props.children[0].props.text).toEqual('child-1')
+			expect(component.ParsedChildren[0].props.children[0].key).toEqual('child-1')
+
+			expect(component.ParsedChildren[0].props.children[1].props.className).toEqual('child-2')
+			expect(component.ParsedChildren[0].props.children[1].props.text).toEqual('child-2')
+			expect(component.ParsedChildren[0].props.children[1].key).toBeTruthy()
+
+			expect(component.ParsedChildren[0].props.children[2].props.className).toEqual('child-3')
+			expect(component.ParsedChildren[0].props.children[2].props.text).toEqual('child-3')
+			expect(component.ParsedChildren[0].props.children[2].key).toEqual('child-3')
+		})
+
+		test('key generation respects disableKeyGeneration', () => {
+			const { component, rendered } = render(
+				<JsxParser
+					components={{ Custom }}
+					jsx={
+						'<Custom className="parent" text="parent">'
+						+ '<Custom className="child-1" text="child-1" key="child-1" />'
+						+ '<Custom className="child-2" text="child-2" />'
+						+ '</Custom>'
+					}
+					disableKeyGeneration
+				/>,
+			)
+
+			expect(rendered.classList.contains('jsx-parser')).toBeTruthy()
+
+			expect(rendered.childNodes).toHaveLength(1)
+			expect(component.ParsedChildren).toHaveLength(1)
+
+			expect(component.ParsedChildren[0].props.className).toEqual('parent')
+			expect(component.ParsedChildren[0].props.text).toEqual('parent')
+			expect(component.ParsedChildren[0].props.children).toHaveLength(2)
+
+			expect(component.ParsedChildren[0].props.children[0].props.className).toEqual('child-1')
+			expect(component.ParsedChildren[0].props.children[0].props.text).toEqual('child-1')
+			expect(component.ParsedChildren[0].props.children[0].key).toEqual('child-1')
+
+			expect(component.ParsedChildren[0].props.children[1].props.className).toEqual('child-2')
+			expect(component.ParsedChildren[0].props.children[1].props.text).toEqual('child-2')
+			expect(component.ParsedChildren[0].props.children[1].key).toBeFalsy()
+		})
+	})
 })
