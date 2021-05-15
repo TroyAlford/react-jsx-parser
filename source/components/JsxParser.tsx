@@ -305,8 +305,12 @@ export default class JsxParser extends React.Component<TProps> {
 		if (typeof props.style === 'string') {
 			props.style = parseStyle(props.style)
 		}
+		const lowerName = name.toLowerCase()
+		if (lowerName === 'option') {
+			children = children.props.children
+		}
 
-		return React.createElement(component || name.toLowerCase(), props, children)
+		return React.createElement(component || lowerName, props, children)
 	}
 
 	render = (): JSX.Element => {
