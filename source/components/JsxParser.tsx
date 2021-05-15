@@ -263,7 +263,9 @@ export default class JsxParser extends React.Component<TProps> {
 			} else if (children.length > 1 && !this.props.disableKeyGeneration) {
 				// Add `key` to any child that is a react element (by checking if it has `.type`) if one
 				// does not already exist.
-				children = children.map((child, key) => ((child && child.type) ? { ...child, key: child.key || key } : child))
+				children = children.map((child, key) => (
+					(child?.type && !child?.key) ? { ...child, key: child.key || key } : child
+				))
 			}
 		}
 

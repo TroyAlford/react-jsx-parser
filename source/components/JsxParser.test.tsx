@@ -1178,7 +1178,7 @@ describe('JsxParser Component', () => {
 
 			expect(rendered.childNodes).toHaveLength(1)
 			expect(component.ParsedChildren).toHaveLength(1)
-			
+
 			expect(component.ParsedChildren[0].props.className).toEqual('parent')
 			expect(component.ParsedChildren[0].props.text).toEqual('parent')
 			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
@@ -1214,7 +1214,7 @@ describe('JsxParser Component', () => {
 
 			expect(rendered.childNodes).toHaveLength(1)
 			expect(component.ParsedChildren).toHaveLength(1)
-			
+
 			expect(component.ParsedChildren[0].props.className).toEqual('parent')
 			expect(component.ParsedChildren[0].props.text).toEqual('parent')
 			expect(component.ParsedChildren[0].props.children).toHaveLength(2)
