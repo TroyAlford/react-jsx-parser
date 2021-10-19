@@ -1,0 +1,15 @@
+**/.circleci
+**/.eslintrc
+**/.gitignore
+**/.vscode
+**/jest
+**/jest.config.js
+**/node_modules
+**/test-coverage
+**/webpack.*.js
+**/yarn-error.log
+
+**/demo.*
+**/*.html
+**/*.test.js
+**/*.test.tsx

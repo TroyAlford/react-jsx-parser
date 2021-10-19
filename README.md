@@ -1,6 +1,6 @@
 # react-jsx-parser [![CircleCI][circle-ci-badge]](https://circleci.com/gh/TroyAlford/react-jsx-parser) [![Version][npm-version]][npm-link] [![NPM Downloads][npm-downloads]][npm-link] [![License][npm-license]](https://github.com/TroyAlford/react-jsx-parser/blob/master/LICENSE)
 
-[circle-ci-badge]: https://img.shields.io/circleci/project/github/TroyAlford/react-jsx-parser/master.svg
+[circle-ci-badge]: https://circleci.com/gh/TroyAlford/react-jsx-parser.svg?style=svg
 [npm-version]: https://img.shields.io/npm/v/react-jsx-parser.svg
 [npm-downloads]: https://img.shields.io/npm/dt/react-jsx-parser.svg
 [npm-license]: https://img.shields.io/npm/l/react-jsx-parser.svg
@@ -85,26 +85,57 @@ Any `ComponentA`, `ComponentB`, `ComponentC` or `ComponentD` tags in the dynamic
 
 _Note:_ Non-standard tags may throw errors and warnings, but will typically be rendered in a reasonable way.
 
+## Advanced Usage - HTML & Self-Closing Tags
+When rendering HTML, standards-adherent editors will render `img`, `hr`, `br`, and other
+[void elements](https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-elements) with no trailing `/>`. While this is valid HTML, it is _not_ valid JSX. If you wish to opt-in to a more HTML-like parsing style, set the `autoCloseVoidElements` prop to `true`.
+
+### Example:
+```jsx
+// <hr> has no closing tag, which is valid HTML, but not valid JSX
+<JsxParser jsx="<hr><div className='foo'>Foo</div>" />
+// Renders: null
+
+// <hr></hr> is invalid HTML, but valid JSX
+<JsxParser jsx="<hr></hr><div className='foo'>Foo</div>" />
+// Renders: <hr><div class='foo'>Foo</div>
+
+// This is valid HTML, and the `autoCloseVoidElements` prop allows it to render
+<JsxParser autoCloseVoidElements jsx="<hr><div className='foo'>Foo</div>" />
+// Renders: <hr><div class='foo'>Foo</div>
+
+// This would work in a browser, but will no longer parse with `autoCloseVoidElements`
+<JsxParser autoCloseVoidElements jsx="<hr></hr><div className='foo'>Foo</div>" />
+// Renders: null
+```
+
 ## PropTypes / Settings
 ```javascript
 JsxParser.defaultProps = {
-  // if false, unrecognized elements like <foo> are omitted and reported via onError
   allowUnknownElements: true, // by default, allow unrecognized elements
+  // if false, unrecognized elements like <foo> are omitted and reported via onError
+
+  autoCloseVoidElements: false, // by default, unclosed void elements will not parse. See examples
 
   bindings: {}, // by default, do not add any additional bindings
 
-  // by default, just removes `on*` attributes (onClick, onChange, etc.)
-  // values are used as a regex to match property names
-  blacklistedAttrs: [/^on.+/i],
+  blacklistedAttrs: [/^on.+/i], // default: removes `on*` attributes (onClick, onChange, etc.)
+  // any attribute name which matches any of these RegExps will be omitted entirely
 
-  // by default, removes all <script> tags
-  blacklistedTags:  ['script'],
+  blacklistedTags:  ['script'], // by default, removes all <script> tags
 
-  // an object map of component tag-names to their definitions - see above for examples
+  className: '', // space-delimited classes to add to wrapper (ignored if renderInWrapper=false)
+
+  components: {}, // an object map of component tag-names to their definitions - see above
   // components must extend React.Component, React.PureComponent, or be a Function
-  components: {},
 
   componentsOnly: false, // non-component HTML tags are allowed by default, omitted if true
+
+  disableFragments: false, // if true, React <Fragment />s will not be used.
+  // Note: This introduces subtle errors with regard to white-space, and is provided only for
+  // backward compatibility with React 15.x
+
+  disableKeyGeneration: false, // if true, rendering will not automatically generate `key` props.
+  // Note: This may result in the "Child elements should have a unique 'key' prop " React error.
 
   jsx: '', // the jsx string to be parsed & rendered
 
@@ -112,6 +143,17 @@ JsxParser.defaultProps = {
 
   showWarnings: false, // if true showWarnings, rendering errors are output with console.warn
 
+  renderError: undefined, // if specified, this function can be used to render errors as a fallback
+
   renderInWrapper: true, // if false, the HTML output will have no <div> wrapper
+
+  renderUnrecognized: tagName => null, // unrecognized tags are rendered via this method
 }
 ```
+
+## Older Browser Support
+
+If your application needs to support older browsers, like `IE11`, import from `react-jsx-parser/dist/es5/react-jsx-parser.min.js`,
+which transpiles the `acorn-jsx` dependency down to ES5, and also adds additional polyfill support for code used in this package.
+
+**Note**: <u>not</u> recommended for implementations which only support modern browsers, as the ES5 version is roughly 30% larger.

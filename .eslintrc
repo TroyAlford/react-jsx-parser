@@ -1,41 +1,40 @@
 {
-  "extends": "airbnb",
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "jest": true,
-    "node": true
-  },
-  "parser": "babel-eslint",
-  "rules": {
-    "comma-dangle": [
-      1,
-      "always-multiline"
-    ],
-    "key-spacing": [
-      "error",
-      {
-        "align": "value"
-      }
-    ],
-    "semi": [
-      "error",
-      "never"
-    ],
-    "import/no-unresolved": "off",
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [
-          ".js"
-        ]
-      }
-    ],
-    "react/no-unused-prop-types": [
-      1,
-      {
-        "skipShapeProps": true
-      }
-    ]
-  }
+	"extends": "airbnb",
+	"env": {
+		"browser": true,
+		"commonjs": true,
+		"jest": true,
+		"node": true
+	},
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint"],
+	"rules": {
+		"@typescript-eslint/no-use-before-define": "error",
+		"@typescript-eslint/no-unused-vars": "error",
+		"arrow-parens": ["error", "as-needed"],
+		"comma-dangle": ["error", "always-multiline"],
+		"default-case": "off",
+		"semi": ["error", "never"],
+		"import/extensions": ["error", { "js": "never", "scss": "always", "ts": "never" }],
+		"import/no-unresolved": "off",
+		"import/prefer-default-export": "off",
+		"indent": ["error", "tab"],
+		"lines-between-class-members": "off",
+		"no-case-declarations": "off",
+		"no-tabs": "off",
+		"no-use-before-define": "off",
+		"no-unused-vars": "off",
+		"object-curly-newline": ["error", { "ObjectPattern": { "multiline": true } }],
+		"operator-linebreak": "off",
+		"react/destructuring-assignment": "off",
+		"react/jsx-filename-extension": ["error", { "extensions": [".test.js", ".tsx"] }],
+		"react/jsx-indent": ["error", "tab"],
+		"react/jsx-indent-props": ["error", "tab"],
+		"react/jsx-one-expression-per-line": "off",
+		"react/jsx-props-no-spreading": "off",
+		"react/prefer-stateless-function": "off",
+		"react/prop-types": "off",
+		"react/static-property-placement": "off",
+		"spaced-comment": "off"
+	}
 }
