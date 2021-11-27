@@ -1239,42 +1239,75 @@ describe('JsxParser Component', () => {
 		})
 	})
 
-	it('supports arrow functions with nested jsx and implicit return', () => {
-		// see
-		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
-		// for acorn AST
-		const { html } = render(
-			<JsxParser
-				components={{ Custom }}
-				bindings={{ items: [1, 2] }}
-				jsx="{items.map(item => <Custom><p>{item}</p></Custom>)}"
-			/>,
-		)
-		expect(html).toMatch('<div class="jsx-parser"><div><p>1</p></div><div><p>2</p></div></div>')
-	})
+	describe('Functions', () => {
+		it('supports nested jsx inside arrow functions', () => {
+			// see
+			// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
+			// for acorn AST
+			const { html } = render(
+				<JsxParser
+					components={{ Custom }}
+					bindings={{ items: [1, 2] }}
+					jsx="{items.map(item => <Custom><p>{item}</p></Custom>)}"
+				/>,
+			)
+			expect(html).toMatch('<div class="jsx-parser"><div><p>1</p></div><div><p>2</p></div></div>')
+		})
 
-	it('supports JSX expressions inside arrow functions', () => {
-		const { html } = render(
-			<JsxParser
-				components={{ Custom }}
-				bindings={{ items: [{ name: 'Megeara', title: 'Fury' }] }}
-				jsx="{items.map(item => <Custom text={item.title}><p>{item.name}</p></Custom>)}"
-			/>,
-		)
-		expect(html).toMatch('<div class="jsx-parser"><div>Fury<p>Megeara</p></div></div>')
-	})
+		it('supports JSX expressions inside arrow functions', () => {
+			const { html } = render(
+				<JsxParser
+					components={{ Custom }}
+					bindings={{ items: [{ name: 'Megeara', title: 'Fury' }] }}
+					jsx="{items.map(item => <Custom text={item.title}><p>{item.name}</p></Custom>)}"
+				/>,
+			)
+			expect(html).toMatch('<div class="jsx-parser"><div>Fury<p>Megeara</p></div></div>')
+		})
 
-	it.skip('[NOT IMPLEMENTED: included for PR discussion] supports function expressions with nested jsx', () => {
-		// this doesn't work because we need to support
-		// ReturnStatement + BlockStatement
-		// in order to parse the contents
-		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/89e93afa68d5b813cbb5f286d32dd86f47b57b4b
-		const { html } = render(
-			<JsxParser
-				bindings={{ items: [1, 2] }}
-				jsx="{items.map(function (item) { return <p>{item}</p> })}"
-			/>,
-		)
-		expect(html).toMatch('<div class="jsx-parser"><p>1</p><p>2</p></div>')
+		it('passes attributes', () => {
+			const PropTest = (props: { booleanAttribute: boolean}) => <>{`val:${props.booleanAttribute}`}</>
+			const { html } = render(
+				<JsxParser
+					renderInWrapper={false}
+					components={{ PropTest }}
+					bindings={{ items: [
+						{ name: 'Megeara', friend: true },
+						{ name: 'Austerious', friend: false },
+					] }}
+					jsx="{items.map(item => <p><PropTest booleanAttribute={item.friend} /></p>)}"
+				/>,
+			)
+			expect(html).toEqual('<p>val:true</p><p>val:false</p>')
+		})
+
+		it('passes spread attributes', () => {
+			const PropTest = (props: any) => <>{JSON.stringify(props)}</>
+			const { html } = render(
+				<JsxParser
+					renderInWrapper={false}
+					components={{ PropTest }}
+					bindings={{ items: [
+						{ name: 'Megeara', friend: true },
+					] }}
+					jsx="{items.map(item => <PropTest {...item} />)}"
+				/>,
+			)
+			expect(html).toEqual('{"name":"Megeara","friend":true}')
+		})
+
+		it.skip('[NOT IMPLEMENTED: included for PR discussion] supports function expressions with nested jsx', () => {
+			// this doesn't work because we need to support
+			// ReturnStatement + BlockStatement
+			// in order to parse the contents
+			// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/89e93afa68d5b813cbb5f286d32dd86f47b57b4b
+			const { html } = render(
+				<JsxParser
+					bindings={{ items: [1, 2] }}
+					jsx="{items.map(function (item) { return <p>{item}</p> })}"
+				/>,
+			)
+			expect(html).toMatch('<div class="jsx-parser"><p>1</p><p>2</p></div>')
+		})
 	})
 })

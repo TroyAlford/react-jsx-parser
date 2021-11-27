@@ -308,7 +308,7 @@ export default class JsxParser extends React.Component<TProps> {
 					(expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier')
 					|| expr.argument!.type === 'MemberExpression'
 				) {
-					const value = this.#parseExpression(expr.argument!)
+					const value = this.#parseExpression(expr.argument!, scope)
 					if (typeof value === 'object') {
 						Object.keys(value).forEach(rawName => {
 							const attributeName: string = ATTRIBUTES[rawName] || rawName
