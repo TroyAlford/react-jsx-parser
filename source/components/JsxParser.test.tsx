@@ -1240,7 +1240,9 @@ describe('JsxParser Component', () => {
 	})
 
 	it('supports arrow functions with nested jsx and implicit return', () => {
+		// see
 		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
+		// for acorn AST
 		const { html } = render(
 			<JsxParser
 				components={{ Custom }}
@@ -1251,16 +1253,15 @@ describe('JsxParser Component', () => {
 		expect(html).toMatch('<div class="jsx-parser"><div><p>1</p></div><div><p>2</p></div></div>')
 	})
 
-	it.skip('[TODO] supports arrow functions passed objects with nested jsx and implicit return', () => {
-		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
+	it('supports JSX expressions inside arrow functions', () => {
 		const { html } = render(
 			<JsxParser
-				components={{ Custom}}
-				bindings={{ items: [{ name: 'bob'}] }}
-				jsx="{items.map(item => <Custom text={item.name}><p>{item.name}</p></Custom>)}"
+				components={{ Custom }}
+				bindings={{ items: [{ name: 'Megeara', title: 'Fury' }] }}
+				jsx="{items.map(item => <Custom text={item.title}><p>{item.name}</p></Custom>)}"
 			/>,
 		)
-		expect(html).toMatch('<div class="jsx-parser"><div><p>bob</p></div></div>')
+		expect(html).toMatch('<div class="jsx-parser"><div>Fury<p>Megeara</p></div></div>')
 	})
 
 	it.skip('[NOT IMPLEMENTED: included for PR discussion] supports function expressions with nested jsx', () => {

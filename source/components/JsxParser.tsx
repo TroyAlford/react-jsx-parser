@@ -298,7 +298,7 @@ export default class JsxParser extends React.Component<TProps> {
 					const rawName = expr.name.name
 					const attributeName = ATTRIBUTES[rawName] || rawName
 					// if the value is null, this is an implicitly "true" prop, such as readOnly
-					const value = this.#parseExpression(expr)
+					const value = this.#parseExpression(expr, scope)
 
 					const matches = blacklistedAttrs.filter(re => re.test(attributeName))
 					if (matches.length === 0) {
