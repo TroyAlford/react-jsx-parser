@@ -1238,4 +1238,42 @@ describe('JsxParser Component', () => {
 			expect(component.ParsedChildren[0].props.children[1].key).toBeFalsy()
 		})
 	})
+
+	it('supports arrow functions with nested jsx and implicit return', () => {
+		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
+		const { html } = render(
+			<JsxParser
+				components={{ Custom }}
+				bindings={{ items: [1, 2] }}
+				jsx="{items.map(item => <Custom><p>{item}</p></Custom>)}"
+			/>,
+		)
+		expect(html).toMatch('<div class="jsx-parser"><div><p>1</p></div><div><p>2</p></div></div>')
+	})
+
+	it.skip('[TODO] supports arrow functions passed objects with nested jsx and implicit return', () => {
+		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
+		const { html } = render(
+			<JsxParser
+				components={{ Custom}}
+				bindings={{ items: [{ name: 'bob'}] }}
+				jsx="{items.map(item => <Custom text={item.name}><p>{item.name}</p></Custom>)}"
+			/>,
+		)
+		expect(html).toMatch('<div class="jsx-parser"><div><p>bob</p></div></div>')
+	})
+
+	it.skip('[NOT IMPLEMENTED: included for PR discussion] supports function expressions with nested jsx', () => {
+		// this doesn't work because we need to support
+		// ReturnStatement + BlockStatement
+		// in order to parse the contents
+		// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/89e93afa68d5b813cbb5f286d32dd86f47b57b4b
+		const { html } = render(
+			<JsxParser
+				bindings={{ items: [1, 2] }}
+				jsx="{items.map(function (item) { return <p>{item}</p> })}"
+			/>,
+		)
+		expect(html).toMatch('<div class="jsx-parser"><p>1</p><p>2</p></div>')
+	})
 })

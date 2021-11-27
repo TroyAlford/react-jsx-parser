@@ -28,6 +28,7 @@ export type TProps = {
 	renderInWrapper?: boolean,
 	renderUnrecognized?: (tagName: string) => JSX.Element | null,
 }
+type Scope = Record<string, any>
 
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
@@ -73,26 +74,26 @@ export default class JsxParser extends React.Component<TProps> {
 			return null
 		}
 
-		return parsed.map(this.#parseExpression).filter(Boolean)
+		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 	}
 
-	#parseExpression = (expression: AcornJSX.Expression): any => {
+	#parseExpression = (expression: AcornJSX.Expression, scope?: Scope): any => {
 		switch (expression.type) {
 		case 'JSXAttribute':
 			if (expression.value === null) return true
-			return this.#parseExpression(expression.value)
+			return this.#parseExpression(expression.value, scope)
 		case 'JSXElement':
 		case 'JSXFragment':
-			return this.#parseElement(expression)
+			return this.#parseElement(expression, scope)
 		case 'JSXExpressionContainer':
-			return this.#parseExpression(expression.expression)
+			return this.#parseExpression(expression.expression, scope)
 		case 'JSXText':
 			const key = this.props.disableKeyGeneration ? undefined : randomHash()
 			return this.props.disableFragments
 				? expression.value
 				: <Fragment key={key}>{expression.value}</Fragment>
 		case 'ArrayExpression':
-			return expression.elements.map(this.#parseExpression) as ParsedTree
+			return expression.elements.map(ele => this.#parseExpression(ele, scope)) as ParsedTree
 		case 'BinaryExpression':
 			/* eslint-disable eqeqeq,max-len */
 			switch (expression.operator) {
@@ -119,7 +120,9 @@ export default class JsxParser extends React.Component<TProps> {
 				this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
 				return undefined
 			}
-			return parsedCallee(...expression.arguments.map(this.#parseExpression))
+			return parsedCallee(...expression.arguments.map(
+				arg => this.#parseExpression(arg, expression.callee),
+			))
 		case 'ConditionalExpression':
 			return this.#parseExpression(expression.test)
 				? this.#parseExpression(expression.consequent)
@@ -127,7 +130,11 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'ExpressionStatement':
 			return this.#parseExpression(expression.expression)
 		case 'Identifier':
+			if (scope?.[expression.name]) {
+				return scope?.[expression.name]
+			}
 			return (this.props.bindings || {})[expression.name]
+
 		case 'Literal':
 			return expression.value
 		case 'LogicalExpression':
@@ -138,7 +145,7 @@ export default class JsxParser extends React.Component<TProps> {
 			}
 			return false
 		case 'MemberExpression':
-			return this.#parseMemberExpression(expression)
+			return this.#parseMemberExpression(expression, scope)
 		case 'ObjectExpression':
 			const object: Record<string, any> = {}
 			expression.properties.forEach(prop => {
@@ -153,7 +160,7 @@ export default class JsxParser extends React.Component<TProps> {
 					if (a.start < b.start) return -1
 					return 1
 				})
-				.map(this.#parseExpression)
+				.map(item => this.#parseExpression(item))
 				.join('')
 		case 'UnaryExpression':
 			switch (expression.operator) {
@@ -162,10 +169,22 @@ export default class JsxParser extends React.Component<TProps> {
 			case '!': return !expression.argument.value
 			}
 			return undefined
+		case 'ArrowFunctionExpression':
+		case 'FunctionExpression':
+			if (expression.async || expression.generator) {
+				this.props.onError?.(new Error('Async and generator arrow functions are not supported.'))
+			}
+			return (...args: any[]) : any => {
+				const functionScope: Record<string, any> = {}
+				expression.params.forEach((param, idx) => {
+					functionScope[param.name] = args[idx]
+				})
+				return this.#parseExpression(expression.body, functionScope)
+			}
 		}
 	}
 
-	#parseMemberExpression = (expression: AcornJSX.MemberExpression): any => {
+	#parseMemberExpression = (expression: AcornJSX.MemberExpression, scope?: Scope): any => {
 		// eslint-disable-next-line prefer-destructuring
 		let { object } = expression
 		const path = [expression.property?.name ?? JSON.parse(expression.property?.raw ?? '""')]
@@ -174,7 +193,7 @@ export default class JsxParser extends React.Component<TProps> {
 			while (object && ['MemberExpression', 'Literal'].includes(object?.type)) {
 				const { property } = (object as AcornJSX.MemberExpression)
 				if ((object as AcornJSX.MemberExpression).computed) {
-					path.unshift(this.#parseExpression(property!))
+					path.unshift(this.#parseExpression(property!, scope))
 				} else {
 					path.unshift(property?.name ?? JSON.parse(property?.raw ?? '""'))
 				}
@@ -183,7 +202,7 @@ export default class JsxParser extends React.Component<TProps> {
 			}
 		}
 
-		const target = this.#parseExpression(object)
+		const target = this.#parseExpression(object, scope)
 		try {
 			let parent = target
 			const member = path.reduce((value, next) => {
@@ -206,6 +225,7 @@ export default class JsxParser extends React.Component<TProps> {
 
 	#parseElement = (
 		element: AcornJSX.JSXElement | AcornJSX.JSXFragment,
+		scope?: Scope,
 	): JSX.Element | JSX.Element[] | null => {
 		const { allowUnknownElements, components, componentsOnly, onError } = this.props
 		const { children: childNodes = [] } = element
@@ -223,7 +243,7 @@ export default class JsxParser extends React.Component<TProps> {
 			.map(tag => tag.trim().toLowerCase()).filter(Boolean)
 
 		if (/^(html|head|body)$/i.test(name)) {
-			return childNodes.map(c => this.#parseElement(c)) as JSX.Element[]
+			return childNodes.map(c => this.#parseElement(c, scope)) as JSX.Element[]
 		}
 		const tagName = name.trim().toLowerCase()
 		if (blacklistedTags.indexOf(tagName) !== -1) {
@@ -249,7 +269,7 @@ export default class JsxParser extends React.Component<TProps> {
 			: Fragment
 
 		if (component || canHaveChildren(name)) {
-			children = childNodes.map(this.#parseExpression)
+			children = childNodes.map(node => this.#parseExpression(node, scope))
 			if (!component && !canHaveWhitespace(name)) {
 				children = children.filter(child => (
 					typeof child !== 'string' || !/^\s*$/.test(child)
