@@ -130,8 +130,8 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'ExpressionStatement':
 			return this.#parseExpression(expression.expression)
 		case 'Identifier':
-			if (scope?.[expression.name]) {
-				return scope?.[expression.name]
+			if (scope && expression.name in scope) {
+				return scope[expression.name]
 			}
 			return (this.props.bindings || {})[expression.name]
 
