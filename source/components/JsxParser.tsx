@@ -170,7 +170,6 @@ export default class JsxParser extends React.Component<TProps> {
 			}
 			return undefined
 		case 'ArrowFunctionExpression':
-		case 'FunctionExpression':
 			if (expression.async || expression.generator) {
 				this.props.onError?.(new Error('Async and generator arrow functions are not supported.'))
 			}

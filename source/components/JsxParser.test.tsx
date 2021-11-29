@@ -1300,7 +1300,7 @@ describe('JsxParser Component', () => {
 		})
 
 		it('supports render props', () => {
-			const fakeData = { name: 'from-container'}
+			const fakeData = { name: 'from-container' }
 			const RenderPropContainer = (props: any) => props.children(fakeData)
 			const { html } = render(
 				<JsxParser
