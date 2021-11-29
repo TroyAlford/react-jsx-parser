@@ -1267,7 +1267,7 @@ describe('JsxParser Component', () => {
 
 		it('passes attributes', () => {
 			const PropTest = (props: { booleanAttribute: boolean}) => <>{`val:${props.booleanAttribute}`}</>
-			const { html } = render(
+			const { html, component } = render(
 				<JsxParser
 					renderInWrapper={false}
 					components={{ PropTest }}
@@ -1279,6 +1279,9 @@ describe('JsxParser Component', () => {
 				/>,
 			)
 			expect(html).toEqual('<p>val:true</p><p>val:false</p>')
+			expect(component.ParsedChildren?.[0]).toHaveLength(2)
+			expect(component.ParsedChildren[0][0].props.children.props.booleanAttribute).toEqual(true)
+			expect(component.ParsedChildren[0][1].props.children.props.booleanAttribute).toEqual(false)
 		})
 
 		it('passes spread attributes', () => {
@@ -1296,18 +1299,17 @@ describe('JsxParser Component', () => {
 			expect(html).toEqual('{"name":"Megeara","friend":true}')
 		})
 
-		it.skip('[NOT IMPLEMENTED: included for PR discussion] supports function expressions with nested jsx', () => {
-			// this doesn't work because we need to support
-			// ReturnStatement + BlockStatement
-			// in order to parse the contents
-			// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/89e93afa68d5b813cbb5f286d32dd86f47b57b4b
+		it('supports render props', () => {
+			const fakeData = { name: 'from-container'}
+			const RenderPropContainer = (props: any) => props.children(fakeData)
 			const { html } = render(
 				<JsxParser
-					bindings={{ items: [1, 2] }}
-					jsx="{items.map(function (item) { return <p>{item}</p> })}"
+					renderInWrapper={false}
+					components={{ PropTest: RenderPropContainer }}
+					jsx="{<PropTest>{(data) => <p>{data.name}</p>}</PropTest>}"
 				/>,
 			)
-			expect(html).toMatch('<div class="jsx-parser"><p>1</p><p>2</p></div>')
+			expect(html).toEqual('<p>from-container</p>')
 		})
 	})
 })
