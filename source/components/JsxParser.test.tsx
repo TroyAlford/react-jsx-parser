@@ -1238,4 +1238,78 @@ describe('JsxParser Component', () => {
 			expect(component.ParsedChildren[0].props.children[1].key).toBeFalsy()
 		})
 	})
+
+	describe('Functions', () => {
+		it('supports nested jsx inside arrow functions', () => {
+			// see
+			// https://astexplorer.net/#/gist/fc48b12b8410a4ef779e0477a644bb06/cdbfc8b929b31e11e577dceb88e3a1ee9343f68e
+			// for acorn AST
+			const { html } = render(
+				<JsxParser
+					components={{ Custom }}
+					bindings={{ items: [1, 2] }}
+					jsx="{items.map(item => <Custom><p>{item}</p></Custom>)}"
+				/>,
+			)
+			expect(html).toMatch('<div class="jsx-parser"><div><p>1</p></div><div><p>2</p></div></div>')
+		})
+
+		it('supports JSX expressions inside arrow functions', () => {
+			const { html } = render(
+				<JsxParser
+					components={{ Custom }}
+					bindings={{ items: [{ name: 'Megeara', title: 'Fury' }] }}
+					jsx="{items.map(item => <Custom text={item.title}><p>{item.name}</p></Custom>)}"
+				/>,
+			)
+			expect(html).toMatch('<div class="jsx-parser"><div>Fury<p>Megeara</p></div></div>')
+		})
+
+		it('passes attributes', () => {
+			const PropTest = (props: { booleanAttribute: boolean}) => <>{`val:${props.booleanAttribute}`}</>
+			const { html, component } = render(
+				<JsxParser
+					renderInWrapper={false}
+					components={{ PropTest }}
+					bindings={{ items: [
+						{ name: 'Megeara', friend: true },
+						{ name: 'Austerious', friend: false },
+					] }}
+					jsx="{items.map(item => <p><PropTest booleanAttribute={item.friend} /></p>)}"
+				/>,
+			)
+			expect(html).toEqual('<p>val:true</p><p>val:false</p>')
+			expect(component.ParsedChildren?.[0]).toHaveLength(2)
+			expect(component.ParsedChildren[0][0].props.children.props.booleanAttribute).toEqual(true)
+			expect(component.ParsedChildren[0][1].props.children.props.booleanAttribute).toEqual(false)
+		})
+
+		it('passes spread attributes', () => {
+			const PropTest = (props: any) => <>{JSON.stringify(props)}</>
+			const { html } = render(
+				<JsxParser
+					renderInWrapper={false}
+					components={{ PropTest }}
+					bindings={{ items: [
+						{ name: 'Megeara', friend: true },
+					] }}
+					jsx="{items.map(item => <PropTest {...item} />)}"
+				/>,
+			)
+			expect(html).toEqual('{"name":"Megeara","friend":true}')
+		})
+
+		it('supports render props', () => {
+			const fakeData = { name: 'from-container' }
+			const RenderPropContainer = (props: any) => props.children(fakeData)
+			const { html } = render(
+				<JsxParser
+					renderInWrapper={false}
+					components={{ PropTest: RenderPropContainer }}
+					jsx="{<PropTest>{(data) => <p>{data.name}</p>}</PropTest>}"
+				/>,
+			)
+			expect(html).toEqual('<p>from-container</p>')
+		})
+	})
 })

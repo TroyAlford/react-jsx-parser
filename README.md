@@ -32,6 +32,7 @@ const MyComponent = () => (
       <h1>Header</h1>
       <InjectableComponent eventHandler={myEventHandler} truthyProp />
       <Library.SomeComponent someProp={foo} calc={1 + 1} stringProp="foo" />
+      <Library.DataFetcher>((data) => <div>{data.name}</div>)</Library.DataFetcher>
     `}
   />
 )
@@ -46,10 +47,12 @@ Finally, a note about property bindings. The `JsxParser` can handle several type
  - string-value binding, such as `stringProp="foo"`
  - expression-binding, such as `calc={1 + 1}`
  - named-value binding, such as `eventHandler={myEventHandler}` (note that this requires a match in `bindings`)
+ - simple [single statement arrow expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#basic_syntax) `(item) => <p>{item.name}</p>`
 
 The component **_does not_** support inline function declarations, such as:
  - `onClick={function (event) { /* do stuff */ }}`, or
  - `onKeyPress={event => { /* do stuff */}}`
+ - Function or arrow functions with bodies `() => { return <p>This will not work</p> }`
 
 This is to prevent inadvertent XSS attack vectors. Since the primary use of this component is to allow JSX to be stored server-side, and then late-interpreted at the client-side, this restriction prevents a malicious user from stealing info by executing a situation like:
 ```javascript
