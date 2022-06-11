@@ -262,7 +262,7 @@ describe('JsxParser Component', () => {
 			const { component, rendered } = render(
 				<JsxParser
 					components={{ Custom }}
-					bindings={{ first, second }}
+					bindings={{ first, second, third }}
 					jsx={
 						'<Custom'
 						+ ' {...first}'

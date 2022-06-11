@@ -8,6 +8,7 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
+type ObjectExpression = AcornJSX.ObjectExpression
 type ParsedJSX = JSX.Element | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
@@ -77,7 +78,7 @@ export default class JsxParser extends React.Component<TProps> {
 		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 	}
 
-	#sanitizeObjectExpression = (expression: AcornJSX.ObjectExpression): AcornJSX.ObjectExpression | null => {
+	#sanitizeObjectExpression = (expression: ObjectExpression): ObjectExpression | null => {
 		const sanitizedExpression = { ...expression }
 		const deniedValueTypes = ['FunctionExpression', 'ArrowFunctionExpression']
 		const filteredProps = expression.properties.filter(prop => (
@@ -168,8 +169,8 @@ export default class JsxParser extends React.Component<TProps> {
 			sanitizedExpression.properties.forEach(prop => {
 				if (prop.type === 'SpreadElement') {
 					const result = this.#parseExpression(prop.argument)
-					Object.entries(result).forEach(([key, value]) => {
-						object[key] = value
+					Object.entries(result).forEach(([propName, propValue]) => {
+						object[propName] = propValue
 					})
 				} else {
 					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
