@@ -256,6 +256,9 @@ describe('JsxParser Component', () => {
 					text: 'Test Text',
 				},
 			}
+			const third = {
+				text: 'Will Also Spread',
+			}
 			const { component, rendered } = render(
 				<JsxParser
 					components={{ Custom }}
@@ -266,6 +269,8 @@ describe('JsxParser Component', () => {
 						+ ' {...second.innerProps}'
 						+ " {...{ willNotSpread: () => { return 'Will Not Spread' } }}"
 						+ " {...{ willSpread: 'Will Spread' }}"
+						+ ' alsoWillSpread={{ ...third }}'
+						+ ' willSpreadButBeEmpty={{ ...({ maliciousFunction: () => "Will Not Spread" }) }}'
 						+ ' />'
 					}
 				/>,
@@ -280,8 +285,10 @@ describe('JsxParser Component', () => {
 			expect(custom instanceof Custom)
 			expect(custom.props.className).toEqual('blah')
 			expect(custom.props.text).toEqual('Test Text')
-			expect(custom.props.willSpread).not.toHaveProperty('Will Spread')
+			expect(custom.props.willSpread).toEqual('Will Spread')
+			expect(custom.props.alsoWillSpread.text).toEqual('Will Also Spread')
 			expect(custom.props).not.toHaveProperty('willNotSpread')
+			expect(custom.props.willSpreadButBeEmpty).not.toHaveProperty('maliciousFunction')
 
 			const customNode = rendered.childNodes[0]
 			expect(customNode.nodeName).toEqual('DIV')

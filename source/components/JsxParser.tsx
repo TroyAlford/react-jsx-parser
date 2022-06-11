@@ -77,6 +77,19 @@ export default class JsxParser extends React.Component<TProps> {
 		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 	}
 
+	#sanitizeObjectExpression = (expression: AcornJSX.ObjectExpression): AcornJSX.ObjectExpression | null => {
+		const sanitizedExpression = { ...expression }
+		const deniedValueTypes = ['FunctionExpression', 'ArrowFunctionExpression']
+		const filteredProps = expression.properties.filter(prop => (
+			prop.value == null || !deniedValueTypes.includes(prop.value.type)
+		))
+		if (filteredProps.length === 0) {
+			return null
+		}
+		sanitizedExpression.properties = filteredProps as typeof expression.properties
+		return sanitizedExpression
+	}
+
 	#parseExpression = (expression: AcornJSX.Expression, scope?: Scope): any => {
 		switch (expression.type) {
 		case 'JSXAttribute':
@@ -148,8 +161,19 @@ export default class JsxParser extends React.Component<TProps> {
 			return this.#parseMemberExpression(expression, scope)
 		case 'ObjectExpression':
 			const object: Record<string, any> = {}
-			expression.properties.forEach(prop => {
-				object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
+			const sanitizedExpression = this.#sanitizeObjectExpression(expression)
+			if (!sanitizedExpression) {
+				return object
+			}
+			sanitizedExpression.properties.forEach(prop => {
+				if (prop.type === 'SpreadElement') {
+					const result = this.#parseExpression(prop.argument)
+					Object.entries(result).forEach(([key, value]) => {
+						object[key] = value
+					})
+				} else {
+					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
+				}
 			})
 			return object
 		case 'TemplateElement':
@@ -309,17 +333,14 @@ export default class JsxParser extends React.Component<TProps> {
 					|| expr.argument!.type === 'ObjectExpression'
 				) {
 					const allowableSpreadTypes = ['Identifier', 'MemberExpression', 'ObjectExpression']
-					const spreadExpr = expr.argument!
+					let spreadExpr = expr.argument!
 					if (allowableSpreadTypes.includes(spreadExpr.type)) {
 						if (spreadExpr.type === 'ObjectExpression') {
-							const deniedValueTypes = ['FunctionExpression', 'ArrowFunctionExpression']
-							const filteredProps = spreadExpr.properties.filter(prop => (
-								!deniedValueTypes.includes(prop.value.type)
-							))
-							if (filteredProps.length === 0) {
+							const sanitizedExpression = this.#sanitizeObjectExpression(spreadExpr)
+							if (!sanitizedExpression) {
 								return
 							}
-							spreadExpr.properties = filteredProps as typeof spreadExpr.properties
+							spreadExpr = sanitizedExpression
 						}
 						const value = this.#parseExpression(spreadExpr, scope)
 						if (typeof value === 'object') {
