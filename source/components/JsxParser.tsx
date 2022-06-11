@@ -306,16 +306,31 @@ export default class JsxParser extends React.Component<TProps> {
 				} else if (
 					(expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier')
 					|| expr.argument!.type === 'MemberExpression'
+					|| expr.argument!.type === 'ObjectExpression'
 				) {
-					const value = this.#parseExpression(expr.argument!, scope)
-					if (typeof value === 'object') {
-						Object.keys(value).forEach(rawName => {
-							const attributeName: string = ATTRIBUTES[rawName] || rawName
-							const matches = blacklistedAttrs.filter(re => re.test(attributeName))
-							if (matches.length === 0) {
-								props[attributeName] = value[rawName]
+					const allowableSpreadTypes = ['Identifier', 'MemberExpression', 'ObjectExpression']
+					const spreadExpr = expr.argument!
+					if (allowableSpreadTypes.includes(spreadExpr.type)) {
+						if (spreadExpr.type === 'ObjectExpression') {
+							const deniedValueTypes = ['FunctionExpression', 'ArrowFunctionExpression']
+							const filteredProps = spreadExpr.properties.filter(prop => (
+								!deniedValueTypes.includes(prop.value.type)
+							))
+							if (filteredProps.length === 0) {
+								return
 							}
-						})
+							spreadExpr.properties = filteredProps as typeof spreadExpr.properties
+						}
+						const value = this.#parseExpression(spreadExpr, scope)
+						if (typeof value === 'object') {
+							Object.keys(value).forEach(rawName => {
+								const attributeName: string = ATTRIBUTES[rawName] || rawName
+								const matches = blacklistedAttrs.filter(re => re.test(attributeName))
+								if (matches.length === 0) {
+									props[attributeName] = value[rawName]
+								}
+							})
+						}
 					}
 				}
 			},
