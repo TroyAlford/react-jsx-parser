@@ -256,11 +256,23 @@ describe('JsxParser Component', () => {
 					text: 'Test Text',
 				},
 			}
+			const third = {
+				text: 'Will Also Spread',
+			}
 			const { component, rendered } = render(
 				<JsxParser
 					components={{ Custom }}
-					bindings={{ first, second }}
-					jsx="<Custom {...first} {...second.innerProps} {...{ text: 'Will Not Spread' }} />"
+					bindings={{ first, second, third }}
+					jsx={
+						'<Custom'
+						+ ' {...first}'
+						+ ' {...second.innerProps}'
+						+ " {...{ willNotSpread: function() { return 'Will Not Spread' } }}"
+						+ " {...{ willSpread: 'Will Spread' }}"
+						+ ' alsoWillSpread={{ ...third }}'
+						+ ' willSpreadButBeEmpty={{ ...({ maliciousFunction: function() { return "Will Not Spread" }}) }}'
+						+ ' />'
+					}
 				/>,
 			)
 
@@ -273,13 +285,16 @@ describe('JsxParser Component', () => {
 			expect(custom instanceof Custom)
 			expect(custom.props.className).toEqual('blah')
 			expect(custom.props.text).toEqual('Test Text')
+			expect(custom.props.willSpread).toEqual('Will Spread')
+			expect(custom.props.alsoWillSpread.text).toEqual('Will Also Spread')
+			expect(custom.props).not.toHaveProperty('willNotSpread')
+			expect(custom.props.willSpreadButBeEmpty).not.toHaveProperty('maliciousFunction')
 
 			const customNode = rendered.childNodes[0]
 			expect(customNode.nodeName).toEqual('DIV')
 			expect(customNode.textContent).toEqual('Test Text')
 			const customHTML = rendered.childNodes[0].innerHTML
 			expect(customHTML).not.toMatch(/Will Be Overwritten/)
-			expect(customHTML).not.toMatch(/Will Not Spread/)
 		})
 		test('renders custom components with nesting', () => {
 			const { component, rendered } = render(

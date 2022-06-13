@@ -8,6 +8,9 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
+type ObjectExpression = AcornJSX.ObjectExpression
+type ObjectExpressionNode = AcornJSX.ObjectExpressionNode
+type ObjectExpressionSpreadElement = AcornJSX.ObjectExpressionSpreadElement
 type ParsedJSX = JSX.Element | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
@@ -29,6 +32,10 @@ export type TProps = {
 	renderUnrecognized?: (tagName: string) => JSX.Element | null,
 }
 type Scope = Record<string, any>
+
+function isSpreadElement(node: ObjectExpressionNode): node is ObjectExpressionSpreadElement {
+	return (node as ObjectExpressionSpreadElement).type === 'SpreadElement'
+}
 
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
@@ -75,6 +82,19 @@ export default class JsxParser extends React.Component<TProps> {
 		}
 
 		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
+	}
+
+	#sanitizeObjectExpression = (expression: ObjectExpression): ObjectExpression | null => {
+		const sanitizedExpression = { ...expression }
+		const deniedValueTypes = ['FunctionExpression']
+		const filteredProps = expression.properties.filter(prop => (
+			prop.value == null || !deniedValueTypes.includes(prop.value.type)
+		))
+		if (filteredProps.length === 0) {
+			return null
+		}
+		sanitizedExpression.properties = filteredProps as typeof expression.properties
+		return sanitizedExpression
 	}
 
 	#parseExpression = (expression: AcornJSX.Expression, scope?: Scope): any => {
@@ -148,8 +168,19 @@ export default class JsxParser extends React.Component<TProps> {
 			return this.#parseMemberExpression(expression, scope)
 		case 'ObjectExpression':
 			const object: Record<string, any> = {}
-			expression.properties.forEach(prop => {
-				object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
+			const sanitizedExpression = this.#sanitizeObjectExpression(expression)
+			if (!sanitizedExpression) {
+				return object
+			}
+			sanitizedExpression.properties.forEach(prop => {
+				if (isSpreadElement(prop)) {
+					const result = this.#parseExpression(prop.argument)
+					Object.entries(result).forEach(([propName, propValue]) => {
+						object[propName] = propValue
+					})
+				} else {
+					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
+				}
 			})
 			return object
 		case 'TemplateElement':
@@ -306,16 +337,28 @@ export default class JsxParser extends React.Component<TProps> {
 				} else if (
 					(expr.type === 'JSXSpreadAttribute' && expr.argument.type === 'Identifier')
 					|| expr.argument!.type === 'MemberExpression'
+					|| expr.argument!.type === 'ObjectExpression'
 				) {
-					const value = this.#parseExpression(expr.argument!, scope)
-					if (typeof value === 'object') {
-						Object.keys(value).forEach(rawName => {
-							const attributeName: string = ATTRIBUTES[rawName] || rawName
-							const matches = blacklistedAttrs.filter(re => re.test(attributeName))
-							if (matches.length === 0) {
-								props[attributeName] = value[rawName]
+					const allowableSpreadTypes = ['Identifier', 'MemberExpression', 'ObjectExpression']
+					let spreadExpr = expr.argument!
+					if (allowableSpreadTypes.includes(spreadExpr.type)) {
+						if (spreadExpr.type === 'ObjectExpression') {
+							const sanitizedExpression = this.#sanitizeObjectExpression(spreadExpr)
+							if (!sanitizedExpression) {
+								return
 							}
-						})
+							spreadExpr = sanitizedExpression
+						}
+						const value = this.#parseExpression(spreadExpr, scope)
+						if (typeof value === 'object') {
+							Object.keys(value).forEach(rawName => {
+								const attributeName: string = ATTRIBUTES[rawName] || rawName
+								const matches = blacklistedAttrs.filter(re => re.test(attributeName))
+								if (matches.length === 0) {
+									props[attributeName] = value[rawName]
+								}
+							})
+						}
 					}
 				}
 			},
