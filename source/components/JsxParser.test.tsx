@@ -267,10 +267,10 @@ describe('JsxParser Component', () => {
 						'<Custom'
 						+ ' {...first}'
 						+ ' {...second.innerProps}'
-						+ " {...{ willNotSpread: () => { return 'Will Not Spread' } }}"
+						+ " {...{ willNotSpread: function() { return 'Will Not Spread' } }}"
 						+ " {...{ willSpread: 'Will Spread' }}"
 						+ ' alsoWillSpread={{ ...third }}'
-						+ ' willSpreadButBeEmpty={{ ...({ maliciousFunction: () => "Will Not Spread" }) }}'
+						+ ' willSpreadButBeEmpty={{ ...({ maliciousFunction: function() { return "Will Not Spread" }}) }}'
 						+ ' />'
 					}
 				/>,

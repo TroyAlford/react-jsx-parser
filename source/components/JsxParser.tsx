@@ -86,7 +86,7 @@ export default class JsxParser extends React.Component<TProps> {
 
 	#sanitizeObjectExpression = (expression: ObjectExpression): ObjectExpression | null => {
 		const sanitizedExpression = { ...expression }
-		const deniedValueTypes = ['FunctionExpression', 'ArrowFunctionExpression']
+		const deniedValueTypes = ['FunctionExpression']
 		const filteredProps = expression.properties.filter(prop => (
 			prop.value == null || !deniedValueTypes.includes(prop.value.type)
 		))
