@@ -9,6 +9,8 @@ import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
 type ObjectExpression = AcornJSX.ObjectExpression
+type ObjectExpressionNode = AcornJSX.ObjectExpressionNode
+type ObjectExpressionSpreadElement = AcornJSX.ObjectExpressionSpreadElement
 type ParsedJSX = JSX.Element | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
@@ -30,6 +32,10 @@ export type TProps = {
 	renderUnrecognized?: (tagName: string) => JSX.Element | null,
 }
 type Scope = Record<string, any>
+
+function isSpreadElement(node: ObjectExpressionNode): node is ObjectExpressionSpreadElement {
+	return (node as ObjectExpressionSpreadElement).type === 'SpreadElement'
+}
 
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
@@ -167,7 +173,7 @@ export default class JsxParser extends React.Component<TProps> {
 				return object
 			}
 			sanitizedExpression.properties.forEach(prop => {
-				if (prop.type === 'SpreadElement') {
+				if (isSpreadElement(prop)) {
 					const result = this.#parseExpression(prop.argument)
 					Object.entries(result).forEach(([propName, propValue]) => {
 						object[propName] = propValue
