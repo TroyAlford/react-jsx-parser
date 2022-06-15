@@ -947,6 +947,25 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].textContent).toEqual('Nope')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
+		test('will pass along bindings in arrow function operations', () => {
+			const { component } = render(
+				<JsxParser
+					bindings={{
+						list: [1, 2, 3, 4],
+					}}
+					renderInWrapper={false}
+					jsx={
+						'<ul>'
+						+ '{list.filter(item => item % 2 === 0).map(evenItem => ('
+						+ '<li key={evenItem}>{evenItem}</li>'
+						+ '))}'
+						+ '</ul>'
+					}
+				/>,
+			)
+			expect(component.ParsedChildren).toHaveLength(1)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(2)
+		})
 		test('will render options', () => {
 			window.foo = jest.fn(() => true)
 			const wrapper = mount(

@@ -97,20 +97,20 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'BinaryExpression':
 			/* eslint-disable eqeqeq,max-len */
 			switch (expression.operator) {
-			case '-': return this.#parseExpression(expression.left) - this.#parseExpression(expression.right)
-			case '!=': return this.#parseExpression(expression.left) != this.#parseExpression(expression.right)
-			case '!==': return this.#parseExpression(expression.left) !== this.#parseExpression(expression.right)
-			case '*': return this.#parseExpression(expression.left) * this.#parseExpression(expression.right)
-			case '**': return this.#parseExpression(expression.left) ** this.#parseExpression(expression.right)
-			case '/': return this.#parseExpression(expression.left) / this.#parseExpression(expression.right)
-			case '%': return this.#parseExpression(expression.left) % this.#parseExpression(expression.right)
-			case '+': return this.#parseExpression(expression.left) + this.#parseExpression(expression.right)
-			case '<': return this.#parseExpression(expression.left) < this.#parseExpression(expression.right)
-			case '<=': return this.#parseExpression(expression.left) <= this.#parseExpression(expression.right)
-			case '==': return this.#parseExpression(expression.left) == this.#parseExpression(expression.right)
-			case '===': return this.#parseExpression(expression.left) === this.#parseExpression(expression.right)
-			case '>': return this.#parseExpression(expression.left) > this.#parseExpression(expression.right)
-			case '>=': return this.#parseExpression(expression.left) >= this.#parseExpression(expression.right)
+			case '-': return this.#parseExpression(expression.left, scope) - this.#parseExpression(expression.right, scope)
+			case '!=': return this.#parseExpression(expression.left, scope) != this.#parseExpression(expression.right, scope)
+			case '!==': return this.#parseExpression(expression.left, scope) !== this.#parseExpression(expression.right, scope)
+			case '*': return this.#parseExpression(expression.left, scope) * this.#parseExpression(expression.right, scope)
+			case '**': return this.#parseExpression(expression.left, scope) ** this.#parseExpression(expression.right, scope)
+			case '/': return this.#parseExpression(expression.left, scope) / this.#parseExpression(expression.right, scope)
+			case '%': return this.#parseExpression(expression.left, scope) % this.#parseExpression(expression.right, scope)
+			case '+': return this.#parseExpression(expression.left, scope) + this.#parseExpression(expression.right, scope)
+			case '<': return this.#parseExpression(expression.left, scope) < this.#parseExpression(expression.right, scope)
+			case '<=': return this.#parseExpression(expression.left, scope) <= this.#parseExpression(expression.right, scope)
+			case '==': return this.#parseExpression(expression.left, scope) == this.#parseExpression(expression.right, scope)
+			case '===': return this.#parseExpression(expression.left, scope) === this.#parseExpression(expression.right, scope)
+			case '>': return this.#parseExpression(expression.left, scope) > this.#parseExpression(expression.right, scope)
+			case '>=': return this.#parseExpression(expression.left, scope) >= this.#parseExpression(expression.right, scope)
 				/* eslint-enable eqeqeq,max-len */
 			}
 			return undefined
