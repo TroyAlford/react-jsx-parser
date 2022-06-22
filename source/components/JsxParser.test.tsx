@@ -964,7 +964,7 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].textContent).toEqual('Odd')
 			expect(rendered.childNodes[1].textContent).toEqual('Even')
 			expect(rendered.childNodes[2].textContent).toEqual('Odd')
-			expect(rendered.childNodes[2].textContent).toEqual('Even')
+			expect(rendered.childNodes[3].textContent).toEqual('Even')
 		})
 		test('will pass along bindings in arrow function operations', () => {
 			const { component } = render(
