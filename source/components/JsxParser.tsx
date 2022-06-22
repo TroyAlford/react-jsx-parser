@@ -117,7 +117,7 @@ export default class JsxParser extends React.Component<TProps> {
 			}
 			return undefined
 		case 'CallExpression':
-			const parsedCallee = this.#parseExpression(expression.callee)
+			const parsedCallee = this.#parseExpression(expression.callee, scope)
 			if (parsedCallee === undefined) {
 				this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
 				return undefined
@@ -126,11 +126,11 @@ export default class JsxParser extends React.Component<TProps> {
 				arg => this.#parseExpression(arg, expression.callee),
 			))
 		case 'ConditionalExpression':
-			return this.#parseExpression(expression.test)
-				? this.#parseExpression(expression.consequent)
-				: this.#parseExpression(expression.alternate)
+			return this.#parseExpression(expression.test, scope)
+				? this.#parseExpression(expression.consequent, scope)
+				: this.#parseExpression(expression.alternate, scope)
 		case 'ExpressionStatement':
-			return this.#parseExpression(expression.expression)
+			return this.#parseExpression(expression.expression, scope)
 		case 'Identifier':
 			if (scope && expression.name in scope) {
 				return scope[expression.name]
@@ -140,10 +140,10 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'Literal':
 			return expression.value
 		case 'LogicalExpression':
-			const left = this.#parseExpression(expression.left)
+			const left = this.#parseExpression(expression.left, scope)
 			if (expression.operator === '||' && left) return left
 			if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
-				return this.#parseExpression(expression.right)
+				return this.#parseExpression(expression.right, scope)
 			}
 			return false
 		case 'MemberExpression':
@@ -151,7 +151,7 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'ObjectExpression':
 			const object: Record<string, any> = {}
 			expression.properties.forEach(prop => {
-				object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
+				object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value, scope)
 			})
 			return object
 		case 'TemplateElement':
@@ -162,7 +162,7 @@ export default class JsxParser extends React.Component<TProps> {
 					if (a.start < b.start) return -1
 					return 1
 				})
-				.map(item => this.#parseExpression(item))
+				.map(item => this.#parseExpression(item, scope))
 				.join('')
 		case 'UnaryExpression':
 			switch (expression.operator) {

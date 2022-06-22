@@ -947,6 +947,24 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].textContent).toEqual('Nope')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
+		test('can evaluate expressions in map (nested expressions)', () => {
+			const { rendered, component } = render(
+				<JsxParser
+					renderInWrapper={false}
+					jsx={
+						'<ul>'
+						+ '{[1, 2, 3].map((item) => ('
+						+ '<li key={item}>{item % 2 === 0 ? "Even" : "Odd"}</li>'
+						+ '))}'
+						+ '</ul>'
+					}
+				/>,
+			)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
+			expect(rendered.childNodes[0].textContent).toEqual('Odd')
+			expect(rendered.childNodes[1].textContent).toEqual('Even')
+			expect(rendered.childNodes[2].textContent).toEqual('Odd')
+		})
 		test('will pass along bindings in arrow function operations', () => {
 			const { component } = render(
 				<JsxParser
