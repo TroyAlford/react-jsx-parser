@@ -947,6 +947,41 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].textContent).toEqual('Nope')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
+		test('can evaluate nested expressions', () => {
+			const { rendered, component } = render(
+				<JsxParser
+					renderInWrapper={false}
+					jsx={
+						'<ul>'
+						+ '{[1, 2, 3, 4].map((item) => ('
+						+ '<li key={item}>{item % 2 === 0 ? "Even" : "Odd"}</li>'
+						+ '))}'
+						+ '</ul>'
+					}
+				/>,
+			)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(4)
+			expect(rendered.childNodes[0].textContent).toEqual('Odd')
+			expect(rendered.childNodes[1].textContent).toEqual('Even')
+			expect(rendered.childNodes[2].textContent).toEqual('Odd')
+			expect(rendered.childNodes[3].textContent).toEqual('Even')
+		})
+		test('will pass along bindings in arrow function operations', () => {
+			const { component } = render(
+				<JsxParser
+					renderInWrapper={false}
+					jsx={
+						'<ul>'
+						+ '{[1, 2, 3, 4].filter(item => item % 2 === 0).map(evenItem => ('
+						+ '<li key={evenItem}>{evenItem}</li>'
+						+ '))}'
+						+ '</ul>'
+					}
+				/>,
+			)
+			expect(component.ParsedChildren).toHaveLength(1)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(2)
+		})
 		test('will render options', () => {
 			window.foo = jest.fn(() => true)
 			const wrapper = mount(
