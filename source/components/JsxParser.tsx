@@ -111,6 +111,8 @@ export default class JsxParser extends React.Component<TProps> {
 			case '===': return this.#parseExpression(expression.left, scope) === this.#parseExpression(expression.right, scope)
 			case '>': return this.#parseExpression(expression.left, scope) > this.#parseExpression(expression.right, scope)
 			case '>=': return this.#parseExpression(expression.left, scope) >= this.#parseExpression(expression.right, scope)
+			case '||': return this.#parseExpression(expression.left, scope) || this.#parseExpression(expression.right, scope)
+			case '&&': return this.#parseExpression(expression.left, scope) && this.#parseExpression(expression.right, scope)
 				/* eslint-enable eqeqeq,max-len */
 			}
 			return undefined
