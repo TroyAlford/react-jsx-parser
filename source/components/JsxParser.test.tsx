@@ -960,7 +960,7 @@ describe('JsxParser Component', () => {
 					}
 				/>,
 			)
-			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(4)
 			expect(rendered.childNodes[0].textContent).toEqual('Odd')
 			expect(rendered.childNodes[1].textContent).toEqual('Even')
 			expect(rendered.childNodes[2].textContent).toEqual('Odd')
