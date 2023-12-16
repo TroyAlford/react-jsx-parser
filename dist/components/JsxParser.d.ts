@@ -1,5 +1,5 @@
 import React, { ComponentType, ExoticComponent } from 'react';
-export declare type TProps = {
+export type TProps = {
     allowUnknownElements?: boolean;
     autoCloseVoidElements?: boolean;
     bindings?: {
