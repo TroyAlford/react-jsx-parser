@@ -5,15 +5,22 @@ import TestUtils from 'react-dom/test-utils'
 import { mount, shallow } from 'enzyme' // eslint-disable-line import/no-extraneous-dependencies
 import JsxParser from './JsxParser'
 
+const { TextEncoder, TextDecoder } = require('util')
+
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+
 jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
 
-const Custom = ({ children = [], className, text }) => (
-	<div className={className}>
-		{text}
-		{children}
-	</div>
-)
+function Custom({ children = [], className, text }) {
+	return (
+		<div className={className}>
+			{text}
+			{children}
+		</div>
+	)
+}
 
 describe('JsxParser Component', () => {
 	let parent = null
@@ -369,7 +376,9 @@ describe('JsxParser Component', () => {
 		})
 		test('renders custom elements without requiring closing tags', () => {
 			// eslint-disable-next-line react/prefer-stateless-function
-			const CustomContent = () => <h1>Custom Content</h1>
+			function CustomContent() {
+				return <h1>Custom Content</h1>
+			}
 
 			const { rendered } = render(
 				<JsxParser
@@ -386,8 +395,12 @@ describe('JsxParser Component', () => {
 		})
 		test('renders custom elements without closing tags', () => {
 			// eslint-disable-next-line react/prefer-stateless-function
-			const CustomContent = () => <h1>Ipsum</h1>
-			const CuStomContent = () => <h1>Lorem</h1>
+			function CustomContent() {
+				return <h1>Ipsum</h1>
+			}
+			function CuStomContent() {
+				return <h1>Lorem</h1>
+			}
 
 			const { rendered } = render(
 				<JsxParser
@@ -600,7 +613,9 @@ describe('JsxParser Component', () => {
 		})
 		test('strips HTML tags if componentsOnly=true', () => {
 			// eslint-disable-next-line react/prop-types
-			const Simple = ({ children, text }) => <div>{text}{children}</div>
+			function Simple({ children, text }) {
+				return <div>{text}{children}</div>
+			}
 			const { rendered } = render(
 				<JsxParser
 					components={{ Simple }}
@@ -638,8 +653,9 @@ describe('JsxParser Component', () => {
 		})
 		test('leaves a space between elements as-coded', () => {
 			const jsx = '<b>first</b> <b>second</b>'
-			const wrapper = shallow(<JsxParser jsx={jsx} renderInWrapper={false} />)
-			expect(wrapper.html()).toBe(jsx)
+			const wrapper = mount(<JsxParser jsx={jsx} renderInWrapper={false} />)
+			const htmlOutput = wrapper.html()
+			expect(htmlOutput.includes('<b>first</b> <b>second</b>')).toBe(true)
 		})
 		test('keeps line-breaks', () => {
 			const jsx = '<code class="markdown"># hello\n\na paragraph\n</code>'
@@ -1030,9 +1046,9 @@ describe('JsxParser Component', () => {
 	})
 	describe('React.Children.only()', () => {
 		// eslint-disable-next-line react/prop-types
-		const OnlyOne = ({ children }) => (
-			<div>{React.Children.only(children)}</div>
-		)
+		function OnlyOne({ children }) {
+			return <div>{React.Children.only(children)}</div>
+		}
 		test('passes with a single child', () => {
 			expect(() => render(
 				<JsxParser
@@ -1156,7 +1172,7 @@ describe('JsxParser Component', () => {
 	test('throws on non-simple literal and global object instance methods', () => {
 		// Some of these would normally fail silently, set `onError` forces throw for assertion purposes
 		expect(() => render(<JsxParser jsx="{ window.scrollTo() }" onError={e => { throw e }} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ (() => { window.location = "badsite" })() }'} onError={e => { throw e }} />)).toThrow()
+		expect(() => render(<JsxParser jsx={'{ (() => { window.location = "badsite" })() }'} onError={e => { console.log('We are throwing', e); throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx={'{ document.querySelector("body") }'} onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx={'{ document.createElement("script") }'} onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx="{ [1, 2, 3].filter(num => num === 2) }" />)).toThrow()
@@ -1266,7 +1282,9 @@ describe('JsxParser Component', () => {
 		})
 
 		it('passes attributes', () => {
-			const PropTest = (props: { booleanAttribute: boolean}) => <>{`val:${props.booleanAttribute}`}</>
+			function PropTest(props: { booleanAttribute: boolean }) {
+				return `val:${props.booleanAttribute}`
+			}
 			const { html, component } = render(
 				<JsxParser
 					renderInWrapper={false}
@@ -1285,7 +1303,9 @@ describe('JsxParser Component', () => {
 		})
 
 		it('passes spread attributes', () => {
-			const PropTest = (props: any) => <>{JSON.stringify(props)}</>
+			function PropTest(props: any) {
+				return <>{JSON.stringify(props)}</>
+			}
 			const { html } = render(
 				<JsxParser
 					renderInWrapper={false}

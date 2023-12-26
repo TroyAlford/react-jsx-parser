@@ -30,6 +30,15 @@ export type TProps = {
 }
 type Scope = Record<string, any>
 
+interface ForwardRefComponentProps {
+    [key: string]: any; // for the rest of the properties
+}
+
+const ForwardRefComponent = React.forwardRef<any, ForwardRefComponentProps>((properties, ref) => {
+	const { component, lowerName, children, ...rest } = properties
+	return React.createElement(component || lowerName, { ...rest, ref }, children)
+})
+
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
@@ -264,7 +273,7 @@ export default class JsxParser extends React.Component<TProps> {
 
 		let children
 		const component = element.type === 'JSXElement'
-			? resolvePath(components, name)
+			? resolvePath(this.props.components, name)
 			: Fragment
 
 		if (component || canHaveChildren(name)) {
@@ -329,20 +338,32 @@ export default class JsxParser extends React.Component<TProps> {
 			children = children.props.children
 		}
 
-		return React.createElement(component || lowerName, props, children)
+		const componentProps = {
+			...props,
+			lowerName,
+			component,
+			children,
+		}
+
+		return React.createElement(ForwardRefComponent, componentProps)
+		// return React.createElement(component || lowerName, props, children)
 	}
 
-	render = (): JSX.Element => {
+	render() {
 		const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
 		this.ParsedChildren = this.#parseJSX(jsx)
-		const className = [...new Set(['jsx-parser', ...String(this.props.className).split(' ')])]
-			.filter(Boolean)
-			.join(' ')
+		const className = [...new Set(['jsx-parser', ...String(this.props.className)
+			.split(' ')])].filter(Boolean).join(' ')
 
 		return (
 			this.props.renderInWrapper
-				? <div className={className}>{this.ParsedChildren}</div>
-				: <>{this.ParsedChildren}</>
+				? (
+					<div className={className}>{
+						React.createElement(React.Fragment, {}, this.ParsedChildren)
+					}
+					</div>
+				)
+				: this.ParsedChildren
 		)
 	}
 }
