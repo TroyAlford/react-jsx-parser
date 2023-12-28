@@ -1,5 +1,5 @@
 import React, { ComponentType, ExoticComponent } from 'react';
-export declare type TProps = {
+export type TProps = {
     allowUnknownElements?: boolean;
     autoCloseVoidElements?: boolean;
     bindings?: {
@@ -26,5 +26,5 @@ export default class JsxParser extends React.Component<TProps> {
     static displayName: string;
     static defaultProps: TProps;
     private ParsedChildren;
-    render: () => JSX.Element;
+    render(): Iterable<React.ReactNode> | React.JSX.Element | null;
 }
