@@ -1,7 +1,5 @@
 import { camelCase } from './camelCase'
 
-jest.unmock('./camelCase')
-
 describe('camelCase', () => {
 	it('removes non-word characters', () => {
 		const before = '!@#$%^&*() this is a test #$()&@*#'

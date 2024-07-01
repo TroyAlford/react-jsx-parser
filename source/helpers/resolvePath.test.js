@@ -1,7 +1,5 @@
 import { resolvePath } from './resolvePath'
 
-jest.unmock('./resolvePath')
-
 describe('resolvePath', () => {
 	it('null object, null path', () => {
 		const result = resolvePath(null, null)

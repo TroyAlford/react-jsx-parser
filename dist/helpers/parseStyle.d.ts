@@ -1,4 +1,4 @@
-declare type Style = string | Partial<CSSStyleDeclaration>;
+type Style = string | Partial<CSSStyleDeclaration>;
 /**
  * Converts a CSS Style string
  * @param {string | Partial<CSSStyleDeclaration>} style A string to convert, or object to return

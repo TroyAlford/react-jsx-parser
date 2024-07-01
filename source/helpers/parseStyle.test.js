@@ -1,7 +1,5 @@
 import { parseStyle } from './parseStyle'
 
-jest.unmock('./parseStyle')
-
 describe('parseStyle', () => {
 	it('returns objects without modification', () => {
 		const before = { foo: 'bar', baz: { a: 'b' } }

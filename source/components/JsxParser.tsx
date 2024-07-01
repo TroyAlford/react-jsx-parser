@@ -67,7 +67,7 @@ export default class JsxParser extends React.Component<TProps> {
 			parsed = parsed.body[0].expression.children || []
 		} catch (error) {
 			if (this.props.showWarnings) console.warn(error) // eslint-disable-line no-console
-			if (this.props.onError) this.props.onError(error)
+			if (this.props.onError) this.props.onError(error as Error)
 			if (this.props.renderError) {
 				return this.props.renderError({ error: String(error) })
 			}
@@ -79,107 +79,107 @@ export default class JsxParser extends React.Component<TProps> {
 
 	#parseExpression = (expression: AcornJSX.Expression, scope?: Scope): any => {
 		switch (expression.type) {
-		case 'JSXAttribute':
-			if (expression.value === null) return true
-			return this.#parseExpression(expression.value, scope)
-		case 'JSXElement':
-		case 'JSXFragment':
-			return this.#parseElement(expression, scope)
-		case 'JSXExpressionContainer':
-			return this.#parseExpression(expression.expression, scope)
-		case 'JSXText':
-			const key = this.props.disableKeyGeneration ? undefined : randomHash()
-			return this.props.disableFragments
-				? expression.value
-				: <Fragment key={key}>{expression.value}</Fragment>
-		case 'ArrayExpression':
-			return expression.elements.map(ele => this.#parseExpression(ele, scope)) as ParsedTree
-		case 'BinaryExpression':
-			/* eslint-disable eqeqeq,max-len */
-			switch (expression.operator) {
-			case '-': return this.#parseExpression(expression.left) - this.#parseExpression(expression.right)
-			case '!=': return this.#parseExpression(expression.left) != this.#parseExpression(expression.right)
-			case '!==': return this.#parseExpression(expression.left) !== this.#parseExpression(expression.right)
-			case '*': return this.#parseExpression(expression.left) * this.#parseExpression(expression.right)
-			case '**': return this.#parseExpression(expression.left) ** this.#parseExpression(expression.right)
-			case '/': return this.#parseExpression(expression.left) / this.#parseExpression(expression.right)
-			case '%': return this.#parseExpression(expression.left) % this.#parseExpression(expression.right)
-			case '+': return this.#parseExpression(expression.left) + this.#parseExpression(expression.right)
-			case '<': return this.#parseExpression(expression.left) < this.#parseExpression(expression.right)
-			case '<=': return this.#parseExpression(expression.left) <= this.#parseExpression(expression.right)
-			case '==': return this.#parseExpression(expression.left) == this.#parseExpression(expression.right)
-			case '===': return this.#parseExpression(expression.left) === this.#parseExpression(expression.right)
-			case '>': return this.#parseExpression(expression.left) > this.#parseExpression(expression.right)
-			case '>=': return this.#parseExpression(expression.left) >= this.#parseExpression(expression.right)
-				/* eslint-enable eqeqeq,max-len */
-			}
-			return undefined
-		case 'CallExpression':
-			const parsedCallee = this.#parseExpression(expression.callee)
-			if (parsedCallee === undefined) {
-				this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
+			case 'JSXAttribute':
+				if (expression.value === null) return true
+				return this.#parseExpression(expression.value, scope)
+			case 'JSXElement':
+			case 'JSXFragment':
+				return this.#parseElement(expression, scope)
+			case 'JSXExpressionContainer':
+				return this.#parseExpression(expression.expression, scope)
+			case 'JSXText':
+				const key = this.props.disableKeyGeneration ? undefined : randomHash()
+				return this.props.disableFragments
+					? expression.value
+					: <Fragment key={key}>{expression.value}</Fragment>
+			case 'ArrayExpression':
+				return expression.elements.map(ele => this.#parseExpression(ele, scope)) as ParsedTree
+			case 'BinaryExpression':
+				/* eslint-disable eqeqeq,max-len */
+				switch (expression.operator) {
+					case '-': return this.#parseExpression(expression.left) - this.#parseExpression(expression.right)
+					case '!=': return this.#parseExpression(expression.left) != this.#parseExpression(expression.right)
+					case '!==': return this.#parseExpression(expression.left) !== this.#parseExpression(expression.right)
+					case '*': return this.#parseExpression(expression.left) * this.#parseExpression(expression.right)
+					case '**': return this.#parseExpression(expression.left) ** this.#parseExpression(expression.right)
+					case '/': return this.#parseExpression(expression.left) / this.#parseExpression(expression.right)
+					case '%': return this.#parseExpression(expression.left) % this.#parseExpression(expression.right)
+					case '+': return this.#parseExpression(expression.left) + this.#parseExpression(expression.right)
+					case '<': return this.#parseExpression(expression.left) < this.#parseExpression(expression.right)
+					case '<=': return this.#parseExpression(expression.left) <= this.#parseExpression(expression.right)
+					case '==': return this.#parseExpression(expression.left) == this.#parseExpression(expression.right)
+					case '===': return this.#parseExpression(expression.left) === this.#parseExpression(expression.right)
+					case '>': return this.#parseExpression(expression.left) > this.#parseExpression(expression.right)
+					case '>=': return this.#parseExpression(expression.left) >= this.#parseExpression(expression.right)
+					/* eslint-enable eqeqeq,max-len */
+				}
 				return undefined
-			}
-			return parsedCallee(...expression.arguments.map(
-				arg => this.#parseExpression(arg, expression.callee),
-			))
-		case 'ConditionalExpression':
-			return this.#parseExpression(expression.test)
-				? this.#parseExpression(expression.consequent)
-				: this.#parseExpression(expression.alternate)
-		case 'ExpressionStatement':
-			return this.#parseExpression(expression.expression)
-		case 'Identifier':
-			if (scope && expression.name in scope) {
-				return scope[expression.name]
-			}
-			return (this.props.bindings || {})[expression.name]
+			case 'CallExpression':
+				const parsedCallee = this.#parseExpression(expression.callee)
+				if (parsedCallee === undefined) {
+					this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
+					return undefined
+				}
+				return parsedCallee(...expression.arguments.map(
+					arg => this.#parseExpression(arg, expression.callee),
+				))
+			case 'ConditionalExpression':
+				return this.#parseExpression(expression.test)
+					? this.#parseExpression(expression.consequent)
+					: this.#parseExpression(expression.alternate)
+			case 'ExpressionStatement':
+				return this.#parseExpression(expression.expression)
+			case 'Identifier':
+				if (scope && expression.name in scope) {
+					return scope[expression.name]
+				}
+				return (this.props.bindings || {})[expression.name]
 
-		case 'Literal':
-			return expression.value
-		case 'LogicalExpression':
-			const left = this.#parseExpression(expression.left)
-			if (expression.operator === '||' && left) return left
-			if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
-				return this.#parseExpression(expression.right)
-			}
-			return false
-		case 'MemberExpression':
-			return this.#parseMemberExpression(expression, scope)
-		case 'ObjectExpression':
-			const object: Record<string, any> = {}
-			expression.properties.forEach(prop => {
-				object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
-			})
-			return object
-		case 'TemplateElement':
-			return expression.value.cooked
-		case 'TemplateLiteral':
-			return [...expression.expressions, ...expression.quasis]
-				.sort((a, b) => {
-					if (a.start < b.start) return -1
-					return 1
+			case 'Literal':
+				return expression.value
+			case 'LogicalExpression':
+				const left = this.#parseExpression(expression.left)
+				if (expression.operator === '||' && left) return left
+				if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
+					return this.#parseExpression(expression.right)
+				}
+				return false
+			case 'MemberExpression':
+				return this.#parseMemberExpression(expression, scope)
+			case 'ObjectExpression':
+				const object: Record<string, any> = {}
+				expression.properties.forEach(prop => {
+					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
 				})
-				.map(item => this.#parseExpression(item))
-				.join('')
-		case 'UnaryExpression':
-			switch (expression.operator) {
-			case '+': return expression.argument.value
-			case '-': return -expression.argument.value
-			case '!': return !expression.argument.value
-			}
-			return undefined
-		case 'ArrowFunctionExpression':
-			if (expression.async || expression.generator) {
-				this.props.onError?.(new Error('Async and generator arrow functions are not supported.'))
-			}
-			return (...args: any[]) : any => {
-				const functionScope: Record<string, any> = {}
-				expression.params.forEach((param, idx) => {
-					functionScope[param.name] = args[idx]
-				})
-				return this.#parseExpression(expression.body, functionScope)
-			}
+				return object
+			case 'TemplateElement':
+				return expression.value.cooked
+			case 'TemplateLiteral':
+				return [...expression.expressions, ...expression.quasis]
+					.sort((a, b) => {
+						if (a.start < b.start) return -1
+						return 1
+					})
+					.map(item => this.#parseExpression(item))
+					.join('')
+			case 'UnaryExpression':
+				switch (expression.operator) {
+					case '+': return expression.argument.value
+					case '-': return -expression.argument.value
+					case '!': return !expression.argument.value
+				}
+				return undefined
+			case 'ArrowFunctionExpression':
+				if (expression.async || expression.generator) {
+					this.props.onError?.(new Error('Async and generator arrow functions are not supported.'))
+				}
+				return (...args: any[]): any => {
+					const functionScope: Record<string, any> = {}
+					expression.params.forEach((param, idx) => {
+						functionScope[param.name] = args[idx]
+					})
+					return this.#parseExpression(expression.body, functionScope)
+				}
 		}
 	}
 

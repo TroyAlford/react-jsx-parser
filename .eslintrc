@@ -18,7 +18,7 @@
 		"import/extensions": ["error", { "js": "never", "scss": "always", "ts": "never" }],
 		"import/no-unresolved": "off",
 		"import/prefer-default-export": "off",
-		"indent": ["error", "tab"],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"lines-between-class-members": "off",
 		"no-case-declarations": "off",
 		"no-tabs": "off",
