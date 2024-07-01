@@ -8,7 +8,7 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
-type ParsedJSX = JSX.Element | boolean | string
+type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 export type TProps = {
 	allowUnknownElements?: boolean,
@@ -332,7 +332,7 @@ export default class JsxParser extends React.Component<TProps> {
 		return React.createElement(component || lowerName, props, children)
 	}
 
-	render = (): JSX.Element => {
+	render = (): React.ReactNode => {
 		const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
 		this.ParsedChildren = this.#parseJSX(jsx)
 		const className = [...new Set(['jsx-parser', ...String(this.props.className).split(' ')])]
