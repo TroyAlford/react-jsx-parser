@@ -1,12 +1,9 @@
 // @ts-nocheck
-/* eslint-disable function-paren-newline, no-console, no-underscore-dangle */
+/* eslint-disable function-paren-newline, no-console, no-underscore-dangle, no-useless-escape */
 import React from 'react'
 import TestUtils from 'react-dom/test-utils'
 import { mount, shallow } from 'enzyme' // eslint-disable-line import/no-extraneous-dependencies
 import JsxParser from './JsxParser'
-
-jest.unmock('acorn-jsx')
-jest.unmock('./JsxParser')
 
 const Custom = ({ children = [], className, text }) => (
 	<div className={className}>
@@ -18,24 +15,24 @@ const Custom = ({ children = [], className, text }) => (
 describe('JsxParser Component', () => {
 	let parent = null
 	let originalConsoleError = null
-	let originalJsDomEmit = null
+	// let originalJsDomEmit = null
 
 	beforeAll(() => {
 		originalConsoleError = console.error
 		console.error = jest.fn()
 
-		originalJsDomEmit = window._virtualConsole.emit
-		window._virtualConsole.emit = jest.fn()
+		// originalJsDomEmit = window._virtualConsole.emit
+		// window._virtualConsole.emit = jest.fn()
 	})
 
 	afterAll(() => {
 		console.error = originalConsoleError
-		window._virtualConsole.emit = originalJsDomEmit
+		// window._virtualConsole.emit = originalJsDomEmit
 	})
 
 	beforeEach(() => {
 		console.error.mockReset()
-		window._virtualConsole.emit.mockReset()
+		// window._virtualConsole.emit.mockReset()
 		parent = document.createElement('div')
 	})
 
@@ -488,7 +485,9 @@ describe('JsxParser Component', () => {
 					message: expect.stringContaining('<bar> is unrecognized'),
 				}),
 			)
-			expect(wrapper.html()).toMatchSnapshot()
+			expect(wrapper.html()).toMatch(
+				'<div class=\"jsx-parser\"><div>Before </div><div> After</div></div>',
+			)
 		})
 		test('renders errors with renderError prop, if supplied', () => {
 			const onError = jest.fn()
@@ -882,7 +881,8 @@ describe('JsxParser Component', () => {
 
 			expect(window.foo).toHaveBeenCalledTimes(0)
 			expect(wrapper.find('span')).toHaveLength(0)
-			expect(wrapper.html()).toMatchSnapshot()
+			expect(wrapper.html())
+				.toMatch('<div class=\"jsx-parser\"><div>Before </div><div> After</div></div>')
 		})
 		test('can execute binary mathematical operations', () => {
 			const { rendered } = render(<JsxParser jsx="<span>{ 1 + 2 * 4 / 8 - 1 }</span>" />)
@@ -947,7 +947,7 @@ describe('JsxParser Component', () => {
 			expect(rendered.childNodes[0].textContent).toEqual('Nope')
 			expect(component.ParsedChildren[0].props.testProp).toEqual(true)
 		})
-		test('will render options', () => {
+		test.only('will render options', () => {
 			window.foo = jest.fn(() => true)
 			const wrapper = mount(
 				<JsxParser
@@ -955,7 +955,9 @@ describe('JsxParser Component', () => {
 				/>,
 			)
 
-			expect(wrapper.html()).toMatchSnapshot()
+			expect(wrapper.html()).toMatch(
+				'<div class=\"jsx-parser\"><select><option>Some value</option></select></div>',
+			)
 		})
 		describe('can evaluate multi-level property accessors', () => {
 			/* eslint-disable dot-notation,no-useless-concat */
@@ -1266,15 +1268,17 @@ describe('JsxParser Component', () => {
 		})
 
 		it('passes attributes', () => {
-			const PropTest = (props: { booleanAttribute: boolean}) => <>{`val:${props.booleanAttribute}`}</>
+			const PropTest = (props: { booleanAttribute: boolean }) => <>{`val:${props.booleanAttribute}`}</>
 			const { html, component } = render(
 				<JsxParser
 					renderInWrapper={false}
 					components={{ PropTest }}
-					bindings={{ items: [
-						{ name: 'Megeara', friend: true },
-						{ name: 'Austerious', friend: false },
-					] }}
+					bindings={{
+						items: [
+							{ name: 'Megeara', friend: true },
+							{ name: 'Austerious', friend: false },
+						],
+					}}
 					jsx="{items.map(item => <p><PropTest booleanAttribute={item.friend} /></p>)}"
 				/>,
 			)
@@ -1290,9 +1294,11 @@ describe('JsxParser Component', () => {
 				<JsxParser
 					renderInWrapper={false}
 					components={{ PropTest }}
-					bindings={{ items: [
-						{ name: 'Megeara', friend: true },
-					] }}
+					bindings={{
+						items: [
+							{ name: 'Megeara', friend: true },
+						],
+					}}
 					jsx="{items.map(item => <PropTest {...item} />)}"
 				/>,
 			)

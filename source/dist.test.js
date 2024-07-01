@@ -3,9 +3,6 @@
  */
 /* eslint-disable global-require */
 
-jest.unmock('../dist/cjs/react-jsx-parser.min')
-jest.unmock('../dist/umd/react-jsx-parser.min')
-
 describe('JSXParser', () => {
 	describe('cjs build', () => {
 		it('should load and parse', () => {
