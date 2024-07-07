@@ -20,8 +20,7 @@ jobs:
       - name: Install and build
         run: |
           bun install
-
-          bun build
+          bun run build
 
       - name: Get the latest release
         id: get_latest_release
