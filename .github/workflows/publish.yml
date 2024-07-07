@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up bun
-        uses: oven-sh/bun-install@v1
+        uses: oven-sh/setup-bun@v2
 
       - name: Install and build
         run: |
