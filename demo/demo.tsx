@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-// @ts-expect-error - untyped output file
-import JsxParser from '../dist/umd/react-jsx-parser.min'
+import JsxParser from '../source'
 
 const root = createRoot(document.querySelector('#root')!)
 

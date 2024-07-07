@@ -10,7 +10,7 @@
     "jsx"
   ],
   "license": "MIT",
-  "main": "dist/umd/react-jsx-parser.min.js",
+  "main": "dist/react-jsx-parser.min.js",
   "types": "dist/index.d.ts",
   "name": "react-jsx-parser",
   "repository": "TroyAlford/react-jsx-parser",
@@ -31,6 +31,7 @@
     "@babel/runtime-corejs3": "^7.24.7",
     "@happy-dom/global-registrator": "^14.12.3",
     "@types/acorn": "^4.0.6",
+    "@types/bun": "^1.1.6",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "babel-core": "^7.0.0-bridge.0",
@@ -45,7 +46,6 @@
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "mkdirp": "^3.0.1",
-    "postinstall-postinstall": "^2.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "source-map-explorer": "^2.5.3",
@@ -71,14 +71,17 @@
     "merge": "^1.2.1"
   },
   "scripts": {
-    "build": "npx patch-package && yarn types && cross-env NODE_ENV=production webpack",
-    "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"yarn webpack --watch\" \"yarn types --watch\" \"yarn webpack serve --config ./webpack.demo.js\"",
+    "build": "bun build:types && bun build:code",
+    "build:code": "bun build --target=browser --outfile=./dist/react-jsx-parser.min.js ./source/index.ts",
+    "build:types": "bun run tsc -p ./tsconfig.json -d --emitDeclarationOnly",
+    "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"bun build:code --watch\" \"bun build:types --watch\" \"bun serve\"",
     "lint": "yarn eslint --ext .js,.ts,.tsx source/",
     "postinstall": "npx patch-package",
     "prebuild": "mkdirp ./dist && rm -rf ./dist/*",
+    "serve": "bun serve --port=8080 --open",
     "sourcemap": "yarn build && source-map-explorer ./dist/es5/react-jsx-parser.min.js",
     "test": "lint && test",
-    "types": "tsc -p ./tsconfig.json -d --emitDeclarationOnly"
+    "types": ""
   },
   "contributors": [
     {
