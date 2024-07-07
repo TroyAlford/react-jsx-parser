@@ -9,9 +9,8 @@ type Style = string | Partial<CSSStyleDeclaration>
  */
 export const parseStyle = (style: Style): Partial<CSSStyleDeclaration> | undefined => {
 	switch (typeof style) {
-	case 'string':
-		return style.split(';').filter(r => r)
-			.reduce((map, rule) => {
+		case 'string':
+			return style.split(';').filter(r => r).reduce((map, rule) => {
 				const name = rule.slice(0, rule.indexOf(':')).trim()
 				const value = rule.slice(rule.indexOf(':') + 1).trim()
 
@@ -20,10 +19,10 @@ export const parseStyle = (style: Style): Partial<CSSStyleDeclaration> | undefin
 					[camelCase(name)]: value,
 				}
 			}, {})
-	case 'object':
-		return style
+		case 'object':
+			return style
 
-	default:
-		return undefined
+		default:
+			return undefined
 	}
 }
