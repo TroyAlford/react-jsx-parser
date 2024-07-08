@@ -1,0 +1,87 @@
+name: Check and Publish NPM Version
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  check-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install and Build
+        run: |
+          bun install
+          bun run build
+
+      - name: Get the latest release
+        id: get_latest_release
+        run: |
+          latest_release=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          echo "::set-output name=latest_release::${latest_release}"
+
+      - name: Get version from package.json
+        id: get_package_version
+        run: |
+          package_version=$(jq -r .version < ./package.json)
+          echo "::set-output name=package_version::${package_version}"
+
+      - name: Compare GitHub release version
+        id: compare_github_versions
+        run: |
+          if [ "${{ steps.get_latest_release.outputs.latest_release }}" == "${{ steps.get_package_version.outputs.package_version }}" ]; then
+            echo "GitHub release version matches package.json version."
+            echo "::set-output name=should_create_release::false"
+          else
+            echo "GitHub release version does not match package.json version."
+            echo "::set-output name=should_create_release::true"
+          fi
+
+      - name: Create GitHub release
+        if: steps.compare_github_versions.outputs.should_create_release == 'true'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_package_version.outputs.package_version }}
+          release_name: Release ${{ steps.get_package_version.outputs.package_version }}
+          draft: false
+          prerelease: false
+
+      - name: Get latest NPM version
+        id: get_latest_npm_version
+        run: |
+          npm_version=$(npm show $(jq -r .name < ./package.json) version)
+          echo "::set-output name=npm_version::${npm_version}"
+
+      - name: Compare NPM version
+        id: compare_npm_versions
+        run: |
+          if [ "${{ steps.get_latest_npm_version.outputs.npm_version }}" == "${{ steps.get_package_version.outputs.package_version }}" ]; then
+            echo "NPM version matches package.json version."
+            echo "::set-output name=should_publish_npm::false"
+          else
+            echo "NPM version does not match package.json version."
+            echo "::set-output name=should_publish_npm::true"
+          fi
+
+      - name: Publish to NPM
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: steps.compare_npm_versions.outputs.should_publish_npm == 'true'
+        run: bun run npm publish --//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+          
+      - name: Success message
+        if: steps.compare_github_versions.outputs.should_create_release == 'false' && steps.compare_npm_versions.outputs.should_publish_npm == 'false' || success()
+        run: echo "NPM package and GitHub release are up to date or published successfully."
+
+      - name: Fail if publish failed
+        if: failure()
+        run: exit 1

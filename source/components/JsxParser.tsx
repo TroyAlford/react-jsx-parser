@@ -1,4 +1,3 @@
-/* global JSX */
 import * as Acorn from 'acorn'
 import * as AcornJSX from 'acorn-jsx'
 import React, { Fragment, ComponentType, ExoticComponent } from 'react'
@@ -24,9 +23,9 @@ export type TProps = {
 	jsx?: string,
 	onError?: (error: Error) => void,
 	showWarnings?: boolean,
-	renderError?: (props: { error: string }) => JSX.Element | null,
+	renderError?: (props: { error: string }) => React.ReactNode | null,
 	renderInWrapper?: boolean,
-	renderUnrecognized?: (tagName: string) => JSX.Element | null,
+	renderUnrecognized?: (tagName: string) => React.ReactNode | null,
 }
 type Scope = Record<string, any>
 
@@ -54,7 +53,7 @@ export default class JsxParser extends React.Component<TProps> {
 
 	private ParsedChildren: ParsedTree = null
 
-	#parseJSX = (jsx: string): JSX.Element | JSX.Element[] | null => {
+	#parseJSX = (jsx: string): React.ReactNode | React.ReactNode[] | null => {
 		const parser = Acorn.Parser.extend(AcornJSX.default({
 			autoCloseVoidElements: this.props.autoCloseVoidElements,
 		}))
@@ -225,7 +224,7 @@ export default class JsxParser extends React.Component<TProps> {
 	#parseElement = (
 		element: AcornJSX.JSXElement | AcornJSX.JSXFragment,
 		scope?: Scope,
-	): JSX.Element | JSX.Element[] | null => {
+	): React.ReactNode | React.ReactNode[] | null => {
 		const { allowUnknownElements, components, componentsOnly, onError } = this.props
 		const { children: childNodes = [] } = element
 		const openingTag = element.type === 'JSXElement'
@@ -242,7 +241,7 @@ export default class JsxParser extends React.Component<TProps> {
 			.map(tag => tag.trim().toLowerCase()).filter(Boolean)
 
 		if (/^(html|head|body)$/i.test(name)) {
-			return childNodes.map(c => this.#parseElement(c, scope)) as JSX.Element[]
+			return childNodes.map(c => this.#parseElement(c, scope)) as React.ReactNode[]
 		}
 		const tagName = name.trim().toLowerCase()
 		if (blacklistedTags.indexOf(tagName) !== -1) {
@@ -332,7 +331,7 @@ export default class JsxParser extends React.Component<TProps> {
 		return React.createElement(component || lowerName, props, children)
 	}
 
-	render = (): React.ReactNode => {
+	render() {
 		const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
 		this.ParsedChildren = this.#parseJSX(jsx)
 		const className = [...new Set(['jsx-parser', ...String(this.props.className).split(' ')])]
@@ -342,7 +341,7 @@ export default class JsxParser extends React.Component<TProps> {
 		return (
 			this.props.renderInWrapper
 				? <div className={className}>{this.ParsedChildren}</div>
-				: <>{this.ParsedChildren}</>
+				: this.ParsedChildren
 		)
 	}
 }
