@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - task/publish-on-merge
 
 jobs:
   check-and-publish:
@@ -17,7 +16,7 @@ jobs:
       - name: Set up bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Install and build
+      - name: Install and Build
         run: |
           bun install
           bun run build
@@ -77,8 +76,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: steps.compare_npm_versions.outputs.should_publish_npm == 'true'
-        # run: bun run npm publish --//registry.npmjs.org/:_authToken=${NPM_TOKEN}
-        run: echo "This WOULD HAVE published to NPM"
+        run: bun run npm publish --//registry.npmjs.org/:_authToken=${NPM_TOKEN}
           
       - name: Success message
         if: steps.compare_github_versions.outputs.should_create_release == 'false' && steps.compare_npm_versions.outputs.should_publish_npm == 'false' || success()
