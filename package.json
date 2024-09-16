@@ -1,162 +1,68 @@
 {
-  "author": "Troy Alford",
-  "bugs": "https://github.com/TroyAlford/react-jsx-parser/issues",
-  "description": "A React component which can parse JSX and output rendered React Components",
-  "files": [
-    "dist/"
-  ],
-  "keywords": [
-    "react",
-    "jsx"
-  ],
-  "license": "MIT",
-  "main": "dist/react-jsx-parser.min.js",
-  "types": "dist/index.d.ts",
-  "name": "react-jsx-parser",
-  "repository": "TroyAlford/react-jsx-parser",
-  "version": "2.0.0-beta.0",
-  "dependencies": {
-    "acorn": "^8.12.1",
-    "acorn-jsx": "^5.3.2",
-    "browserslist": "^4.23.1",
-    "core-js": "^3.37.1"
-  },
-  "devDependencies": {
-    "@happy-dom/global-registrator": "^14.12.3",
-    "@types/acorn": "^4.0.6",
-    "@types/bun": "^1.1.6",
-    "@typescript-eslint/eslint-plugin": "^7.15.0",
-    "@typescript-eslint/parser": "^7.15.0",
-    "basis": "TroyAlford/basis",
-    "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jsx-a11y": "^6.9.0",
-    "eslint-plugin-react": "^7.34.3",
-    "mkdirp": "^3.0.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "source-map-explorer": "^2.5.3",
-    "typescript": "^5.5.3"
-  },
-  "optionalDependencies": {
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0"
-  },
-  "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
-  },
-  "scripts": {
-    "build": "bun build:types && bun build:code",
-    "build:code": "bun build --target=browser --outfile=./dist/react-jsx-parser.min.js ./source/index.ts",
-    "build:types": "bun run tsc -p ./tsconfig.json -d --emitDeclarationOnly",
-    "develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"bun build:code --watch\" \"bun build:types --watch\" \"bun serve\"",
-    "lint": "bun eslint --ext .js,.ts,.tsx source/",
-    "postinstall": "npx patch-package",
-    "prebuild": "mkdirp ./dist && rm -rf ./dist/*",
-    "serve": "bun serve --port=8080 --open",
-    "sourcemap": "bun build && source-map-explorer ./dist/es5/react-jsx-parser.min.js",
-    "test": "bun lint && bun test"
-  },
-  "contributors": [
-    {
-      "name": "akucheruk-vareger",
-      "url": "https://github.com/akucheruk-vareger"
-    },
-    {
-      "name": "Alexander Sakhaev",
-      "url": "https://github.com/alsakhaev"
-    },
-    {
-      "name": "Anatolii Kucheruk",
-      "url": "https://github.com/anatollix"
-    },
-    {
-      "name": "Arunoda Susiripala",
-      "url": "https://github.com/arunoda"
-    },
-    {
-      "name": "chunminglu",
-      "url": "https://github.com/chunminglu"
-    },
-    {
-      "name": "Daniel Lee",
-      "url": "https://github.com/dan-lee"
-    },
-    {
-      "name": "Jean-Louis Dinh",
-      "url": "https://github.com/jldinh"
-    },
-    {
-      "name": "Jeff Wells",
-      "url": "https://github.com/jeffmwells"
-    },
-    {
-      "name": "Joe Duncan",
-      "url": "https://github.com/joeduncan"
-    },
-    {
-      "name": "Jonathan R Wickens",
-      "url": "https://github.com/jwickens"
-    },
-    {
-      "name": "Kevin Ho",
-      "url": "https://github.com/hokevins"
-    },
-    {
-      "name": "Kim Jeker",
-      "url": "https://github.com/kije"
-    },
-    {
-      "name": "Knut Sveidqvist",
-      "url": "https://github.com/knsv"
-    },
-    {
-      "name": "Levi Schuck",
-      "url": "https://github.com/LeviSchuck"
-    },
-    {
-      "name": "Lukas Klein",
-      "url": "https://github.com/lukasklein"
-    },
-    {
-      "name": "Mathieu Jouhet",
-      "url": "https://github.com/daformat"
-    },
-    {
-      "name": "Matthias Geisler",
-      "url": "https://github.com/BitPogo"
-    },
-    {
-      "name": "Moritz Schwörer",
-      "url": "https://github.com/mosch"
-    },
-    {
-      "name": "Pranab Gupta",
-      "url": "https://github.com/Pranab16"
-    },
-    {
-      "name": "Sandro",
-      "url": "https://github.com/saendu"
-    },
-    {
-      "name": "Tim Kindberg",
-      "url": "https://github.com/timkindberg"
-    },
-    {
-      "name": "Tim Suchanek",
-      "url": "https://github.com/timsuchanek"
-    },
-    {
-      "name": "Tomasz Kopacki",
-      "url": "https://github.com/tk-o"
-    },
-    {
-      "name": "tschicke-brown",
-      "url": "https://github.com/tschicke-brown"
-    }
-  ]
+	"author": "Troy Alford",
+	"bugs": "https://github.com/TroyAlford/react-jsx-parser/issues",
+	"contributors": [
+		"See https://github.com/TroyAlford/react-jsx-parser/graphs/contributors"
+	],
+	"dependencies": {
+		"acorn": "^8.12.1",
+		"acorn-jsx": "^5.3.2"
+	},
+	"description": "A React component which can parse JSX and output rendered React Components",
+	"devDependencies": {
+		"@happy-dom/global-registrator": "^14.12.3",
+		"@types/acorn": "^4.0.6",
+		"@types/bun": "^1.1.6",
+		"@typescript-eslint/eslint-plugin": "^7.15.0",
+		"@typescript-eslint/parser": "^7.15.0",
+		"basis": "TroyAlford/basis",
+		"concurrently": "^8.2.2",
+		"cross-env": "^7.0.3",
+		"eslint": "^8.57.0",
+		"eslint-config-airbnb": "^19.0.4",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-jsx-a11y": "^6.9.0",
+		"eslint-plugin-react": "^7.34.3",
+		"mkdirp": "^3.0.1",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"typescript": "^5.5.3"
+	},
+	"engines": {
+		"bun": "^1.1.27"
+	},
+	"files": [
+		"dist/"
+	],
+	"keywords": [
+		"react",
+		"jsx"
+	],
+	"license": "MIT",
+	"main": "dist/react-jsx-parser.min.js",
+	"name": "react-jsx-parser",
+	"optionalDependencies": {
+		"@types/react": "^18.3.3",
+		"@types/react-dom": "^18.3.0"
+	},
+	"patchedDependencies": {
+		"acorn-jsx@5.3.2": "patches/acorn-jsx@5.3.2.patch"
+	},
+	"peerDependencies": {
+		"react": ">=18",
+		"react-dom": ">=18"
+	},
+	"repository": "TroyAlford/react-jsx-parser",
+	"scripts": {
+		"build": "bun build:types && bun build:code",
+		"build:code": "bun build --target=browser --outfile=./dist/react-jsx-parser.min.js ./source/index.ts",
+		"build:types": "bun run tsc -p ./tsconfig.json -d --emitDeclarationOnly",
+		"develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"bun build:code --watch\" \"bun build:types --watch\" \"bun serve\"",
+		"lint": "bun eslint --ext .js,.ts,.tsx source/",
+		"prebuild": "mkdirp ./dist && rm -rf ./dist/*",
+		"serve": "bun serve --port=8080 --open",
+		"test": "bun lint && bun test"
+	},
+	"types": "dist/index.d.ts",
+	"version": "2.0.0-beta.0"
 }
