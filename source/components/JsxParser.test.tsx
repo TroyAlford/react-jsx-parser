@@ -584,7 +584,7 @@ describe('JsxParser Component', () => {
 		test('allows no-whitespace-element named custom components to take whitespace', () => {
 			// eslint-disable-next-line react/prop-types
 			const tr = ({ children }) => <div className="tr">{children}</div>
-			const { node } = render(<JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />)
+			const { node } = render(<JsxParser components={{ tr }} jsx='<tr> <a href="/url">Text</a> </tr>' />)
 			expect(node.childNodes[0].nodeName).toEqual('DIV')
 			expect(node.childNodes[0].childNodes).toHaveLength(3)
 
@@ -694,7 +694,7 @@ describe('JsxParser Component', () => {
 			expect(instance.ParsedChildren[0].props.shouldBeFalse).toBe(false)
 		})
 		test('parses bound object values', () => {
-			const { instance } = render(<JsxParser components={{ Custom }} jsx={'<Custom obj={{ foo: "bar", bar: "foo" }} />'} />)
+			const { instance } = render(<JsxParser components={{ Custom }} jsx='<Custom obj={{ foo: "bar", bar: "foo" }} />' />)
 
 			expect(instance.ParsedChildren).toHaveLength(1)
 			expect(instance.ParsedChildren[0].props.obj).toEqual({ foo: 'bar', bar: 'foo' })
@@ -849,7 +849,7 @@ describe('JsxParser Component', () => {
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate inequality comparison', () => {
-			const { instance } = render(<JsxParser jsx={'<span testProp={1 != "1"} />'} />)
+			const { instance } = render(<JsxParser jsx='<span testProp={1 != "1"} />' />)
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate strict equality comparison', () => {
@@ -857,7 +857,7 @@ describe('JsxParser Component', () => {
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(true)
 		})
 		test('can evaluate strict inequality comparison', () => {
-			const { instance } = render(<JsxParser jsx={'<span testProp={1 !== "1"} />'} />)
+			const { instance } = render(<JsxParser jsx='<span testProp={1 !== "1"} />' />)
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(true)
 		})
 		test('can execute unary plus operations', () => {
@@ -871,27 +871,27 @@ describe('JsxParser Component', () => {
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(-60)
 		})
 		test('can execute unary NOT operations', () => {
-			const { node, instance } = render(<JsxParser jsx={'<span testProp={!60}>{ !false && "Yes" }</span>'} />)
+			const { node, instance } = render(<JsxParser jsx='<span testProp={!60}>{ !false && "Yes" }</span>' />)
 			expect(node.childNodes[0].textContent).toEqual('Yes')
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate > operator', () => {
-			const { node, instance } = render(<JsxParser jsx={'<span testProp={1 > 2}>{1 > 2 || "Nope"}</span>'} />)
+			const { node, instance } = render(<JsxParser jsx='<span testProp={1 > 2}>{1 > 2 || "Nope"}</span>' />)
 			expect(node.childNodes[0].textContent).toEqual('Nope')
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate >= operator', () => {
-			const { node, instance } = render(<JsxParser jsx={'<span testProp={1 >= 2}>{1 >= 2 || "Nope"}</span>'} />)
+			const { node, instance } = render(<JsxParser jsx='<span testProp={1 >= 2}>{1 >= 2 || "Nope"}</span>' />)
 			expect(node.childNodes[0].textContent).toEqual('Nope')
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
 		})
 		test('can evaluate < operator', () => {
-			const { node, instance } = render(<JsxParser jsx={'<span testProp={1 < 2}>{2 < 1 || "Nope"}</span>'} />)
+			const { node, instance } = render(<JsxParser jsx='<span testProp={1 < 2}>{2 < 1 || "Nope"}</span>' />)
 			expect(node.childNodes[0].textContent).toEqual('Nope')
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(true)
 		})
 		test('can evaluate <= operator', () => {
-			const { node, instance } = render(<JsxParser jsx={'<span testProp={1 <= 2}>{2 <= 1 || "Nope"}</span>'} />)
+			const { node, instance } = render(<JsxParser jsx='<span testProp={1 <= 2}>{2 <= 1 || "Nope"}</span>' />)
 			expect(node.childNodes[0].textContent).toEqual('Nope')
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(true)
 		})
@@ -1062,7 +1062,7 @@ describe('JsxParser Component', () => {
 		test('void-element named custom components to take children', () => {
 			// eslint-disable-next-line react/prop-types
 			const link = ({ to, children }) => (<a href={to}>{children}</a>)
-			const { node } = render(<JsxParser components={{ link }} jsx={'<link to="/url">Text</link>'} />)
+			const { node } = render(<JsxParser components={{ link }} jsx='<link to="/url">Text</link>' />)
 			expect(node.childNodes[0].nodeName).toEqual('A')
 			expect(node.childNodes[0].textContent).toEqual('Text')
 		})
@@ -1103,9 +1103,9 @@ describe('JsxParser Component', () => {
 	test.skip('throws on non-simple literal and global object instance methods', () => {
 		// Some of these would normally fail silently, set `onError` forces throw for assertion purposes
 		expect(() => render(<JsxParser jsx="{ window.scrollTo() }" onError={e => { throw e }} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ (() => { window.location = "badsite" })() }'} onError={e => { throw e }} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ document.querySelector("body") }'} onError={e => { throw e }} />)).toThrow()
-		expect(() => render(<JsxParser jsx={'{ document.createElement("script") }'} onError={e => { throw e }} />)).toThrow()
+		expect(() => render(<JsxParser jsx='{ (() => { window.location = "badsite" })() }' onError={e => { throw e }} />)).toThrow()
+		expect(() => render(<JsxParser jsx='{ document.querySelector("body") }' onError={e => { throw e }} />)).toThrow()
+		expect(() => render(<JsxParser jsx='{ document.createElement("script") }' onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx="{ [1, 2, 3].filter(num => num === 2) }" />)).toThrow()
 		expect(() => render(<JsxParser jsx="{ [1, 2, 3].map(num => num * 2) }" />)).toThrow()
 		expect(() => render(<JsxParser jsx="{ [1, 2, 3].reduce((a, b) => a + b) }" />)).toThrow()

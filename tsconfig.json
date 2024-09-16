@@ -19,6 +19,8 @@
 		"noUnusedParameters": true,
 		"outDir": "./dist",
 		"rootDir": "./source",
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
 		"target": "ESNext",
@@ -35,7 +37,7 @@
 		"source/**/*.tsx"
 	],
 	"exclude": [
-		"./node_modules",
+		"node_modules",
 		"test",
 		"**/*.js",
 		"**/*.test.*"

@@ -1,0 +1,25 @@
+{
+	"tasks": [
+		{
+			"command": "asdf install && bun install",
+			"group": {
+				"isDefault": true,
+				"kind": "build"
+			},
+			"isBackground": true,
+			"label": "Setup Project",
+			"presentation": {
+				"echo": false,
+				"focus": false,
+				"panel": "dedicated",
+				"reveal": "never"
+			},
+			"problemMatcher": [],
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"type": "shell"
+		}
+	],
+	"version": "2.0.0"
+}
