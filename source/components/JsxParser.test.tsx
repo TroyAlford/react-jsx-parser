@@ -958,6 +958,24 @@ describe('JsxParser Component', () => {
 				expect(node.childNodes[0].textContent).toEqual(bindings.array[bindings.index].of)
 				expect(instance.ParsedChildren[0].props.foo).toEqual(bindings.array[bindings.index].of)
 			})
+			it('can evaluate a[b]', () => {
+				const { node } = render(
+					<JsxParser
+						bindings={{ items: { 0: 'hello', 1: 'world' }, arr: [0, 1] }}
+						jsx="{items[arr[0]]}"
+					/>,
+				)
+				expect(node.innerHTML).toMatch('hello')
+			})
+			it('handles optional chaining', () => {
+				const { node } = render(
+					<JsxParser
+						bindings={{ foo: { bar: 'baz' }, baz: undefined }}
+						jsx="{foo?.bar} {baz?.bar}"
+					/>,
+				)
+				expect(node.innerHTML).toMatch('baz')
+			})
 			/* eslint-enable dot-notation,no-useless-concat */
 		})
 	})
@@ -1263,6 +1281,16 @@ describe('JsxParser Component', () => {
 				/>,
 			)
 			expect(node.outerHTML).toEqual('<p>from-container</p>')
+		})
+
+		it('supports math with scope', () => {
+			const { node } = render(<JsxParser jsx="[1, 2, 3].map(num => num * 2)" />)
+			expect(node.innerHTML).toEqual('246')
+		})
+
+		it('supports conditional with scope', () => {
+			const { node } = render(<JsxParser jsx="[1, 2, 3].map(num == 1 || num == 3 ? num : -1)" />)
+			expect(node.innerHTML).toEqual('1-13')
 		})
 	})
 })

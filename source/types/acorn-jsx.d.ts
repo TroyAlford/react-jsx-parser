@@ -122,9 +122,10 @@ declare module 'acorn-jsx' {
 	export interface MemberExpression extends BaseExpression {
 		type: 'MemberExpression';
 		computed: boolean;
+		optional: boolean;
 		name?: string;
-		object: Literal | MemberExpression;
-		property?: MemberExpression;
+		object: Expression;
+		property: Expression;
 		raw?: string;
 	}
 

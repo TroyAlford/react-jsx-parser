@@ -94,27 +94,29 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'ArrayExpression':
 				return expression.elements.map(ele => this.#parseExpression(ele, scope)) as ParsedTree
 			case 'BinaryExpression':
+				const binaryLeft = this.#parseExpression(expression.left, scope)
+				const binaryRight = this.#parseExpression(expression.right, scope)
 				/* eslint-disable eqeqeq,max-len */
 				switch (expression.operator) {
-					case '-': return this.#parseExpression(expression.left) - this.#parseExpression(expression.right)
-					case '!=': return this.#parseExpression(expression.left) != this.#parseExpression(expression.right)
-					case '!==': return this.#parseExpression(expression.left) !== this.#parseExpression(expression.right)
-					case '*': return this.#parseExpression(expression.left) * this.#parseExpression(expression.right)
-					case '**': return this.#parseExpression(expression.left) ** this.#parseExpression(expression.right)
-					case '/': return this.#parseExpression(expression.left) / this.#parseExpression(expression.right)
-					case '%': return this.#parseExpression(expression.left) % this.#parseExpression(expression.right)
-					case '+': return this.#parseExpression(expression.left) + this.#parseExpression(expression.right)
-					case '<': return this.#parseExpression(expression.left) < this.#parseExpression(expression.right)
-					case '<=': return this.#parseExpression(expression.left) <= this.#parseExpression(expression.right)
-					case '==': return this.#parseExpression(expression.left) == this.#parseExpression(expression.right)
-					case '===': return this.#parseExpression(expression.left) === this.#parseExpression(expression.right)
-					case '>': return this.#parseExpression(expression.left) > this.#parseExpression(expression.right)
-					case '>=': return this.#parseExpression(expression.left) >= this.#parseExpression(expression.right)
+					case '-': return binaryLeft - binaryRight
+					case '!=': return binaryLeft != binaryRight
+					case '!==': return binaryLeft !== binaryRight
+					case '*': return binaryLeft * binaryRight
+					case '**': return binaryLeft ** binaryRight
+					case '/': return binaryLeft / binaryRight
+					case '%': return binaryLeft % binaryRight
+					case '+': return binaryLeft + binaryRight
+					case '<': return binaryLeft < binaryRight
+					case '<=': return binaryLeft <= binaryRight
+					case '==': return binaryLeft == binaryRight
+					case '===': return binaryLeft === binaryRight
+					case '>': return binaryLeft > binaryRight
+					case '>=': return binaryLeft >= binaryRight
 					/* eslint-enable eqeqeq,max-len */
 				}
 				return undefined
 			case 'CallExpression':
-				const parsedCallee = this.#parseExpression(expression.callee)
+				const parsedCallee = this.#parseExpression(expression.callee, scope)
 				if (parsedCallee === undefined) {
 					this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
 					return undefined
@@ -123,11 +125,11 @@ export default class JsxParser extends React.Component<TProps> {
 					arg => this.#parseExpression(arg, expression.callee),
 				))
 			case 'ConditionalExpression':
-				return this.#parseExpression(expression.test)
-					? this.#parseExpression(expression.consequent)
-					: this.#parseExpression(expression.alternate)
+				return this.#parseExpression(expression.test, scope)
+					? this.#parseExpression(expression.consequent, scope)
+					: this.#parseExpression(expression.alternate, scope)
 			case 'ExpressionStatement':
-				return this.#parseExpression(expression.expression)
+				return this.#parseExpression(expression.expression, scope)
 			case 'Identifier':
 				if (scope && expression.name in scope) {
 					return scope[expression.name]
@@ -137,10 +139,10 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'Literal':
 				return expression.value
 			case 'LogicalExpression':
-				const left = this.#parseExpression(expression.left)
+				const left = this.#parseExpression(expression.left, scope)
 				if (expression.operator === '||' && left) return left
 				if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
-					return this.#parseExpression(expression.right)
+					return this.#parseExpression(expression.right, scope)
 				}
 				return false
 			case 'MemberExpression':
@@ -148,7 +150,7 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'ObjectExpression':
 				const object: Record<string, any> = {}
 				expression.properties.forEach(prop => {
-					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value)
+					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value, scope)
 				})
 				return object
 			case 'TemplateElement':
@@ -159,7 +161,7 @@ export default class JsxParser extends React.Component<TProps> {
 						if (a.start < b.start) return -1
 						return 1
 					})
-					.map(item => this.#parseExpression(item))
+					.map(item => this.#parseExpression(item, scope))
 					.join('')
 			case 'UnaryExpression':
 				switch (expression.operator) {
@@ -183,37 +185,25 @@ export default class JsxParser extends React.Component<TProps> {
 	}
 
 	#parseMemberExpression = (expression: AcornJSX.MemberExpression, scope?: Scope): any => {
-		// eslint-disable-next-line prefer-destructuring
-		let { object } = expression
-		const path = [expression.property?.name ?? JSON.parse(expression.property?.raw ?? '""')]
+		const object = this.#parseExpression(expression.object, scope)
 
-		if (expression.object.type !== 'Literal') {
-			while (object && ['MemberExpression', 'Literal'].includes(object?.type)) {
-				const { property } = (object as AcornJSX.MemberExpression)
-				if ((object as AcornJSX.MemberExpression).computed) {
-					path.unshift(this.#parseExpression(property!, scope))
-				} else {
-					path.unshift(property?.name ?? JSON.parse(property?.raw ?? '""'))
-				}
-
-				object = (object as AcornJSX.MemberExpression).object
-			}
+		let property
+		if (expression.computed) {
+			property = this.#parseExpression(expression.property, scope)
+		} else if (expression.property.type === 'Identifier') {
+			property = expression.property.name
+		} else {
+			this.props.onError!(new Error('Only simple MemberExpressions are supported.'))
+			return undefined
 		}
 
-		const target = this.#parseExpression(object, scope)
-		try {
-			let parent = target
-			const member = path.reduce((value, next) => {
-				parent = value
-				return value[next]
-			}, target)
-			if (typeof member === 'function') return member.bind(parent)
-
-			return member
-		} catch {
-			const name = (object as AcornJSX.MemberExpression)?.name || 'unknown'
-			this.props.onError!(new Error(`Unable to parse ${name}["${path.join('"]["')}"]}`))
+		if (expression.optional) {
+			if (object === null || object === undefined) return undefined
 		}
+
+		const member = object[property]
+		if (typeof member === 'function') return member.bind(object)
+		return member
 	}
 
 	#parseName = (element: AcornJSX.JSXIdentifier | AcornJSX.JSXMemberExpression): string => {
