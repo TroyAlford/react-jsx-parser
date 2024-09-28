@@ -29,6 +29,13 @@ export type TProps = {
 }
 type Scope = Record<string, any>
 
+class NullishShortCircuit extends Error {
+	constructor(message = 'Nullish value encountered') {
+		super(message)
+		this.name = 'NullishShortCircuit'
+	}
+}
+
 /* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
@@ -118,6 +125,9 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'CallExpression':
 				const parsedCallee = this.#parseExpression(expression.callee, scope)
 				if (parsedCallee === undefined) {
+					if (expression.optional) {
+						throw new NullishShortCircuit()
+					}
 					this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
 					return undefined
 				}
@@ -147,6 +157,8 @@ export default class JsxParser extends React.Component<TProps> {
 				return false
 			case 'MemberExpression':
 				return this.#parseMemberExpression(expression, scope)
+			case 'ChainExpression':
+				return this.#parseChainExpression(expression, scope)
 			case 'ObjectExpression':
 				const object: Record<string, any> = {}
 				expression.properties.forEach(prop => {
@@ -181,6 +193,18 @@ export default class JsxParser extends React.Component<TProps> {
 					})
 					return this.#parseExpression(expression.body, functionScope)
 				}
+			default:
+				this.props.onError!(new Error(`The expression type '${expression.type}' is not supported.`))
+				return undefined
+		}
+	}
+
+	#parseChainExpression = (expression: AcornJSX.ChainExpression, scope?: Scope): any => {
+		try {
+			return this.#parseExpression(expression.expression, scope)
+		} catch (error) {
+			if (error instanceof NullishShortCircuit) return undefined
+			throw error
 		}
 	}
 
@@ -188,6 +212,7 @@ export default class JsxParser extends React.Component<TProps> {
 		const object = this.#parseExpression(expression.object, scope)
 
 		let property
+
 		if (expression.computed) {
 			property = this.#parseExpression(expression.property, scope)
 		} else if (expression.property.type === 'Identifier') {
@@ -197,11 +222,17 @@ export default class JsxParser extends React.Component<TProps> {
 			return undefined
 		}
 
-		if (expression.optional) {
-			if (object === null || object === undefined) return undefined
+		if (object === null || object === undefined) {
+			if (expression.optional) throw new NullishShortCircuit()
 		}
 
-		const member = object[property]
+		let member
+		try {
+			member = object[property]
+		} catch (error) {
+			this.props.onError!(new Error(`The property '${property}' could not be resolved on the object '${object}'.`))
+			return undefined
+		}
 		if (typeof member === 'function') return member.bind(object)
 		return member
 	}

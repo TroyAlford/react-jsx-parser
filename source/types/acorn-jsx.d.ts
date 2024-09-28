@@ -88,6 +88,7 @@ declare module 'acorn-jsx' {
 		type: 'CallExpression';
 		arguments: Expression[];
 		callee: Expression;
+		optional: boolean;
 	}
 
 	export interface ConditionalExpression extends BaseExpression {
@@ -126,7 +127,11 @@ declare module 'acorn-jsx' {
 		name?: string;
 		object: Expression;
 		property: Expression;
-		raw?: string;
+	}
+
+	export interface ChainExpression extends BaseExpression {
+		type: 'ChainExpression';
+		expression: MemberExpression | CallExpression;
 	}
 
 	export interface ObjectExpression extends BaseExpression {
@@ -156,9 +161,9 @@ declare module 'acorn-jsx' {
 
 	export type Expression =
 		JSXAttribute | JSXAttributeExpression | JSXElement | JSXExpressionContainer |
-		JSXSpreadAttribute | JSXFragment | JSXText |
+		JSXSpreadAttribute | JSXFragment | JSXText | ChainExpression | MemberExpression |
 		ArrayExpression | BinaryExpression | CallExpression | ConditionalExpression |
-		ExpressionStatement | Identifier | Literal | LogicalExpression | MemberExpression |
+		ExpressionStatement | Identifier | Literal | LogicalExpression |
 		ObjectExpression | TemplateElement | TemplateLiteral | UnaryExpression |
 		ArrowFunctionExpression
 

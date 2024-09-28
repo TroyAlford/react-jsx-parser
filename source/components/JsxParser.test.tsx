@@ -976,6 +976,24 @@ describe('JsxParser Component', () => {
 				)
 				expect(node.innerHTML).toMatch('baz')
 			})
+			it('optional short-cut', () => {
+				const { node } = render(
+					<JsxParser
+						bindings={{ foo: { bar: { baz: 'baz' } }, foo2: undefined }}
+						jsx="{foo?.bar.baz} {foo2?.bar.baz}"
+					/>,
+				)
+				expect(node.innerHTML).toMatch('baz')
+			})
+			it('optional function call', () => {
+				const { node } = render(
+					<JsxParser
+						bindings={{ foo: { bar: () => 'baz' }, foo2: undefined }}
+						jsx="{foo?.bar()} {foo2?.bar()}"
+					/>,
+				)
+				expect(node.innerHTML).toMatch('baz')
+			})
 			/* eslint-enable dot-notation,no-useless-concat */
 		})
 	})
@@ -1284,12 +1302,12 @@ describe('JsxParser Component', () => {
 		})
 
 		it('supports math with scope', () => {
-			const { node } = render(<JsxParser jsx="[1, 2, 3].map(num => num * 2)" />)
+			const { node } = render(<JsxParser jsx="{[1, 2, 3].map(num => num * 2)}" />)
 			expect(node.innerHTML).toEqual('246')
 		})
 
 		it('supports conditional with scope', () => {
-			const { node } = render(<JsxParser jsx="[1, 2, 3].map(num == 1 || num == 3 ? num : -1)" />)
+			const { node } = render(<JsxParser jsx="{[1, 2, 3].map(num => num == 1 || num == 3 ? num : -1)}" />)
 			expect(node.innerHTML).toEqual('1-13')
 		})
 	})
