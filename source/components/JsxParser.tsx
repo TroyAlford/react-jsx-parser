@@ -6,6 +6,7 @@ import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
+import { NullishShortCircuit } from '../errors/NullishShortCircuit'
 
 type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
@@ -29,14 +30,6 @@ export type TProps = {
 }
 type Scope = Record<string, any>
 
-class NullishShortCircuit extends Error {
-	constructor(message = 'Nullish value encountered') {
-		super(message)
-		this.name = 'NullishShortCircuit'
-	}
-}
-
-/* eslint-disable consistent-return */
 export default class JsxParser extends React.Component<TProps> {
 	static displayName = 'JsxParser'
 	static defaultProps: TProps = {
@@ -103,10 +96,9 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'BinaryExpression':
 				const binaryLeft = this.#parseExpression(expression.left, scope)
 				const binaryRight = this.#parseExpression(expression.right, scope)
-				/* eslint-disable eqeqeq,max-len */
 				switch (expression.operator) {
 					case '-': return binaryLeft - binaryRight
-					case '!=': return binaryLeft != binaryRight
+					case '!=': return binaryLeft != binaryRight // eslint-disable-line eqeqeq
 					case '!==': return binaryLeft !== binaryRight
 					case '*': return binaryLeft * binaryRight
 					case '**': return binaryLeft ** binaryRight
@@ -115,11 +107,10 @@ export default class JsxParser extends React.Component<TProps> {
 					case '+': return binaryLeft + binaryRight
 					case '<': return binaryLeft < binaryRight
 					case '<=': return binaryLeft <= binaryRight
-					case '==': return binaryLeft == binaryRight
+					case '==': return binaryLeft == binaryRight // eslint-disable-line eqeqeq
 					case '===': return binaryLeft === binaryRight
 					case '>': return binaryLeft > binaryRight
 					case '>=': return binaryLeft >= binaryRight
-					/* eslint-enable eqeqeq,max-len */
 				}
 				return undefined
 			case 'CallExpression':
