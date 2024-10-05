@@ -1,12 +1,16 @@
 import * as Acorn from 'acorn'
 import * as AcornJSX from 'acorn-jsx'
-import React, { Fragment, ComponentType, ExoticComponent } from 'react'
+import React, { ComponentType, ExoticComponent, Fragment } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
+import { NullishShortCircuit } from '../errors/NullishShortCircuit'
 import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
-import { NullishShortCircuit } from '../errors/NullishShortCircuit'
+
+function handleNaN<T>(child: T): T | 'NaN' {
+	return Number.isNaN(child) ? 'NaN' : child
+}
 
 type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
@@ -96,23 +100,27 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'BinaryExpression':
 				const binaryLeft = this.#parseExpression(expression.left, scope)
 				const binaryRight = this.#parseExpression(expression.right, scope)
+				let binaryResult
 				switch (expression.operator) {
-					case '-': return binaryLeft - binaryRight
-					case '!=': return binaryLeft != binaryRight // eslint-disable-line eqeqeq
-					case '!==': return binaryLeft !== binaryRight
-					case '*': return binaryLeft * binaryRight
-					case '**': return binaryLeft ** binaryRight
-					case '/': return binaryLeft / binaryRight
-					case '%': return binaryLeft % binaryRight
-					case '+': return binaryLeft + binaryRight
-					case '<': return binaryLeft < binaryRight
-					case '<=': return binaryLeft <= binaryRight
-					case '==': return binaryLeft == binaryRight // eslint-disable-line eqeqeq
-					case '===': return binaryLeft === binaryRight
-					case '>': return binaryLeft > binaryRight
-					case '>=': return binaryLeft >= binaryRight
+					case '-': binaryResult = binaryLeft - binaryRight; break
+					case '!=': binaryResult = binaryLeft != binaryRight; break // eslint-disable-line eqeqeq
+					case '!==': binaryResult = binaryLeft !== binaryRight; break
+					case '*': binaryResult = binaryLeft * binaryRight; break
+					case '**': binaryResult = binaryLeft ** binaryRight; break
+					case '/': binaryResult = binaryLeft / binaryRight; break
+					case '%': binaryResult = binaryLeft % binaryRight; break
+					case '+': binaryResult = binaryLeft + binaryRight; break
+					case '<': binaryResult = binaryLeft < binaryRight; break
+					case '<=': binaryResult = binaryLeft <= binaryRight; break
+					case '==': binaryResult = binaryLeft == binaryRight; break // eslint-disable-line eqeqeq
+					case '===': binaryResult = binaryLeft === binaryRight; break
+					case '>': binaryResult = binaryLeft > binaryRight; break
+					case '>=': binaryResult = binaryLeft >= binaryRight; break
+					default:
+						this.props.onError!(new Error(`Unsupported binary operator: ${expression.operator}`))
+						return undefined
 				}
-				return undefined
+				return handleNaN(binaryResult)
 			case 'CallExpression':
 				const parsedCallee = this.#parseExpression(expression.callee, scope)
 				if (parsedCallee === undefined) {
@@ -132,11 +140,13 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'ExpressionStatement':
 				return this.#parseExpression(expression.expression, scope)
 			case 'Identifier':
+				if (expression.name === 'Infinity') return Infinity
+				if (expression.name === '-Infinity') return -Infinity
+				if (expression.name === 'NaN') return NaN
 				if (scope && expression.name in scope) {
-					return scope[expression.name]
+					return handleNaN(scope[expression.name])
 				}
-				return (this.props.bindings || {})[expression.name]
-
+				return handleNaN((this.props.bindings || {})[expression.name])
 			case 'Literal':
 				return expression.value
 			case 'LogicalExpression':
@@ -167,10 +177,14 @@ export default class JsxParser extends React.Component<TProps> {
 					.map(item => this.#parseExpression(item, scope))
 					.join('')
 			case 'UnaryExpression':
+				const unaryValue = this.#parseExpression(
+					expression.argument as AcornJSX.Expression,
+					scope,
+				)
 				switch (expression.operator) {
-					case '+': return expression.argument.value
-					case '-': return -expression.argument.value
-					case '!': return !expression.argument.value
+					case '+': return +unaryValue
+					case '-': return -unaryValue
+					case '!': return !unaryValue
 				}
 				return undefined
 			case 'ArrowFunctionExpression':

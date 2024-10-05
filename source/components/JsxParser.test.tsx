@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable function-paren-newline, no-console, no-underscore-dangle, no-useless-escape */
-import React from 'react'
 import { render } from 'basis/libraries/react/testing/render'
+import React from 'react'
 import JsxParser from './JsxParser'
 
 function Custom({ children = [], className, text }) {
@@ -844,22 +844,6 @@ describe('JsxParser Component', () => {
 			const { instance } = render(<JsxParser jsx="<span testProp={27 % 14} />" />)
 			expect(instance.ParsedChildren[0].props.testProp).toEqual(13)
 		})
-		test('can evaluate equality comparison', () => {
-			const { instance } = render(<JsxParser jsx="<span testProp={1 == 2} />" />)
-			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
-		})
-		test('can evaluate inequality comparison', () => {
-			const { instance } = render(<JsxParser jsx='<span testProp={1 != "1"} />' />)
-			expect(instance.ParsedChildren[0].props.testProp).toEqual(false)
-		})
-		test('can evaluate strict equality comparison', () => {
-			const { instance } = render(<JsxParser jsx="<span testProp={1 === 1} />" />)
-			expect(instance.ParsedChildren[0].props.testProp).toEqual(true)
-		})
-		test('can evaluate strict inequality comparison', () => {
-			const { instance } = render(<JsxParser jsx='<span testProp={1 !== "1"} />' />)
-			expect(instance.ParsedChildren[0].props.testProp).toEqual(true)
-		})
 		test('can execute unary plus operations', () => {
 			const { node, instance } = render(<JsxParser jsx="<span testProp={+60}>{ +75 }</span>" />)
 			expect(node.childNodes[0].textContent).toEqual('75')
@@ -1135,17 +1119,12 @@ describe('JsxParser Component', () => {
 		})
 	})
 
-	/* TODO: Fix for React 18+: we still eject the script correctly, but onError is not thrown. */
-	test.skip('throws on non-simple literal and global object instance methods', () => {
+	test('throws on non-simple literal and global object instance methods', () => {
 		// Some of these would normally fail silently, set `onError` forces throw for assertion purposes
 		expect(() => render(<JsxParser jsx="{ window.scrollTo() }" onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx='{ (() => { window.location = "badsite" })() }' onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx='{ document.querySelector("body") }' onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx='{ document.createElement("script") }' onError={e => { throw e }} />)).toThrow()
-		expect(() => render(<JsxParser jsx="{ [1, 2, 3].filter(num => num === 2) }" />)).toThrow()
-		expect(() => render(<JsxParser jsx="{ [1, 2, 3].map(num => num * 2) }" />)).toThrow()
-		expect(() => render(<JsxParser jsx="{ [1, 2, 3].reduce((a, b) => a + b) }" />)).toThrow()
-		expect(() => render(<JsxParser jsx="{ [1, 2, 3].find(num => num === 2) }" />)).toThrow()
 	})
 	test('supports className prop', () => {
 		const { node } = render(<JsxParser className="foo" jsx="Text" />)
@@ -1310,5 +1289,126 @@ describe('JsxParser Component', () => {
 			const { node } = render(<JsxParser jsx="{[1, 2, 3].map(num => num == 1 || num == 3 ? num : -1)}" />)
 			expect(node.innerHTML).toEqual('1-13')
 		})
+	})
+
+	describe('conditional operators', () => {
+		const testCases = [
+			// Equality (==)
+			['1 == "1"', true],
+			['1 == 1', true],
+			['0 == false', true],
+			['"" == false', true],
+			['null == undefined', true],
+			['NaN == NaN', false],
+
+			// Strict Equality (===)
+			['1 === 1', true],
+			['1 === "1"', false],
+			['null === undefined', false],
+			['NaN === NaN', false],
+
+			// Inequality (!=)
+			['1 != 2', true],
+			['1 != "1"', false],
+			['null != undefined', false],
+			['NaN != NaN', true],
+
+			// Strict Inequality (!==)
+			['1 !== "1"', true],
+			['1 !== 1', false],
+			['null !== undefined', true],
+			['NaN !== NaN', true],
+
+			// Greater Than (>)
+			['2 > 1', true],
+			['1 > 1', false],
+			['Infinity > 1', true],
+			['1 > -Infinity', true],
+			['NaN > 1', false],
+			['1 > NaN', false],
+
+			// Greater Than or Equal (>=)
+			['2 >= 2', true],
+			['2 >= 1', true],
+			['1 >= 2', false],
+			['Infinity >= Infinity', true],
+			['NaN >= NaN', false],
+
+			// Less Than (<)
+			['1 < 2', true],
+			['1 < 1', false],
+			['-Infinity < 1', true],
+			['1 < Infinity', true],
+			['NaN < 1', false],
+			['1 < NaN', false],
+
+			// Less Than or Equal (<=)
+			['2 <= 2', true],
+			['1 <= 2', true],
+			['2 <= 1', false],
+			['-Infinity <= -Infinity', true],
+			['NaN <= NaN', false],
+		]
+
+		test.each(testCases)('should evaluate %s = %p correctly', (expression, expected) => {
+			const { instance } = render(<JsxParser jsx={`<span data-foo={${expression}} />`} />)
+			expect(instance.ParsedChildren[0].props['data-foo']).toEqual(expected)
+		})
+	})
+
+	describe('mathematical operations', () => {
+		const testCases = [
+			['1 + 2', '3'],
+			['2 - 1', '1'],
+			['2 * 3', '6'],
+			['6 / 2', '3'],
+			['2 ** 4', '16'],
+			['27 % 14', '13'],
+			['Infinity + 1', 'Infinity'],
+			['Infinity - Infinity', 'NaN'],
+			['1 / 0', 'Infinity'],
+			['0 / 0', 'NaN'],
+		]
+
+		test.each(testCases)('should evaluate %s correctly', (operation, expected) => {
+			const { node } = render(<JsxParser jsx={`{${operation}}`} />)
+			expect(node.innerHTML).toEqual(expected)
+		})
+	})
+
+	describe('unary operations', () => {
+		const testCases = [
+			['+60', 60],
+			['-60', -60],
+			['!true', false],
+			['!false', true],
+			['!0', true],
+			['!1', false],
+			['!null', true],
+			['!undefined', true],
+			['!NaN', true],
+			['!""', true],
+			['!{}', false],
+			['![]', false],
+			['+true', 1],
+			['+false', 0],
+			['+null', 0],
+			['+undefined', NaN],
+			['+""', 0],
+			['+"123"', 123],
+			['+"-123"', -123],
+		]
+
+		test.each(testCases)(
+			'should evaluate unary %s correctly',
+			({ operation, expected }) => {
+				const { instance } = render(<JsxParser jsx={`{${operation}}`} />)
+				if (Number.isNaN(expected)) {
+					expect(Number.isNaN(instance.ParsedChildren[0])).toBe(true)
+				} else {
+					expect(instance.ParsedChildren[0]).toEqual(expected)
+				}
+			},
+		)
 	})
 })
