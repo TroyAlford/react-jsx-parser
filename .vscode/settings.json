@@ -1,0 +1,10 @@
+{
+	"eslint.format.enable": true,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always",
+		"source.fixAll.eslint": "always",
+		"source.fixAll.tslint": "always",
+		"source.fixAll.ts": "always",
+	},
+	"files.insertFinalNewline": true
+}
