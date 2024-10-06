@@ -16,7 +16,7 @@
 		"@typescript-eslint/eslint-plugin": "^7.15.0",
 		"@typescript-eslint/parser": "^7.15.0",
 		"basis": "TroyAlford/basis",
-		"concurrently": "^8.2.2",
+		"concurrently": "^9.0.0",
 		"cross-env": "^7.0.3",
 		"eslint": "^8.57.0",
 		"eslint-config-airbnb": "^19.0.4",
