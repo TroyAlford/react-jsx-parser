@@ -148,9 +148,7 @@
     "@types/estree" "*"
 
 "@types/bun@^1.1.6":
-  version "1.1.9"
-  resolved "https://registry.npmjs.org/@types/bun/-/bun-1.1.9.tgz"
-  integrity sha512-SXJRejXpmAc3qxyN/YS4/JGWEzLf4dDBa5fLtRDipQXHqNccuMU4EUYCooXNTsylG0DmwFQsGgEDHxZF+3DqRw==
+  version "1.1.12"
   dependencies:
     bun-types "1.1.27"
 
