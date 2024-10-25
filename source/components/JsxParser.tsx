@@ -131,7 +131,7 @@ export default class JsxParser extends React.Component<TProps> {
 					return undefined
 				}
 				return parsedCallee(...expression.arguments.map(
-					arg => this.#parseExpression(arg, expression.callee),
+					arg => this.#parseExpression(arg, scope),
 				))
 			case 'ConditionalExpression':
 				return this.#parseExpression(expression.test, scope)
