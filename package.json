@@ -15,7 +15,7 @@
 		"@types/bun": "^1.1.6",
 		"@typescript-eslint/eslint-plugin": "^7.15.0",
 		"@typescript-eslint/parser": "^7.15.0",
-		"basis": "TroyAlford/basis",
+		"basis": "github:TroyAlford/basis#v1.1.0",
 		"concurrently": "^8.2.2",
 		"cross-env": "^7.0.3",
 		"eslint": "^8.57.0",
@@ -55,7 +55,7 @@
 	"repository": "TroyAlford/react-jsx-parser",
 	"scripts": {
 		"build": "bun build:types && bun build:code",
-		"build:code": "bun build --target=browser --outfile=./dist/react-jsx-parser.min.js ./source/index.ts",
+		"build:code": "bun build --target=browser --outfile=./dist/react-jsx-parser.min.js ./source/index.ts --external react --external react-dom",
 		"build:types": "bun run tsc -p ./tsconfig.json -d --emitDeclarationOnly",
 		"develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"bun build:code --watch\" \"bun build:types --watch\" \"bun serve\"",
 		"lint": "bun eslint --ext .js,.ts,.tsx source/",

@@ -1,6 +1,6 @@
 import * as Acorn from 'acorn'
 import * as AcornJSX from 'acorn-jsx'
-import React, { ComponentType, ExoticComponent, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import ATTRIBUTES from '../constants/attributeNames'
 import { canHaveChildren, canHaveWhitespace } from '../constants/specialTags'
 import { NullishShortCircuit } from '../errors/NullishShortCircuit'
@@ -14,24 +14,74 @@ function handleNaN<T>(child: T): T | 'NaN' {
 
 type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
+
+/**
+ * Props for the JsxParser component
+ */
 export type TProps = {
+	/** Whether to allow rendering of unrecognized HTML elements. Defaults to true. */
 	allowUnknownElements?: boolean,
+
+	/**
+	 * Whether to auto-close void elements like <img>, <br>, <hr> etc. in HTML style.
+	 * Defaults to false.
+	 */
 	autoCloseVoidElements?: boolean,
+
+	/** Object containing values that can be referenced in the JSX string */
 	bindings?: { [key: string]: unknown; },
+
+	/**
+	 * Array of attribute names or RegExp patterns to blacklist.
+	 * By default removes 'on*' attributes
+	 */
 	blacklistedAttrs?: Array<string | RegExp>,
+
+	/**
+	 * Array of HTML tag names to blacklist.
+	 * By default removes 'script' tags
+	 */
 	blacklistedTags?: string[],
+
+	/** CSS class name(s) to add to the wrapper div */
 	className?: string,
-	components?: Record<string, ComponentType | ExoticComponent>,
+
+	/** Map of component names to their React component definitions */
+	components?: Record<
+		string,
+		| React.ComponentType // allows for class components
+		| React.ExoticComponent // allows for forwardRef
+		| (() => React.ReactNode) // allows for function components
+	>,
+
+	/** If true, only renders custom components defined in the components prop */
 	componentsOnly?: boolean,
+
+	/** If true, disables usage of React.Fragment. May affect whitespace handling */
 	disableFragments?: boolean,
+
+	/** If true, disables automatic generation of key props */
 	disableKeyGeneration?: boolean,
+
+	/** The JSX string to parse and render */
 	jsx?: string,
+
+	/** Callback function when parsing/rendering errors occur */
 	onError?: (error: Error) => void,
+
+	/** If true, shows parsing/rendering warnings in console */
 	showWarnings?: boolean,
+
+	/** Custom error renderer function */
 	renderError?: (props: { error: string }) => React.ReactNode | null,
+
+	/** Whether to wrap output in a div. If false, renders children directly */
 	renderInWrapper?: boolean,
+
+	/** Custom renderer for unrecognized elements */
 	renderUnrecognized?: (tagName: string) => React.ReactNode | null,
 }
+
 type Scope = Record<string, any>
 
 export default class JsxParser extends React.Component<TProps> {
@@ -55,8 +105,14 @@ export default class JsxParser extends React.Component<TProps> {
 		renderUnrecognized: () => null,
 	}
 
+	/** Stores the parsed React elements */
 	private ParsedChildren: ParsedTree = null
 
+	/**
+	 * Parses a JSX string into React elements
+	 * @param jsx - The JSX string to parse
+	 * @returns The parsed React node(s) or null if parsing fails
+	 */
 	#parseJSX = (jsx: string): React.ReactNode | React.ReactNode[] | null => {
 		const parser = Acorn.Parser.extend(AcornJSX.default({
 			autoCloseVoidElements: this.props.autoCloseVoidElements,
@@ -80,6 +136,12 @@ export default class JsxParser extends React.Component<TProps> {
 		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 	}
 
+	/**
+	 * Parses a single JSX expression into its corresponding value/element
+	 * @param expression - The JSX expression to parse
+	 * @param scope - Optional scope for variable resolution
+	 * @returns The parsed value/element
+	 */
 	#parseExpression = (expression: AcornJSX.Expression, scope?: Scope): any => {
 		switch (expression.type) {
 			case 'JSXAttribute':
@@ -204,6 +266,12 @@ export default class JsxParser extends React.Component<TProps> {
 		}
 	}
 
+	/**
+	 * Parses a chain expression (optional chaining)
+	 * @param expression - The chain expression to parse
+	 * @param scope - Optional scope for variable resolution
+	 * @returns The parsed value
+	 */
 	#parseChainExpression = (expression: AcornJSX.ChainExpression, scope?: Scope): any => {
 		try {
 			return this.#parseExpression(expression.expression, scope)
@@ -213,6 +281,12 @@ export default class JsxParser extends React.Component<TProps> {
 		}
 	}
 
+	/**
+	 * Parses a member expression (e.g., obj.prop or obj['prop'])
+	 * @param expression - The member expression to parse
+	 * @param scope - Optional scope for variable resolution
+	 * @returns The resolved member value
+	 */
 	#parseMemberExpression = (expression: AcornJSX.MemberExpression, scope?: Scope): any => {
 		const object = this.#parseExpression(expression.object, scope)
 
@@ -242,11 +316,22 @@ export default class JsxParser extends React.Component<TProps> {
 		return member
 	}
 
+	/**
+	 * Parses a JSX element name (simple or member expression)
+	 * @param element - The JSX identifier or member expression
+	 * @returns The parsed element name as a string
+	 */
 	#parseName = (element: AcornJSX.JSXIdentifier | AcornJSX.JSXMemberExpression): string => {
 		if (element.type === 'JSXIdentifier') { return element.name }
 		return `${this.#parseName(element.object)}.${this.#parseName(element.property)}`
 	}
 
+	/**
+	 * Parses a JSX element into React elements
+	 * @param element - The JSX element to parse
+	 * @param scope - Optional scope for variable resolution
+	 * @returns The parsed React node(s) or null
+	 */
 	#parseElement = (
 		element: AcornJSX.JSXElement | AcornJSX.JSXFragment,
 		scope?: Scope,
@@ -357,6 +442,10 @@ export default class JsxParser extends React.Component<TProps> {
 		return React.createElement(component || lowerName, props, children)
 	}
 
+	/**
+	 * Renders the parsed JSX content
+	 * @returns The rendered React elements wrapped in a div (if renderInWrapper is true)
+	 */
 	render() {
 		const jsx = (this.props.jsx || '').trim().replace(/<!DOCTYPE([^>]*)>/g, '')
 		this.ParsedChildren = this.#parseJSX(jsx)
