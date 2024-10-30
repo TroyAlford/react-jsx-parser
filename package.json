@@ -56,11 +56,11 @@
 	"scripts": {
 		"build": "bun build:types && bun build:code",
 		"build:code": "bun build --target=browser --outfile=./dist/react-jsx-parser.min.js ./source/index.ts --external react --external react-dom",
-		"build:types": "bun run tsc -p ./tsconfig.json -d --emitDeclarationOnly",
+		"build:types": "bun run tsc -p ./tsconfig.json -d --emitDeclarationOnly --preserveWatchOutput",
 		"develop": "NODE_ENV=production concurrently -n build,ts,demo -c green,cyan,yellow \"bun build:code --watch\" \"bun build:types --watch\" \"bun serve\"",
 		"lint": "bun eslint --ext .js,.ts,.tsx source/",
 		"prebuild": "mkdirp ./dist && rm -rf ./dist/*",
-		"serve": "bun serve --port=8080 --open",
+		"serve": "bun ./demo/server.ts",
 		"test": "bun lint && bun test"
 	},
 	"types": "dist/index.d.ts",
