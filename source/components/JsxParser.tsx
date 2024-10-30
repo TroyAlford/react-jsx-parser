@@ -308,7 +308,7 @@ export default class JsxParser extends React.Component<TProps> {
 		let member
 		try {
 			member = object[property]
-		} catch (error) {
+		} catch {
 			this.props.onError!(new Error(`The property '${property}' could not be resolved on the object '${object}'.`))
 			return undefined
 		}
