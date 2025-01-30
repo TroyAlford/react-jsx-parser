@@ -347,10 +347,10 @@ describe('JsxParser Component', () => {
 					components={{ Custom }}
 					jsx={
 						'<Custom className="outer" text="outerText">'
-            + '<Custom className="inner" text="innerText">'
-            + '<div>Non-Custom</div>'
-            + '</Custom>'
-            + '</Custom>'
+						+ '<Custom className="inner" text="innerText">'
+						+ '<div>Non-Custom</div>'
+						+ '</Custom>'
+						+ '</Custom>'
 					}
 				/>,
 			)
@@ -459,8 +459,8 @@ describe('JsxParser Component', () => {
 				<JsxParser
 					jsx={
 						'<div>Before</div>'
-            + '<script src="http://example.com/test.js"></script>'
-            + '<div>After</div>'
+						+ '<script src="http://example.com/test.js"></script>'
+						+ '<div>After</div>'
 					}
 				/>,
 			)
@@ -475,7 +475,7 @@ describe('JsxParser Component', () => {
 				<JsxParser
 					jsx={
 						'<div onClick="handleClick()">first</div>'
-            + '<div onChange="handleChange()">second</div>'
+						+ '<div onChange="handleChange()">second</div>'
 					}
 				/>,
 			)
@@ -495,7 +495,7 @@ describe('JsxParser Component', () => {
 					blacklistedAttrs={['foo', 'prefixed[a-z]*']}
 					jsx={
 						'<div foo="bar" prefixedFoo="foo" prefixedBar="bar">first</div>'
-            + '<Foo>second</Foo>'
+						+ '<Foo>second</Foo>'
 					}
 				/>,
 			)
@@ -516,13 +516,13 @@ describe('JsxParser Component', () => {
 					components={{ Simple }}
 					componentsOnly
 					jsx={`
-            <h1>Ignored</h1>
-            <Simple text="Parent">
-              <Simple text="Child">
-                <h2>Ignored</h2>
-              </Simple>
-            </Simple>
-          `}
+						<h1>Ignored</h1>
+						<Simple text="Parent">
+							<Simple text="Child">
+								<h2>Ignored</h2>
+							</Simple>
+						</Simple>
+					`}
 				/>,
 			)
 			expect(node.querySelector('h1')).toBeNull()
@@ -1111,10 +1111,10 @@ describe('JsxParser Component', () => {
 
 			expect(node.innerHTML.replace(/[\n\t]+/g, '')).toMatch(
 				'<div>' +
-					'<div><p>Number: 1</p></div>' +
-					'<div><p>Number: 2</p></div>' +
-					'<div>Fury<p>Megeara</p></div>' +
-					'<div>Anger<p>Alecto</p></div>' +
+				'<div><p>Number: 1</p></div>' +
+				'<div><p>Number: 2</p></div>' +
+				'<div>Fury<p>Megeara</p></div>' +
+				'<div>Anger<p>Alecto</p></div>' +
 				'</div>',
 			)
 		})
@@ -1127,6 +1127,64 @@ describe('JsxParser Component', () => {
 		it('supports conditional with scope', () => {
 			const { node } = render(<JsxParser jsx="{[1, 2, 3].map(num => num == 1 || num == 3 ? num : -1)}" />)
 			expect(node.innerHTML).toEqual('1-13')
+		})
+	})
+
+	describe('render props pattern', () => {
+		test('handles components with children as a function', () => {
+			function Component({ children, id, name }) {
+				return children({ id, name })
+			}
+
+			const { node } = render(
+				<JsxParser
+					components={{ Component }}
+					jsx={`
+						<Component id="test-id" name="Test Name">
+							{data => <div id={data.id}>{data.name}</div>}
+						</Component>
+					`}
+				/>,
+			)
+
+			expect(node.innerHTML).toMatch('<div id="test-id">Test Name</div>')
+		})
+
+		test('handles nested render props with shared context', () => {
+			function Outer({ children, id, name }) {
+				return children({ id, name })
+			}
+
+			function Inner({ children, id, name }) {
+				return children({ id, name })
+			}
+
+			const { node } = render(
+				<JsxParser
+					components={{ Outer, Inner }}
+					showWarnings
+					onError={error => console.error('JsxParser error:', error)}
+					jsx={`
+						<Outer id="outer-id" name="Outer Name">
+							{outer => <>
+							  <h1>Outer ({outer.id}): {outer.name}</h1>
+							  <Inner id="inner-id" name={outer.name}>
+								  {inner => <>
+										<h2>Inner ({inner.id}): {inner.name}</h2>
+										<div>{outer.id} &gt; {outer.name}</div>
+									</>}
+							  </Inner>
+							</>}
+						</Outer>
+					`}
+				/>,
+			)
+
+			expect(node.innerHTML.trim().replace(/\s{2,}/g, ' ')).toMatch(`
+				<h1>Outer (outer-id): Outer Name</h1>
+				<h2>Inner (inner-id): Outer Name</h2>
+				<div>outer-id &gt; Outer Name</div>
+			`.trim().replace(/\s{2,}/g, ' '))
 		})
 	})
 })

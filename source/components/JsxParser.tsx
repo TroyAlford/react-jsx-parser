@@ -193,7 +193,7 @@ export default class JsxParser extends React.Component<TProps> {
 					return undefined
 				}
 				return parsedCallee(...expression.arguments.map(
-					arg => this.#parseExpression(arg, expression.callee),
+					arg => this.#parseExpression(arg, scope),
 				))
 			case 'ConditionalExpression':
 				return this.#parseExpression(expression.test, scope)
@@ -254,7 +254,7 @@ export default class JsxParser extends React.Component<TProps> {
 					this.props.onError?.(new Error('Async and generator arrow functions are not supported.'))
 				}
 				return (...args: any[]): any => {
-					const functionScope: Record<string, any> = {}
+					const functionScope: Record<string, any> = { ...scope }
 					expression.params.forEach((param, idx) => {
 						functionScope[param.name] = args[idx]
 					})
@@ -385,8 +385,11 @@ export default class JsxParser extends React.Component<TProps> {
 				))
 			}
 
+			const childFn = children.find(child => typeof child === 'function')
 			if (children.length === 0) {
 				children = undefined
+			} else if (childFn) {
+				children = childFn
 			} else if (children.length === 1) {
 				[children] = children
 			} else if (children.length > 1 && !this.props.disableKeyGeneration) {
