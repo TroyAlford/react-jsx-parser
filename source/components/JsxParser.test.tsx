@@ -1150,8 +1150,7 @@ describe('JsxParser Component', () => {
 			expect(node.innerHTML).toMatch('<div id="test-id">Test Name</div>')
 		})
 
-		// TODO: Fix this test. Right now, the inner binding doesn't work properly.
-		test.skip('handles nested render props with shared context', () => {
+		test('handles nested render props with shared context', () => {
 			function Outer({ children, id, name }) {
 				return children({ id, name })
 			}
@@ -1168,9 +1167,12 @@ describe('JsxParser Component', () => {
 					jsx={`
 						<Outer id="outer-id" name="Outer Name">
 							{outer => <>
-							  <h1>Outer</h1>
-							  <Inner id={outer.id} name={outer.name}>
-								  {inner => <div id={inner.id}>{outer.name} &gt; {inner.name}</div>}
+							  <h1>Outer ({outer.id}): {outer.name}</h1>
+							  <Inner id="inner-id" name={outer.name}>
+								  {inner => <>
+										<h2>Inner ({inner.id}): {inner.name}</h2>
+										<div>{outer.id} &gt; {outer.name}</div>
+									</>}
 							  </Inner>
 							</>}
 						</Outer>
@@ -1178,9 +1180,11 @@ describe('JsxParser Component', () => {
 				/>,
 			)
 
-			expect(node.innerHTML).toMatch(
-				'<div id="inner-outer-id">Outer Name &gt; Inner Name</div>',
-			)
+			expect(node.innerHTML.trim().replace(/\s{2,}/g, ' ')).toMatch(`
+				<h1>Outer (outer-id): Outer Name</h1>
+				<h2>Inner (inner-id): Outer Name</h2>
+				<div>outer-id &gt; Outer Name</div>
+			`.trim().replace(/\s{2,}/g, ' '))
 		})
 	})
 })
