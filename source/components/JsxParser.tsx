@@ -385,8 +385,11 @@ export default class JsxParser extends React.Component<TProps> {
 				))
 			}
 
+			const childFn = children.find(child => typeof child === 'function')
 			if (children.length === 0) {
 				children = undefined
+			} else if (childFn) {
+				children = childFn
 			} else if (children.length === 1) {
 				[children] = children
 			} else if (children.length > 1 && !this.props.disableKeyGeneration) {
