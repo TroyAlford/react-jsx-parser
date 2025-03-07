@@ -373,12 +373,20 @@ export default class JsxParser extends React.Component<TProps> {
 		}
 
 		let children
-		const component = element.type === 'JSXElement'
+		let component = element.type === 'JSXElement'
 			? resolvePath(components, name)
 			: Fragment
 
 		if (component || canHaveChildren(name)) {
 			children = childNodes.map(node => this.#parseExpression(node, scope))
+			if (name.includes('.')) {
+				const nameParts = name.split('.')
+				const componentPath = nameParts
+					.reduce((acc: any, part) => (acc ? acc[part] : components?.[part]), null)
+				if (componentPath) {
+					component = componentPath
+				}
+			}
 			if (!component && !canHaveWhitespace(name)) {
 				children = children.filter(child => (
 					typeof child !== 'string' || !/^\s*$/.test(child)
