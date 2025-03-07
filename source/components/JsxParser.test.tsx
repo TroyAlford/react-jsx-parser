@@ -450,6 +450,31 @@ describe('JsxParser Component', () => {
 			const { root } = render(<JsxParser jsx="<h1>Foo</h1><hr />" renderInWrapper={false} />)
 			expect(root.innerHTML).toEqual('<h1>Foo</h1><hr>')
 		})
+
+		test('resolves nested components through dot notation', () => {
+			const Nested = {
+				Button: ({ children, className }) => <button className={className} type="button">{children}</button>,
+				Div: ({ children, className }) => <div className={className}>{children}</div>,
+			}
+			const { node } = render(
+				<JsxParser
+					components={{ Nested }}
+					jsx={`
+						<Nested.Button className="inner">Click Me</Nested.Button>
+						<Nested.Div className="outer"/>
+					`}
+				/>,
+			)
+
+			const elementNodes = Array.from(node.childNodes).filter(n => n.nodeType === Node.ELEMENT_NODE)
+			expect(elementNodes).toHaveLength(2)
+			const [button, div] = elementNodes
+			expect(button.nodeName).toEqual('BUTTON')
+			expect(button.className).toEqual('inner')
+			expect(button.textContent).toEqual('Click Me')
+			expect(div.nodeName).toEqual('DIV')
+			expect(div.className).toEqual('outer')
+		})
 	})
 
 	// Rewritten 'blacklisting & whitelisting' suite
