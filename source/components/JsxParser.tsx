@@ -247,7 +247,9 @@ export default class JsxParser extends React.Component<TProps> {
 					case '+': return +unaryValue
 					case '-': return -unaryValue
 					case '!': return !unaryValue
+					case 'typeof': return typeof unaryValue
 				}
+				this.props.onError!(new Error(`Unsupported unary operator: ${expression.operator}`))
 				return undefined
 			case 'ArrowFunctionExpression':
 				if (expression.async || expression.generator) {
