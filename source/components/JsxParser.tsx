@@ -133,7 +133,16 @@ export default class JsxParser extends React.Component<TProps> {
 			return null
 		}
 
-		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
+		try {
+			return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
+		} catch (error) {
+			if (this.props.showWarnings) console.warn(error) // eslint-disable-line no-console
+			if (this.props.onError) this.props.onError(error as Error)
+			if (this.props.renderError) {
+				return this.props.renderError({ error: String(error) })
+			}
+			throw error
+		}
 	}
 
 	/**
