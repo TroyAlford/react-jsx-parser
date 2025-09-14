@@ -15,72 +15,76 @@ function handleNaN<T>(child: T): T | 'NaN' {
 type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 
+// To make `ComponentType` recursive, you should use mapping type instead of `Record`
+type ComponentsType = {
+  [k: string]:
+    | React.ComponentType // allows for class components
+    | React.ExoticComponent // allows for forwardRef
+    | (() => React.ReactNode) // allows for function components
+    | ComponentsType; // allows for custom elements with dot notation (ex.: <Library.Component />)
+};
+
 /**
  * Props for the JsxParser component
  */
 export type TProps = {
-	/** Whether to allow rendering of unrecognized HTML elements. Defaults to true. */
-	allowUnknownElements?: boolean,
+  /** Whether to allow rendering of unrecognized HTML elements. Defaults to true. */
+  allowUnknownElements?: boolean;
 
-	/**
-	 * Whether to auto-close void elements like <img>, <br>, <hr> etc. in HTML style.
-	 * Defaults to false.
-	 */
-	autoCloseVoidElements?: boolean,
+  /**
+   * Whether to auto-close void elements like <img>, <br>, <hr> etc. in HTML style.
+   * Defaults to false.
+   */
+  autoCloseVoidElements?: boolean;
 
-	/** Object containing values that can be referenced in the JSX string */
-	bindings?: { [key: string]: unknown; },
+  /** Object containing values that can be referenced in the JSX string */
+  bindings?: { [key: string]: unknown };
 
-	/**
-	 * Array of attribute names or RegExp patterns to blacklist.
-	 * By default removes 'on*' attributes
-	 */
-	blacklistedAttrs?: Array<string | RegExp>,
+  /**
+   * Array of attribute names or RegExp patterns to blacklist.
+   * By default removes 'on*' attributes
+   */
+  blacklistedAttrs?: Array<string | RegExp>;
 
-	/**
-	 * Array of HTML tag names to blacklist.
-	 * By default removes 'script' tags
-	 */
-	blacklistedTags?: string[],
+  /**
+   * Array of HTML tag names to blacklist.
+   * By default removes 'script' tags
+   */
+  blacklistedTags?: string[];
 
-	/** CSS class name(s) to add to the wrapper div */
-	className?: string,
+  /** CSS class name(s) to add to the wrapper div */
+  className?: string;
 
-	/** Map of component names to their React component definitions */
-	components?: Record<
-		string,
-		| React.ComponentType // allows for class components
-		| React.ExoticComponent // allows for forwardRef
-		| (() => React.ReactNode) // allows for function components
-	>,
+  /** Map of component names to their React component definitions */
+  components?: ComponentsType;
 
-	/** If true, only renders custom components defined in the components prop */
-	componentsOnly?: boolean,
+  /** If true, only renders custom components defined in the components prop */
+  componentsOnly?: boolean;
 
-	/** If true, disables usage of React.Fragment. May affect whitespace handling */
-	disableFragments?: boolean,
+  /** If true, disables usage of React.Fragment. May affect whitespace handling */
+  disableFragments?: boolean;
 
-	/** If true, disables automatic generation of key props */
-	disableKeyGeneration?: boolean,
+  /** If true, disables automatic generation of key props */
+  disableKeyGeneration?: boolean;
 
-	/** The JSX string to parse and render */
-	jsx?: string,
+  /** The JSX string to parse and render */
+  jsx?: string;
 
-	/** Callback function when parsing/rendering errors occur */
-	onError?: (error: Error) => void,
+  /** Callback function when parsing/rendering errors occur */
+  onError?: (error: Error) => void;
 
-	/** If true, shows parsing/rendering warnings in console */
-	showWarnings?: boolean,
+  /** If true, shows parsing/rendering warnings in console */
+  showWarnings?: boolean;
 
-	/** Custom error renderer function */
-	renderError?: (props: { error: string }) => React.ReactNode | null,
+  /** Custom error renderer function */
+  renderError?: (props: { error: string }) => React.ReactNode | null;
 
-	/** Whether to wrap output in a div. If false, renders children directly */
-	renderInWrapper?: boolean,
+  /** Whether to wrap output in a div. If false, renders children directly */
+  renderInWrapper?: boolean;
 
-	/** Custom renderer for unrecognized elements */
-	renderUnrecognized?: (tagName: string) => React.ReactNode | null,
-}
+  /** Custom renderer for unrecognized elements */
+  renderUnrecognized?: (tagName: string) => React.ReactNode | null;
+};
 
 type Scope = Record<string, any>
 
