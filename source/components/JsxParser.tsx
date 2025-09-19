@@ -15,6 +15,14 @@ function handleNaN<T>(child: T): T | 'NaN' {
 type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 
+type ComponentType =
+	| React.ComponentType // allows for class components
+	| React.ExoticComponent // allows for forwardRef
+	| (() => React.ReactNode) // allows for function components
+type ComponentsType =
+	| ComponentType
+	| Record<string, ComponentType>
+
 /**
  * Props for the JsxParser component
  */
@@ -47,12 +55,7 @@ export type TProps = {
 	className?: string,
 
 	/** Map of component names to their React component definitions */
-	components?: Record<
-		string,
-		| React.ComponentType // allows for class components
-		| React.ExoticComponent // allows for forwardRef
-		| (() => React.ReactNode) // allows for function components
-	>,
+	components?: Record<string, ComponentsType>,
 
 	/** If true, only renders custom components defined in the components prop */
 	componentsOnly?: boolean,
@@ -124,16 +127,13 @@ export default class JsxParser extends React.Component<TProps> {
 			parsed = parser.parse(wrappedJsx, { ecmaVersion: 'latest' })
 			// @ts-ignore - AcornJsx doesn't have typescript typings
 			parsed = parsed.body[0].expression.children || []
+			return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 		} catch (error) {
 			if (this.props.showWarnings) console.warn(error) // eslint-disable-line no-console
 			if (this.props.onError) this.props.onError(error as Error)
-			if (this.props.renderError) {
-				return this.props.renderError({ error: String(error) })
-			}
+			if (this.props.renderError) return this.props.renderError({ error: String(error) })
 			return null
 		}
-
-		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 	}
 
 	/**
@@ -247,6 +247,8 @@ export default class JsxParser extends React.Component<TProps> {
 					case '+': return +unaryValue
 					case '-': return -unaryValue
 					case '!': return !unaryValue
+					case '~': return ~unaryValue // eslint-disable-line no-bitwise
+					case 'typeof': return typeof unaryValue
 				}
 				return undefined
 			case 'ArrowFunctionExpression':
