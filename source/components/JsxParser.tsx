@@ -127,16 +127,13 @@ export default class JsxParser extends React.Component<TProps> {
 			parsed = parser.parse(wrappedJsx, { ecmaVersion: 'latest' })
 			// @ts-ignore - AcornJsx doesn't have typescript typings
 			parsed = parsed.body[0].expression.children || []
+			return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 		} catch (error) {
 			if (this.props.showWarnings) console.warn(error) // eslint-disable-line no-console
 			if (this.props.onError) this.props.onError(error as Error)
-			if (this.props.renderError) {
-				return this.props.renderError({ error: String(error) })
-			}
+			if (this.props.renderError) return this.props.renderError({ error: String(error) })
 			return null
 		}
-
-		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
 	}
 
 	/**

@@ -114,7 +114,7 @@ describe('JsxParser Component', () => {
 		})
 	})
 
-	describe.only('unary operations', () => {
+	describe('unary operations', () => {
 		const testCases = [
 			['-60', -60],
 			['!""', true],
@@ -1045,6 +1045,19 @@ describe('JsxParser Component', () => {
 		expect(() => render(<JsxParser jsx='{ document.querySelector("body") }' onError={e => { throw e }} />)).toThrow()
 		expect(() => render(<JsxParser jsx='{ document.createElement("script") }' onError={e => { throw e }} />)).toThrow()
 	})
+
+	test('renderError catches errors', () => {
+		const renderError = jest.fn((...args) => console.error(...args))
+		render(
+			<JsxParser
+				bindings={{ badFn() { throw new Error('Test error') } }}
+				jsx="<div>{badFn()}</div>"
+				renderError={renderError}
+			/>,
+		)
+		expect(renderError).toHaveBeenCalledWith({ error: 'Error: Test error' })
+	})
+
 	test('supports className prop', () => {
 		const { node } = render(<JsxParser className="foo" jsx="Text" />)
 		expect(node.classList.contains('foo')).toBeTruthy()
