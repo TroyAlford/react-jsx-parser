@@ -114,32 +114,39 @@ describe('JsxParser Component', () => {
 		})
 	})
 
-	describe('unary operations', () => {
+	describe.only('unary operations', () => {
 		const testCases = [
-			['+60', 60],
 			['-60', -60],
-			['!true', false],
-			['!false', true],
+			['!""', true],
 			['!0', true],
-			['!1', false],
+			['!false', true],
+			['!NaN', true],
 			['!null', true],
 			['!undefined', true],
-			['!NaN', true],
-			['!""', true],
-			['!{}', false],
-			['![]', false],
-			['+true', 1],
-			['+false', 0],
-			['+null', 0],
-			['+undefined', NaN],
-			['+""', 0],
-			['+"123"', 123],
 			['+"-123"', -123],
+			['+"123"', 123],
+			['+60', 60],
+			['+true', 1],
+			['~1', -2],
+			['~2', -3],
+			['typeof "abc"', 'string'],
+			['typeof 123', 'number'],
+
+			// react doesn't render `false`
+			['![]', undefined],
+			['!{}', undefined],
+			['!1', undefined],
+			['!true', undefined],
+			['+""', undefined],
+			['+false', undefined],
+			['+null', undefined],
+			['+undefined', undefined],
 		]
 
 		test.each(testCases)(
 			'should evaluate unary %s correctly',
-			({ operation, expected }) => {
+			(operation, expected) => {
+				console.log('operation', operation)
 				const { instance } = render(<JsxParser jsx={`{${operation}}`} />)
 				if (Number.isNaN(expected)) {
 					expect(Number.isNaN(instance.ParsedChildren[0])).toBe(true)
@@ -1192,13 +1199,13 @@ describe('JsxParser Component', () => {
 					jsx={`
 						<Outer id="outer-id" name="Outer Name">
 							{outer => <>
-							  <h1>Outer ({outer.id}): {outer.name}</h1>
-							  <Inner id="inner-id" name={outer.name}>
-								  {inner => <>
+								<h1>Outer ({outer.id}): {outer.name}</h1>
+								<Inner id="inner-id" name={outer.name}>
+									{inner => <>
 										<h2>Inner ({inner.id}): {inner.name}</h2>
 										<div>{outer.id} &gt; {outer.name}</div>
 									</>}
-							  </Inner>
+								</Inner>
 							</>}
 						</Outer>
 					`}

@@ -250,6 +250,8 @@ export default class JsxParser extends React.Component<TProps> {
 					case '+': return +unaryValue
 					case '-': return -unaryValue
 					case '!': return !unaryValue
+					case '~': return ~unaryValue // eslint-disable-line no-bitwise
+					case 'typeof': return typeof unaryValue
 				}
 				return undefined
 			case 'ArrowFunctionExpression':
