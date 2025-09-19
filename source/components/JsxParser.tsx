@@ -15,6 +15,14 @@ function handleNaN<T>(child: T): T | 'NaN' {
 type ParsedJSX = React.ReactNode | boolean | string
 type ParsedTree = ParsedJSX | ParsedJSX[] | null
 
+type ComponentType =
+	| React.ComponentType // allows for class components
+	| React.ExoticComponent // allows for forwardRef
+	| (() => React.ReactNode) // allows for function components
+type ComponentsType =
+	| ComponentType
+	| Record<string, ComponentType>
+
 /**
  * Props for the JsxParser component
  */
@@ -47,12 +55,7 @@ export type TProps = {
 	className?: string,
 
 	/** Map of component names to their React component definitions */
-	components?: Record<
-		string,
-		| React.ComponentType // allows for class components
-		| React.ExoticComponent // allows for forwardRef
-		| (() => React.ReactNode) // allows for function components
-	>,
+	components?: Record<string, ComponentsType>,
 
 	/** If true, only renders custom components defined in the components prop */
 	componentsOnly?: boolean,
