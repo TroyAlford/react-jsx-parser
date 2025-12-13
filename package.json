@@ -18,7 +18,7 @@
 		"basis": "github:TroyAlford/basis#v1.1.0",
 		"concurrently": "^9.0.1",
 		"cross-env": "^7.0.3",
-		"eslint": "8.57.1",
+		"eslint": "9.39.2",
 		"eslint-config-airbnb": "^19.0.4",
 		"eslint-plugin-import": "2.31.0",
 		"eslint-plugin-jsx-a11y": "^6.9.0",
