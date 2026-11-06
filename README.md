@@ -48,6 +48,7 @@ Finally, a note about property bindings. The `JsxParser` can handle several type
  - expression-binding, such as `calc={1 + 1}`
  - named-value binding, such as `eventHandler={myEventHandler}` (note that this requires a match in `bindings`)
  - simple [single statement arrow expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#basic_syntax) `(item) => <p>{item.name}</p>`
+ - [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) in array literals, object literals and call arguments, such as `[...items, last]`, `{ ...defaults, size: 2 }` and `format(...args)`
 
 The component **_does not_** support inline function declarations, such as:
  - `onClick={function (event) { /* do stuff */ }}`, or

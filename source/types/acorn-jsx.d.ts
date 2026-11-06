@@ -72,9 +72,14 @@ declare module 'acorn-jsx' {
 		value: string;
 	}
 
+	export interface SpreadElement extends BaseExpression {
+		type: 'SpreadElement';
+		argument: Expression;
+	}
+
 	export interface ArrayExpression extends BaseExpression {
 		type: 'ArrayExpression';
-		elements: Expression[];
+		elements: (Expression | SpreadElement)[];
 	}
 
 	export interface BinaryExpression extends BaseExpression {
@@ -86,7 +91,7 @@ declare module 'acorn-jsx' {
 
 	export interface CallExpression extends BaseExpression {
 		type: 'CallExpression';
-		arguments: Expression[];
+		arguments: (Expression | SpreadElement)[];
 		callee: Expression;
 		optional: boolean;
 	}
@@ -134,12 +139,15 @@ declare module 'acorn-jsx' {
 		expression: MemberExpression | CallExpression;
 	}
 
+	export interface Property extends BaseExpression {
+		type: 'Property';
+		key: { name?: string; value?: string };
+		value: Expression;
+	}
+
 	export interface ObjectExpression extends BaseExpression {
 		type: 'ObjectExpression';
-		properties: [{
-			key: { name?: string; value?: string },
-			value: Expression;
-		}]
+		properties: (Property | SpreadElement)[];
 	}
 
 	export interface TemplateElement extends BaseExpression {

@@ -1175,6 +1175,85 @@ describe('JsxParser Component', () => {
 		})
 	})
 
+	describe('spread syntax', () => {
+		function Json({ value }) {
+			return <span>{JSON.stringify(value)}</span>
+		}
+
+		test.each([
+			['[0, ...items, 4]', [0, 1, 2, 3, 4]],
+			['[...items, ...items]', [1, 2, 3, 1, 2, 3]],
+			['[1, ...(flag ? [2] : []), 3]', [1, 2, 3]],
+			['[1, ...(!flag ? [2] : []), 3]', [1, 3]],
+			['[..."ab"]', ['a', 'b']],
+			['[...[]]', []],
+		])('should expand array spread %s', (jsx, expected) => {
+			const onError = jest.fn()
+			const { instance } = render(
+				<JsxParser bindings={{ flag: true, items: [1, 2, 3] }} jsx={`{${jsx}}`} onError={onError} />,
+			)
+			expect(instance.ParsedChildren[0]).toEqual(expected)
+			expect(onError).not.toHaveBeenCalled()
+		})
+
+		it('expands spread arguments of a call', () => {
+			const onError = jest.fn()
+			const { node } = render(
+				<JsxParser
+					bindings={{
+						items: [1, 2, 3],
+						sum: (...values) => values.reduce((total, value) => total + value, 0),
+					}}
+					jsx="{sum(...items)}|{sum(10, ...items, 100)}"
+					onError={onError}
+				/>,
+			)
+			expect(node.innerHTML).toEqual('6|116')
+			expect(onError).not.toHaveBeenCalled()
+		})
+
+		it('expands object spread in order', () => {
+			const onError = jest.fn()
+			const { node } = render(
+				<JsxParser
+					bindings={{ base: { a: 1, b: 2 }, missing: undefined }}
+					components={{ Json }}
+					jsx={'<Json value={{ ...base, b: 3, c: 4 }} />'
+						+ '<Json value={{ b: 3, ...base }} />'
+						+ '<Json value={{ ...missing, a: 5 }} />'}
+					onError={onError}
+				/>,
+			)
+			expect(node.innerHTML).toEqual(
+				'<span>{"a":1,"b":3,"c":4}</span>'
+				+ '<span>{"b":2,"a":1}</span>'
+				+ '<span>{"a":5}</span>',
+			)
+			expect(onError).not.toHaveBeenCalled()
+		})
+
+		it('expands spread inside arrow functions', () => {
+			const { node } = render(
+				<JsxParser
+					bindings={{ items: [1, 2], suffix: ['x', 'y'] }}
+					jsx="{items.map(item => [item, ...suffix].join('-')).join(',')}"
+				/>,
+			)
+			expect(node.innerHTML).toEqual('1-x-y,2-x-y')
+		})
+
+		it('reports a spread argument that is not iterable and skips it', () => {
+			const onError = jest.fn()
+			const { instance } = render(
+				<JsxParser bindings={{ count: 5 }} jsx="{[1, ...missing, ...count, 2]}" onError={onError} />,
+			)
+			expect(instance.ParsedChildren[0]).toEqual([1, 2])
+			expect(onError).toHaveBeenCalledTimes(2)
+			expect(onError.mock.calls[0][0].message).toEqual("The spread argument 'undefined' is not iterable.")
+			expect(onError.mock.calls[1][0].message).toEqual("The spread argument '5' is not iterable.")
+		})
+	})
+
 	describe('render props pattern', () => {
 		test('handles components with children as a function', () => {
 			function Component({ children, id, name }) {
