@@ -158,7 +158,7 @@ export default class JsxParser extends React.Component<TProps> {
 					? expression.value
 					: <Fragment key={key}>{expression.value}</Fragment>
 			case 'ArrayExpression':
-				return expression.elements.map(ele => this.#parseExpression(ele, scope)) as ParsedTree
+				return this.#parseSpreadableList(expression.elements, scope) as ParsedTree
 			case 'BinaryExpression':
 				const binaryLeft = this.#parseExpression(expression.left, scope)
 				const binaryRight = this.#parseExpression(expression.right, scope)
@@ -192,9 +192,7 @@ export default class JsxParser extends React.Component<TProps> {
 					this.props.onError!(new Error(`The expression '${expression.callee}' could not be resolved, resulting in an undefined return value.`))
 					return undefined
 				}
-				return parsedCallee(...expression.arguments.map(
-					arg => this.#parseExpression(arg, scope),
-				))
+				return parsedCallee(...this.#parseSpreadableList(expression.arguments, scope))
 			case 'ConditionalExpression':
 				return this.#parseExpression(expression.test, scope)
 					? this.#parseExpression(expression.consequent, scope)
@@ -225,7 +223,11 @@ export default class JsxParser extends React.Component<TProps> {
 			case 'ObjectExpression':
 				const object: Record<string, any> = {}
 				expression.properties.forEach(prop => {
-					object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value, scope)
+					if (prop.type === 'SpreadElement') {
+						Object.assign(object, this.#parseExpression(prop.argument, scope))
+					} else {
+						object[prop.key.name! || prop.key.value!] = this.#parseExpression(prop.value, scope)
+					}
 				})
 				return object
 			case 'TemplateElement':
@@ -266,6 +268,32 @@ export default class JsxParser extends React.Component<TProps> {
 				this.props.onError!(new Error(`The expression type '${expression.type}' is not supported.`))
 				return undefined
 		}
+	}
+
+	/**
+	 * Parses the elements of an array literal or the arguments of a call, expanding spread elements
+	 * @param expressions - The elements or arguments to parse
+	 * @param scope - Optional scope for variable resolution
+	 * @returns The parsed values
+	 */
+	#parseSpreadableList = (
+		expressions: (AcornJSX.Expression | AcornJSX.SpreadElement)[],
+		scope?: Scope,
+	): any[] => {
+		const values: any[] = []
+		expressions.forEach(expression => {
+			if (expression.type !== 'SpreadElement') {
+				values.push(this.#parseExpression(expression, scope))
+				return
+			}
+			const spread = this.#parseExpression(expression.argument, scope)
+			if (spread == null || typeof spread[Symbol.iterator] !== 'function') {
+				this.props.onError!(new Error(`The spread argument '${String(spread)}' is not iterable.`))
+				return
+			}
+			values.push(...spread)
+		})
+		return values
 	}
 
 	/**
